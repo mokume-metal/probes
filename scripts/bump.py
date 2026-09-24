@@ -15,7 +15,7 @@
 書き直しは別の PR にする。
 
 上げたら、Atlas は `verify.py` で測り直す (**動いた絵の理由を README へ書いてから** `--update`)。
-Probe と Drift は `swift test` を回す — 赤くなったものは直った約束である。
+Probe・Drift・Routine は `swift test` を回す — 赤くなったものは直った約束である。
 """
 
 import pathlib
@@ -74,7 +74,7 @@ def main(argv: list[str]) -> int:
     if any(pieces.has_checks(p) for p in targets):
         print("\n**期待ハッシュはまだ古いままである。** 次に `python3 scripts/verify.py` で測り、"
               "動いた絵の理由を README へ書いてから `--update` で記録を進める。")
-    print("\n**Probe と Drift は `swift test` を回す。** 赤くなったものは直った約束なので、"
+    print("\n**Probe・Drift・Routine は `swift test` を回す。** 赤くなったものは直った約束なので、"
           "`withKnownIssue` を外して README の表を書き換える。")
     return 0
 
