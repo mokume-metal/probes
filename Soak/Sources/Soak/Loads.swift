@@ -154,15 +154,20 @@ final class ModelSequence: Sketch {
     /// 1 枚の格子の分割数。頂点は (grid + 1)² = 1681、三角形は 2 × grid² = 3200。
     static let grid = 40
 
-    /// 列を書いた場所。**プロセスごとに 1 度だけ書く。**
+    /// 列を書いた場所。**名前は中身 (列の長さと格子) だけで決め、既にあるファイルは書き直さない。**
+    ///
+    /// プロセスごとに別の場所へ書くと、`swift test` のたびに 12 MB が一時領域に残る。
+    /// 中身は決まった式から作るので、同じ名前なら同じ中身である。
     static let files: [String] = {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("soak-models-\(getpid())")
+            .appendingPathComponent("soak-models-\(length)x\(grid)")
         try! FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return (0..<length).map { index in
             let url = directory.appendingPathComponent(String(format: "wave-%03d.obj", index))
-            try! obj(phase: Float(index) / Float(length) * 2 * .pi)
-                .write(to: url, atomically: true, encoding: .utf8)
+            if !FileManager.default.fileExists(atPath: url.path) {
+                try! obj(phase: Float(index) / Float(length) * 2 * .pi)
+                    .write(to: url, atomically: true, encoding: .utf8)
+            }
             return url.path
         }
     }()
