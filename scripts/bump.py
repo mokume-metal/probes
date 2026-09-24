@@ -15,7 +15,7 @@
 書き直しは別の PR にする。
 
 上げたら、Atlas は `verify.py` で測り直す (**動いた絵の理由を README へ書いてから** `--update`)。
-Probe・Drift・Routine は `swift test` を回す — 赤くなったものは直った約束である。Reach は
+Probe・Drift・Routine・Soak は `swift test` を回す — 赤くなったものは直った約束である。Reach は
 `swift test` に加えて、増えた口が穴の行を埋めていないかを見る。
 """
 
@@ -75,7 +75,7 @@ def main(argv: list[str]) -> int:
     if any(pieces.has_checks(p) for p in targets):
         print("\n**期待ハッシュはまだ古いままである。** 次に `python3 scripts/verify.py` で測り、"
               "動いた絵の理由を README へ書いてから `--update` で記録を進める。")
-    print("\n**Probe・Drift・Routine は `swift test` を回す。** 赤くなったものは直った約束なので、"
+    print("\n**Probe・Drift・Routine・Soak は `swift test` を回す。** 赤くなったものは直った約束なので、"
           "`withKnownIssue` を外して README の表を書き換える。")
     print("**Reach も `swift test` を回し、`python3 scripts/api-diff.py` で増えた口が "
           "`none` / `write` / `bend` の行を埋めていないかを見る** (Reach/README「版を上げたら」)。")

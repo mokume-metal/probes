@@ -33,8 +33,9 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 | [Drift](Drift/) | mokume `v0.11.0` の**フレームをまたぐ**継ぎ目を突いた記録。Probe と同じく**作品ではなく物差し**で、候補 1 件を同じ動きになるはずの 2 つの経路で描き、窓では左右に並べた動きで、`swift test` では `SketchRuntime` で N 枚回して画素で比べる。**6 件を突いて 6 件とも約束を破っており、mokume へ 6 件の Bug を戻した** (描き場所の時刻・噴き口どうしの繰り越し・残像への効果の焼き込み・`numbers` の寿命・低い fps の `drag`・止まっている間の変換)。1 枚目では食い違わず、フレームを重ねてはじめてずれる |
 | [Routine](Routine/) | mokume `v0.11.1` を、**作品がふつう書く書き方**で動かして突いた記録。Probe・Drift と違って**中身を読まずに**、Processing・p5 の作品が当たり前に書く組み合わせ (`setup` で決めた描き方・残像・画素の読み書き・層・脈打つ大きさ・お絵描き・押し続けるキー…) を 25 通り選び、フレームを重ねて 2 つの経路で比べる。**25 件を突いて約束の破れは 0 件**。期待と違った 3 件は説明か ADR が決めている振る舞いで、説明に無かった 1 件 (`background` の不透明度) を docs として戻した |
 | [Reach](Reach/) | Processing / p5.js で**作品を作るときにまず使う口**を百余り、リファレンスの側から並べ、1 口 1 タイルで mokume `v0.11.1` で書いた記録。**作品ではなく物差し**で、Atlas が Examples に出てくる語彙しか見ないのに対して、例に出てこない口 (角の丸い `rect`・`erase`・`cursor`・`millis` など) も測る。穴のうち、**works の作品 2 本以上が手で書いていたもの**と規範から導けるものだけを mokume へ戻した (QUADS・`lerpColor`・`fill(rgb, alpha)`・`millis`・`deltaTime` の単位・名前の棚卸し) |
+| [Soak](Soak/) | mokume `v0.11.1` を**長く回したときの資源**を突いた記録。**作品ではなく物差し**で、他の物差しが絵を比べるのに対し、1 枚ごとに増えて減らないメモリ・仕事に見合わない時間・プロセスごと落ちる口を見る。候補 1 件を同じ仕事になるはずの 2 つの経路で回し、footprint と GPU の確保量の増え方・時間の比・exit test の終わり方で比べる。**11 件の破れを見つけ、mokume へ 10 件の Bug と perf を戻し、1 件を既知の Issue ([mokume#1431](https://github.com/mokume-metal/mokume/issues/1431)) へ足した** (閉じ忘れた `beginShape`・`beginDraw` の外の描き場所・`loadModel` の控え・main を譲らない `advance()`・多角形の分割・立体の既定の線・巨大な `textSize` と数でない `textOutline`・`createShape` の中の `background`・`makeNumbers` のあふれ・`DisplayImage` の範囲外) |
 
-測り方は 3 通りある。
+測り方は 4 通りある。
 
 - **Atlas** は語彙の台帳 (`ledger/`) を持ち、`checks.json` に版の刻印を持つ。
   `python3 scripts/verify.py --check` が「道具を上げたのに測り直していない」を捕まえる。
@@ -44,6 +45,9 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 - **Reach** は届く口の一覧 (`Sources/Reach/Entries*.swift`) を持ち、`swift test` で「届くと判定した
   口が描けるか」と「README の表が一覧と揃っているか」を見る。**穴が埋まったことは赤くならない**
   ので、版上げでは `python3 scripts/api-diff.py` で増えた口を一覧と突き合わせる。
+- **Soak** は、同じ仕事になるはずの 2 つの経路を N 枚回して**資源**で比べる検査 (`Tests/`) を持つ。
+  メモリは参照との増え方の差、時間は仕事を倍にしたときの比で見るので、機械に依らない。落ちる口は
+  exit test (子プロセス) に閉じ込める。破れは Probe と同じく `withKnownIssue` で包んである。
 
 ## 並べ方
 
@@ -58,7 +62,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
   Package.resolved     どの mokume で測ったか。コミットする
   README.md            その物差しの記録
   Sources/<物差し>/     スケッチ
-  Tests/<物差し>Tests/  画素で比べる検査 (Probe・Drift・Routine)
+  Tests/<物差し>Tests/  画素で比べる検査 (Probe・Drift・Routine)・資源で比べる検査 (Soak)
 ```
 
 **Atlas だけがこの形に収まらない。** Processing の例 157 本を**それぞれ独立した mokume の
@@ -79,6 +83,7 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Drift && swift test)
 (cd Routine && swift test)
 (cd Reach && swift test)
+(cd Soak && swift test)               # メモリ・時間・落ちるか (15 秒ほど)
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
 ```
 
@@ -99,5 +104,5 @@ python3 scripts/upstream.py    # 戻した Issue がどうなったか
 新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
 手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
 
-**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine と Reach は `v0.11.1` を引いている**
-(後の 4 本は、測る版で始めた)。
+**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1` を引いている**
+(後の 5 本は、測る版で始めた)。
