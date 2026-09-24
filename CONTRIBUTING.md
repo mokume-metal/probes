@@ -6,7 +6,7 @@
 ## 流れ
 
 1. `main` から `<type>/<短い説明>` のブランチを切る。
-2. 手元で確かめる (下)。**CI では物差しの検査は回らない** — Probe・Drift の `swift test` は
+2. 手元で確かめる (下)。**CI では物差しの検査は回らない** — Probe・Drift・Routine の `swift test` は
    画素を読むので Metal が要り、GitHub の Linux の runner には無い。
 3. PR を出す。
    - **タイトル**は Conventional Commits の形 `<type>(<scope>): <要約>` にする。type は feat / fix / docs / refactor / test / chore / ci / perf / build。`pr-policy` が検査する。
@@ -19,12 +19,13 @@
 ```bash
 (cd Probe && swift test)
 (cd Drift && swift test)
+(cd Routine && swift test)
 (cd Reach && swift test)
 python3 scripts/verify.py --check
 python3 Atlas/scripts/examples.py --check
 ```
 
-どの `swift test` も緑で終わる。Probe・Drift の約束の破れは `withKnownIssue` で包んであり、件数は
+どの `swift test` も緑で終わる。約束の破れは `withKnownIssue` で包んであり、件数は
 各 README の「既知の問題」と一致する。Reach は README の表が一覧と揃っていることも見る。**件数が変わったら、その理由を PR に書く。**
 
 ## 見つけたものの行き先
@@ -32,7 +33,7 @@ python3 Atlas/scripts/examples.py --check
 | 見つけたもの | 行き先 |
 | --- | --- |
 | mokume の約束が期待と違う | mokume に `Bug` として起票する。再現は数行のスケッチにして載せ、こちらの検査は `withKnownIssue("mokume#NNNN: …")` で名指しする |
-| mokume にできないことがある | mokume に `Feature` として起票する。**手本にあるだけでは足りない** — works の作品 2 本以上が手で書いたことを示す ([ADR-0003](docs/decisions/0003-reach-reference-coverage.md)) |
+| mokume にできないことがある | mokume に `Feature` として起票する。**手本にあるだけでは足りない** — works の作品 2 本以上が手で書いたことを示す ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md)) |
 | 物差しや道具の不具合・改善 | このリポジトリに起票する |
 
 絵や動きの証跡は、PR や Issue のコメント欄から GitHub の添付として上げる。リポジトリには

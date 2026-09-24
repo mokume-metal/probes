@@ -1,6 +1,6 @@
 # probes
 
-mokume を外から測る物差し (Atlas・Probe・Drift) を置く。何を置くか・並べ方・走らせ方は
+mokume を外から測る物差し (Atlas・Probe・Drift・Routine) を置く。何を置くか・並べ方・走らせ方は
 [README.md](README.md) が正本で、ここでは繰り返さない。ここに置くのは、作業するときに
 踏みやすいことだけである。
 
@@ -9,6 +9,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift) を置く。何を置
 ```bash
 (cd Probe && swift test)              # 既知の問題の件数が Probe/README.md と一致すること
 (cd Drift && swift test)              # 同じく Drift/README.md と
+(cd Routine && swift test)            # 同じく Routine/README.md と
 (cd Reach && swift test)              # 届くと判定した口が描けること・README の表が一覧と揃っていること
 python3 scripts/verify.py --check     # Atlas の台帳の版と Package.resolved が揃っていること
 python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が正本と揃っていること
@@ -17,8 +18,8 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
 ## 踏みやすいこと
 
 - **`swift test` は CI では回らない。** 画素を読むので Metal が要り、GitHub の Linux の
-  runner には無い。CI (`pr-policy`) が見るのは PR タイトルだけなので、Probe・Drift を触った
-  PR は手元で回した結果 (既知の問題の件数) を本文に書く。
+  runner には無い。CI (`pr-policy`) が見るのは PR タイトルだけなので、Probe・Drift・Routine を
+  触った PR は手元で回した結果 (既知の問題の件数) を本文に書く。
 - **赤くなった `withKnownIssue` は、直った約束である。** 壊したのではない。版上げの後なら
   `.claude/skills/probes-bump/` の手順で包みを外す。版を上げていないのに赤いなら、検査の
   側を疑う。
@@ -33,7 +34,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
   works の側と同じでないと台帳の区分がずれる。変えるときは両方を直す。
 - **「手本にあるのに mokume に無い」だけでは mokume へ起票しない。** mokume は機能を実需で
   足す (mokume ADR-0022 決定 6)。works の作品 2 本以上が手で書いたか、規範から導ける欠けに
-  限る ([ADR-0003](docs/decisions/0003-reach-reference-coverage.md))。
+  限る ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md))。
 - **mokume の不具合は mokume 側へ起票する。** 再現は数行のスケッチにして載せ、こちらの検査は
   `withKnownIssue("mokume#NNNN: …")` で包んで名指しする。
 - **絵と動きの証跡は GitHub の添付に上げる。** Gyazo に置いた絵は一斉に 404 になった

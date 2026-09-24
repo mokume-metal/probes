@@ -1,6 +1,6 @@
 ---
 name: probes-bump
-description: "mokume の新しい版に probes の物差し (Atlas・Probe・Drift・Reach) を追随させるときに読む。版上げ・Probe と Drift の既知の問題の読み方・Atlas の語彙の台帳の再判定・mokume への起票までの順序と、版上げでだけ踏む落とし穴。Use when mokume releases a new version, when a mokume watch issue is filed, when running scripts/bump.py or scripts/verify.py, when a withKnownIssue starts failing, or when a ruler's Package.resolved is behind."
+description: "mokume の新しい版に probes の物差し (Atlas・Probe・Drift・Routine・Reach) を追随させるときに読む。版上げ・Probe・Drift・Routine の既知の問題の読み方・Atlas の語彙の台帳の再判定・mokume への起票までの順序と、版上げでだけ踏む落とし穴。Use when mokume releases a new version, when a mokume watch issue is filed, when running scripts/bump.py or scripts/verify.py, when a withKnownIssue starts failing, or when a ruler's Package.resolved is behind."
 ---
 
 # mokume の版上げに物差しを追随させる
@@ -28,8 +28,8 @@ mokume の口を名指しで持っている。works#21 が「該当ゼロ件」�
 
 | | PR | なぜ分けるか |
 | --- | --- | --- |
-| ① | `build:` 版だけ上げる。**中身は 1 行も変えない** | Probe と Drift の検査と Atlas の台帳が、ここで基準線を取る。②③で何かが動いたときに「版差か書き直しか」を言い切れる |
-| ② | `test(probe|drift):` 直った約束の包みを外す | ①で赤くなったテストは、mokume 側で直った約束である |
+| ① | `build:` 版だけ上げる。**中身は 1 行も変えない** | Probe・Drift・Routine の検査と Atlas の台帳が、ここで基準線を取る。②③で何かが動いたときに「版差か書き直しか」を言い切れる |
+| ② | `test(probe|drift|routine):` 直った約束の包みを外す | ①で赤くなったテストは、mokume 側で直った約束である |
 | ③ | `feat(atlas):` 語彙の台帳の再判定 / `feat(reach):` 届く口の一覧の再判定 | 埋まった穴のぶんだけ `vocabulary.jsonl` と Reach の一覧の判定が変わる。見るものが②と違う |
 
 ```bash
@@ -37,12 +37,13 @@ python3 scripts/bump.py 0.12.0     # ① Package.swift と Package.resolved (全
 python3 scripts/verify.py --check  # 台帳の版がずれていないか (台帳を持つ Atlas だけ)
 (cd Probe && swift test)           # 赤くなったものを数える
 (cd Drift && swift test)
+(cd Routine && swift test)
 (cd Reach && swift test)           # 届く口の一覧が描けること (①では緑のまま)
 ```
 
 ## 物差しごとの落とし穴
 
-### Probe・Drift
+### Probe・Drift・Routine
 
 **赤くなったテストは、直った約束である。** 破れていた約束は `withKnownIssue("mokume#NNNN: …")`
 で包んであり、直ると「Known issue was not recorded」で落ちる。
@@ -55,6 +56,10 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 - 既知の問題の件数 (README の「`v0.11.0` では N 本のテストで M 件」) を書き直す。
   版入りの文は書き換えず、新しい版の文を足す。
 - 新しい版で**新しく破れた**検査があれば、`Bug` として起票してから包む。
+- **Routine には「いまの振る舞いを押さえる」検査が 3 件ある** (`trailBackground`・`negativeSize`・
+  `polylineTrail`)。これが赤くなったのは直った約束ではなく、mokume が説明や ADR を改めた
+  しるしである。変わった先を mokume の説明で確かめてから、検査と README を書き直す
+  (probes の ADR-0003)。
 
 ### Reach
 
@@ -108,5 +113,5 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 - ルート README の表と「全 N 本が mokume `vX.Y.Z` を引いている」の行
 - `python3 scripts/verify.py --check` が黙ること
 - `python3 scripts/upstream.py --stale` が黙ること
-- `swift test` が Probe と Drift で緑になること (既知の問題の件数が README と一致する)
+- `swift test` が Probe・Drift・Routine で緑になること (既知の問題の件数が README と一致する)
 - `swift test` が Reach で緑になること (README の表が一覧と揃っている)

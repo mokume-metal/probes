@@ -53,7 +53,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 
 ## mokume へ戻したもの
 
-**「一般にそういう API があるから」は起票の理由にしなかった。** mokume は機能を実需で足すと決めていて ([ADR-0022](https://github.com/mokume-metal/mokume/blob/main/docs/decisions/0022-production-track.md) 決定 6)、Atlas の計数だけを根拠にした [mokume#902](https://github.com/mokume-metal/mokume/issues/902) (QUADS) は not planned で閉じている。Reach で見つけた穴は、次のどちらかを満たすものだけを起票した (probes の [ADR-0003](../docs/decisions/0003-reach-reference-coverage.md))。
+**「一般にそういう API があるから」は起票の理由にしなかった。** mokume は機能を実需で足すと決めていて ([ADR-0022](https://github.com/mokume-metal/mokume/blob/main/docs/decisions/0022-production-track.md) 決定 6)、Atlas の計数だけを根拠にした [mokume#902](https://github.com/mokume-metal/mokume/issues/902) (QUADS) は not planned で閉じている。Reach で見つけた穴は、次のどちらかを満たすものだけを起票した (probes の [ADR-0004](../docs/decisions/0004-reach-reference-coverage.md))。
 
 - **works の作品 2 本以上が、同じものを手で書いている** — mokume ADR-0020 が `lerp` / `constrain` を足したときの先例と同じ数え方。Reach の `write` / `bend` / `none` の行を、mokume-metal/works の 13 作品 (`22387ce`) と突き合わせて数えた
 - **既にある規範から導ける欠け** — 手本と名前・値の体系がずれていて、理由がどこにも書かれていないもの (mokume ADR-0020 決定 1)

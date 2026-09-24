@@ -1,4 +1,4 @@
-# 0003 — リファレンスの側から届く口を測る物差し (Reach) を足し、起票は実需と規範に限る
+# 0004 — リファレンスの側から届く口を測る物差し (Reach) を足し、起票は実需と規範に限る
 
 ## 状態
 
@@ -12,7 +12,7 @@ Processing・p5.js でよく使う口を mokume がどこまで網羅してい�
 - **Atlas** は Processing の *Examples* 254 本を当てた台帳で、例に出てくる語彙しか見ない。
   角の丸い `rect`・`arc` の閉じ方・1 行の `bezier()`・`randomGaussian`・`cursor`・`erase` のように、
   例には出てこないが作品を作り始めるとすぐ使う口は、台帳に行が無い。
-- **Probe / Drift** は約束の破れを突く検査で、網羅は見ない。
+- **Probe / Drift / Routine** は約束の破れを突く検査で、網羅は見ない。
 
 一方で、網羅の穴を見つけても、それだけでは mokume に足してもらう理由にならない。mokume は
 機能を実需で足すと決めていて ([mokume ADR-0022](https://github.com/mokume-metal/mokume/blob/main/docs/decisions/0022-production-track.md) 決定 6)、
@@ -47,7 +47,7 @@ Reach で見つけた穴は、次のどちらかを示せるときだけ mokume 
 どちらにも当たらない穴は、Reach の README に「起票しなかったもの」として理由と一緒に残す。
 作品の側が踏んだときに、そこから引ける。
 
-**Atlas・Probe・Drift・Reach は作品に数えない** (mokume ADR-0022 決定 6 の「`Sketches/` で
+**Atlas・Probe・Drift・Routine・Reach は作品に数えない** (mokume ADR-0022 決定 6 の「`Sketches/` で
 踏んだものは実需に数えない」と同じ理由 — 物差しは面から逆算して書かれる)。
 
 ## 影響
