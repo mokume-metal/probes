@@ -86,12 +86,11 @@ func lerpColor(_ from: LinearRGBA, _ to: LinearRGBA, _ amount: Float) -> LinearR
 
 extension Canvas {
     /// 手本 (Processing) の `fill(rgb, alpha)` — 色の値 1 つに不透明度 (0–255) を添える。
-    /// 手本と同じく**不透明度を置き換える** (元の不透明度には掛けない)。成分は乗算済みなので、
-    /// いったん元の不透明度で割ってから新しい不透明度を掛ける。
+    /// 手本と同じく、色が元から持つ不透明度に `alpha / 255` を**掛ける** (Processing 4 の
+    /// `PGraphics.colorCalcARGB`)。成分は乗算済みなので、4 成分を同じ率で縮めれば済む。
     func fill(_ color: LinearRGBA, _ alpha: Float) {
-        let a = min(max(alpha / 255, 0), 1)
-        let k = color.alpha > 0 ? a / color.alpha : 0
-        fill(LinearRGBA(premultipliedRed: color.red * k, green: color.green * k, blue: color.blue * k, alpha: a))
+        let k = min(max(alpha / 255, 0), 1)
+        fill(LinearRGBA(premultipliedRed: color.red * k, green: color.green * k, blue: color.blue * k, alpha: color.alpha * k))
     }
 }
 
