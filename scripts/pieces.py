@@ -8,7 +8,8 @@
     from pieces import pieces, pinned, load_checks
 
 **台帳 (`checks.json`) を持つのは Atlas だけである。** Probe と Drift は台帳の代わりに
-`swift test` を持ち、約束の破れを `withKnownIssue` で押さえる (ルート README)。
+`swift test` を持ち、約束の破れを `withKnownIssue` で押さえる (ルート README)。Reach も
+`swift test` を持ち、一覧から README の表を起こす。
 台帳を歩く道具は `has_checks()` で先に絞る。
 
 **持っているものでは、版は 2 か所にある。** `Package.resolved` が「いま解決している版」、

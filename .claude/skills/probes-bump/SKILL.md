@@ -1,6 +1,6 @@
 ---
 name: probes-bump
-description: "mokume の新しい版に probes の物差し (Atlas・Probe・Drift) を追随させるときに読む。版上げ・Probe と Drift の既知の問題の読み方・Atlas の語彙の台帳の再判定・mokume への起票までの順序と、版上げでだけ踏む落とし穴。Use when mokume releases a new version, when a mokume watch issue is filed, when running scripts/bump.py or scripts/verify.py, when a withKnownIssue starts failing, or when a ruler's Package.resolved is behind."
+description: "mokume の新しい版に probes の物差し (Atlas・Probe・Drift・Reach) を追随させるときに読む。版上げ・Probe と Drift の既知の問題の読み方・Atlas の語彙の台帳の再判定・mokume への起票までの順序と、版上げでだけ踏む落とし穴。Use when mokume releases a new version, when a mokume watch issue is filed, when running scripts/bump.py or scripts/verify.py, when a withKnownIssue starts failing, or when a ruler's Package.resolved is behind."
 ---
 
 # mokume の版上げに物差しを追随させる
@@ -30,13 +30,14 @@ mokume の口を名指しで持っている。works#21 が「該当ゼロ件」�
 | --- | --- | --- |
 | ① | `build:` 版だけ上げる。**中身は 1 行も変えない** | Probe と Drift の検査と Atlas の台帳が、ここで基準線を取る。②③で何かが動いたときに「版差か書き直しか」を言い切れる |
 | ② | `test(probe|drift):` 直った約束の包みを外す | ①で赤くなったテストは、mokume 側で直った約束である |
-| ③ | `feat(atlas):` 語彙の台帳の再判定 | 埋まった穴のぶんだけ `vocabulary.jsonl` の判定が変わる。見るものが②と違う |
+| ③ | `feat(atlas):` 語彙の台帳の再判定 / `feat(reach):` 届く口の一覧の再判定 | 埋まった穴のぶんだけ `vocabulary.jsonl` と Reach の一覧の判定が変わる。見るものが②と違う |
 
 ```bash
 python3 scripts/bump.py 0.12.0     # ① Package.swift と Package.resolved (全部)
 python3 scripts/verify.py --check  # 台帳の版がずれていないか (台帳を持つ Atlas だけ)
 (cd Probe && swift test)           # 赤くなったものを数える
 (cd Drift && swift test)
+(cd Reach && swift test)           # 届く口の一覧が描けること (①では緑のまま)
 ```
 
 ## 物差しごとの落とし穴
@@ -54,6 +55,16 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 - 既知の問題の件数 (README の「`v0.11.0` では N 本のテストで M 件」) を書き直す。
   版入りの文は書き換えず、新しい版の文を足す。
 - 新しい版で**新しく破れた**検査があれば、`Bug` として起票してから包む。
+
+### Reach
+
+**版を上げても赤くならない。** Reach の検査が見るのは「届くと判定した口が描けるか」までで、
+穴 (`write` / `bend` / `none`) が埋まったことは検査に出ない。**埋まったかは API の差分で見る。**
+
+- `python3 scripts/api-diff.py <旧> <新>` で増えた口を、一覧の `none` / `write` / `bend` の行と
+  突き合わせる。埋まった行は判定と書き方を直し、`Support.swift` から書き足しを消す
+- 行に付けた mokume の Issue (`issue:`) が閉じていないかも見る (`python3 scripts/upstream.py`)
+- 直したら `REACH_WRITE_README=1 swift test` で README の表を書き直す (手で書かない)
 
 ### Atlas
 
@@ -98,3 +109,4 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 - `python3 scripts/verify.py --check` が黙ること
 - `python3 scripts/upstream.py --stale` が黙ること
 - `swift test` が Probe と Drift で緑になること (既知の問題の件数が README と一致する)
+- `swift test` が Reach で緑になること (README の表が一覧と揃っている)

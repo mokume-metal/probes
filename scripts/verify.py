@@ -2,7 +2,7 @@
 """台帳を持つものを走らせて、ビルドが通り版の刻印と揃っているかを見る。
 
 **台帳 (`checks.json`) を持つのは Atlas だけである** (ルート README の「並べ方」)。
-Probe と Drift は台帳の代わりに `swift test` を持つので、名指ししても飛ばす。
+Probe・Drift・Reach は台帳の代わりに `swift test` を持つので、名指ししても飛ばす。
 
     python3 scripts/verify.py                  # 台帳を持つもの全部
     python3 scripts/verify.py Atlas            # 名指し

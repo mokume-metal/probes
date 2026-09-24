@@ -15,7 +15,8 @@
 書き直しは別の PR にする。
 
 上げたら、Atlas は `verify.py` で測り直す (**動いた絵の理由を README へ書いてから** `--update`)。
-Probe と Drift は `swift test` を回す — 赤くなったものは直った約束である。
+Probe と Drift は `swift test` を回す — 赤くなったものは直った約束である。Reach は
+`swift test` に加えて、増えた口が穴の行を埋めていないかを見る。
 """
 
 import pathlib
@@ -76,6 +77,8 @@ def main(argv: list[str]) -> int:
               "動いた絵の理由を README へ書いてから `--update` で記録を進める。")
     print("\n**Probe と Drift は `swift test` を回す。** 赤くなったものは直った約束なので、"
           "`withKnownIssue` を外して README の表を書き換える。")
+    print("**Reach も `swift test` を回し、`python3 scripts/api-diff.py` で増えた口が "
+          "`none` / `write` / `bend` の行を埋めていないかを見る** (Reach/README「版を上げたら」)。")
     return 0
 
 
