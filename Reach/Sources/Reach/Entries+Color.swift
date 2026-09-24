@@ -27,7 +27,7 @@ extension Entries {
                   c.rect(48, 12, 36, 72)
               }),
         Entry(section: .color, reference: "fill(rgb, alpha)", verdict: .write, mokume: "fill(color, alpha) (Support)",
-              note: "Processing の、色の値 1 つに不透明度を添える形が無い。works の 3 作品が色を薄める口を手で書いている", issue: "mokume#1553",
+              note: "Processing の、色の値 1 つに不透明度を添える形が無い (手本は色の不透明度に alpha / 255 を掛ける)。works の 2 作品が色を薄める口を手で書いている", issue: "mokume#1553",
               tile: .picture { c, _ in
                   c.noStroke()
                   let ink = color(235, 120, 60)

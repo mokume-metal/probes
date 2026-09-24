@@ -48,7 +48,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 - **形・色・変換・字・3D の原形は、ほぼ手本の綴りのまま届く。** `rect` から `torus` まで、授業の 1〜2 週目に並ぶ口で `none` は無い。
 - **穴は「1 行で済むはずの便利な口」に寄っている。** 1 行の `bezier()` / `curve()`・角の丸い `rect`・`dist` / `mag`・`randomGaussian`・`scale(s)` — どれも面の上の口を組めば書けるが、手本の 1 行が数行になる。
 - **`none` は環境・画像の加工・3D の材質に固まっている。** 窓の大きさ (`resizeCanvas` / `fullscreen` / `cursor`)・絵を抜く (`erase`)・絵を縮める (`resize`)・書体と SVG の読み込み (`loadFont` / `loadShape`)・鏡の反射と面の向きの塗り (`specularMaterial` / `normalMaterial`)・u, v の扱い (`textureMode` / `textureWrap`)。
-- **手本と同じ名前で、別の体系の数を運ぶ口がある。** `deltaTime` は秒 (手本はミリ秒) で、p5 のコードを写すと黙って 1000 倍ずれる。`mouseButton` は `LEFT` / `RIGHT` ではなく番号を返す。
+- **手本と同じ名前で、別の体系の数を運ぶ口がある。** `deltaTime` は秒 (手本はミリ秒) で、p5 のコードを写すと黙って 1000 倍ずれる。`mouseButton` は `LEFT` / `RIGHT` ではなく macOS の釦の番号を返す。
 - **`filter(INVERT)` に当たる `.invert()` は線形の値で反転する。** 灰 128 は 127 ではなく 229 になる。色の計算を線形で行う規範 (mokume ADR-0011) から来るもので、手本と画素が違うことは mokume の約束の外にある。
 
 ## mokume へ戻したもの
@@ -62,9 +62,10 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | --- | --- | --- | --- |
 | [#1551](https://github.com/mokume-metal/mokume/issues/1551) | Feature | `beginShape(QUADS)` | 5 作品 (Apex・Cast・Prism・Quarry・Tempo) が四角を三角形 2 枚へ手で割っている |
 | [#1552](https://github.com/mokume-metal/mokume/issues/1552) | Feature | `lerpColor` | 2 作品 (Apex・Grain)。mokume ADR-0033 決定 7 が「足す日の表」を用意していた |
-| [#1553](https://github.com/mokume-metal/mokume/issues/1553) | Feature | `fill(rgb, alpha)` | 3 作品 (Cast・Tempo は 1 字違わず同じ `Palette.fade`、Apex は成分に割る) |
-| [#1554](https://github.com/mokume-metal/mokume/issues/1554) | Feature | `millis()` | 4 作品 (Apex・Cast・Quarry・Tempo) が `Date()` の差で準備の時間を測っている |
-| [#1555](https://github.com/mokume-metal/mokume/issues/1555) | Bug | `deltaTime` の単位・`mouseButton` の値 | 同じ名前で別の体系の数 — `keyCode` を直した mokume ADR-0034 と同じ形 |
+| [#1553](https://github.com/mokume-metal/mokume/issues/1553) | Feature | `fill(rgb, alpha)` / `stroke(rgb, alpha)` | 2 作品 (Cast・Tempo は 1 字違わず同じ `Palette.fade`)。手本は不透明度を置き換えず掛ける (起票時の本文は置き換えると誤っていて、トリアージで直した) |
+| [#1554](https://github.com/mokume-metal/mokume/issues/1554) | Feature | 準備の実時間を測って観測へ出す口 (`millis()` の代わり) | 4 作品 (Apex・Cast・Quarry・Tempo) が `Date()` の差で準備の時間を測っている。描く値に実時間を混ぜないため、`millis()` はいまは足さない方向でトリアージした |
+| [#1555](https://github.com/mokume-metal/mokume/issues/1555) | Bug | `mouseButton` の値 | 同じ名前で macOS の釦の番号を運ぶ — `keyCode` を直した mokume ADR-0034 と同じ形 |
+| [#1572](https://github.com/mokume-metal/mokume/issues/1572) | Design | `deltaTime` の単位 | #1555 から切り出した。直し方 (ミリ秒にする / 名前を変える / 型で単位を名乗る) の判断待ち |
 | [#1556](https://github.com/mokume-metal/mokume/issues/1556) | Task | `isKeyDown`・`isMousePressed`・`textOutline`・`makeShader`・`beginRecord` ほかの名前 | 手本とずれていて理由が見当たらない |
 | [#1283](https://github.com/mokume-metal/mokume/issues/1283#issuecomment-5815642122) (コメント) | — | `norm` / `smoothstep` | 既存の 2 作品に加え、Grain・Quarry・Apex も手で書いていた |
 
@@ -90,8 +91,8 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `setup() / draw()` | `same` | setup() / draw() |  |
 | `noLoop() / loop()` | `same` | noLoop() / loop() / redraw() | v0.9.0 で入った (mokume#900) |
 | `frameCount` | `same` | frameCount |  |
-| `deltaTime` | `bend` | deltaTime * 1000 | 同じ名前で単位が違う (手本はミリ秒、mokume は秒)。p5 のコードを写すと黙って 1000 倍ずれる — [mokume#1555](https://github.com/mokume-metal/mokume/issues/1555) |
-| `millis()` | `bend` | time * 1000 | `time` はそのフレームの時刻で、フレームの途中では進まない。処理の時間を測る使い方 (`millis() - t0`) は書けず、works の 4 作品が Date() で書いている — [mokume#1554](https://github.com/mokume-metal/mokume/issues/1554) |
+| `deltaTime` | `bend` | deltaTime * 1000 | 同じ名前で単位が違う (手本はミリ秒、mokume は秒)。p5 のコードを写すと黙って 1000 倍ずれる — [mokume#1572](https://github.com/mokume-metal/mokume/issues/1572) |
+| `millis()` | `bend` | time * 1000 | `time` はそのフレームの時刻で、フレームの途中では進まない。処理の時間を測る使い方 (`millis() - t0`) は書けず、works の 4 作品が Date() で書いている。mokume は `millis()` ではなく、区間を測って観測へ出す口を足す方向でトリアージした — [mokume#1554](https://github.com/mokume-metal/mokume/issues/1554) |
 | `frameRate(fps)` | `bend` | SketchSettings(frameRate:) | 起動のときだけ決まる。走っている最中の代入は黙って効かない — [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) |
 | `createCanvas(w, h)` | `renamed` | SketchSettings(width:height:) | Processing の size() |
 | `width / height` | `same` | width / height | Float で返る |
@@ -139,7 +140,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `background() / fill() / stroke()` | `same` | 同名。1〜4 個の数 | 目盛りは 0–255 で手本と同じ。混ぜる空間は線形なので、半透明の重ねは手本と色が違う |
 | `noFill() / noStroke()` | `same` | noFill() / noStroke() |  |
 | `color() / "#ff8800"` | `renamed` | color(r, g, b) / color(hex: 0xff8800) | 文字列の色は受けない (mokume#745 で実需待ち) — [mokume#745](https://github.com/mokume-metal/mokume/issues/745) |
-| `fill(rgb, alpha)` | `write` | fill(color, alpha) (Support) | Processing の、色の値 1 つに不透明度を添える形が無い。works の 3 作品が色を薄める口を手で書いている — [mokume#1553](https://github.com/mokume-metal/mokume/issues/1553) |
+| `fill(rgb, alpha)` | `write` | fill(color, alpha) (Support) | Processing の、色の値 1 つに不透明度を添える形が無い (手本は色の不透明度に alpha / 255 を掛ける)。works の 2 作品が色を薄める口を手で書いている — [mokume#1553](https://github.com/mokume-metal/mokume/issues/1553) |
 | `red() / hue() / brightness()` | `same` | red / green / blue / alpha / hue / saturation / brightness |  |
 | `colorMode(HSB)` | `bend` | color(hue:saturation:brightness:) | 目盛りを張り替える口は持たないと決めている (mokume ADR-0033 決定 4)。HSB で書く行ごとにラベルを付ける |
 | `lerpColor()` | `write` | lerpColor (Support) | 面に無い。混ぜる空間が違うので、書いても中間色は手本と変わる。works の 2 作品が手で書いている (mokume#745 は実需待ちで閉じていた) — [mokume#1552](https://github.com/mokume-metal/mokume/issues/1552) |
