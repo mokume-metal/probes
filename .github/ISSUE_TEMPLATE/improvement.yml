@@ -1,0 +1,19 @@
+name: 気付き・改善
+description: 物差し・道具・ドキュメントの不具合や改善アイデア (気付いたら作業を止めずに起票する)
+body:
+  - type: textarea
+    id: background
+    attributes:
+      label: 何に気付いたか
+      description: どの物差し・どの作業で気付いたか。記憶がリセットされても文脈を戻せるように書く
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: どうしたいか
+  - type: markdown
+    attributes:
+      value: |
+        **mokume 自身の不具合は、ここではなく mokume 側へ起票する** (README「mokume との関係」)。
+        こちらに立てるのは、物差しと道具の側の話である。

@@ -1,0 +1,20 @@
+# workflow が使う GitHub Actions の版を週次で見張る。
+#
+# **Swift (mokume) は見張らない。** mokume の版上げは scripts/bump.py で全部の物差しを
+# 一度に上げ、版だけ動かした基準線で測り直す手順を踏む (.claude/skills/probes-bump)。
+# Dependabot が 1 本ずつ Package.resolved を上げると、その順序を迂回してしまう。新しい版に
+# 気付くのは mokume-watch.yml の役目である。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    # リリースから PR を立てるまで 7 日待つ。取り下げられる悪意あるリリースを避ける猶予で、
+    # security update には効かない (脆弱性の公表時はすぐ PR が立つ)
+    cooldown:
+      default-days: 7
+    # PR タイトルは scripts/check-pr-title.sh (Conventional Commits) を通る必要がある。
+    # 指定しないと Dependabot は履歴から推測するので、明示して固定する
+    commit-message:
+      prefix: build
