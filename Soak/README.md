@@ -96,17 +96,17 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `unclosedShape` | `setup()` で開いた `beginShape()` に毎フレーム 1000 点足すと、約 170 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (毎フレーム閉じる参照は 0) | #NNNN |
-| `offFrameGraphics` | `beginDraw()` を付けずに描き場所へ円を 1000 個置くと、約 130 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (挟む参照は 0) | #NNNN |
-| `modelSequence` | 連番の OBJ (1681 頂点) を 1 枚ずつ `loadModel` すると、読んだモデルが控えに残り、1 枚ごとに 464 KB 増える。画像の控え (64 MiB) と違って上限が無い | #NNNN |
-| `headlessAdvance` (テストだけ) | main actor を譲らずに `advance()` を回すと、GPU の完了の後始末 (`Task { @MainActor in releaseFinished }`) が走れずに溜まる。何もしないスケッチで 1.45 KB/枚、毎フレーム `createGraphics` すると 5.8 KB/枚 (譲れば 0) | #NNNN |
+| `unclosedShape` | `setup()` で開いた `beginShape()` に毎フレーム 1000 点足すと、約 170 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (毎フレーム閉じる参照は 0) | [#1591](https://github.com/mokume-metal/mokume/issues/1591) |
+| `offFrameGraphics` | `beginDraw()` を付けずに描き場所へ円を 1000 個置くと、約 130 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (挟む参照は 0) | [#1592](https://github.com/mokume-metal/mokume/issues/1592) |
+| `modelSequence` | 連番の OBJ (1681 頂点) を 1 枚ずつ `loadModel` すると、読んだモデルが控えに残り、1 枚ごとに 464 KB 増える。画像の控え (64 MiB) と違って上限が無い | [#1593](https://github.com/mokume-metal/mokume/issues/1593) |
+| `headlessAdvance` (テストだけ) | main actor を譲らずに `advance()` を回すと、GPU の完了の後始末 (`Task { @MainActor in releaseFinished }`) が走れずに溜まる。何もしないスケッチで 1.45 KB/枚、毎フレーム `createGraphics` すると 5.8 KB/枚 (譲れば 0) | [#1594](https://github.com/mokume-metal/mokume/issues/1594) |
 
 #### 時間
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。同じ形を扇で置く参照は 2 倍未満 | #NNNN |
-| `solidStroke` | 既定の線のままの `sphere()` 100 個で 465 ms/枚・GPU +183 MB (`noStroke()` なら 0.4 ms/枚)。稜線の帯と頂点ごとの円板を、立体ごと・毎フレーム CPU で組み直す。個数には比例する | #NNNN |
+| `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。同じ形を扇で置く参照は 2.6 倍に届かない | [#1595](https://github.com/mokume-metal/mokume/issues/1595) |
+| `solidStroke` | 既定の線のままの `sphere()` 100 個で 465 ms/枚・GPU +183 MB (`noStroke()` なら 0.4 ms/枚)。稜線の帯と頂点ごとの円板を、立体ごと・毎フレーム CPU で組み直す。個数には比例する | [#1596](https://github.com/mokume-metal/mokume/issues/1596) |
 
 #### 落ちる (テストだけ)
 
@@ -120,10 +120,10 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `hugeTextSize`・`textOutline` | 次の 3 通りが、Int への変換でトラップする。`textSize(400)` の対照は通る。<br>・`textSize(1e20); text("M", …)`<br>・`textOutline("o", .nan, 100)`<br>・`textSize(1e21); textOutline("o", 0, 0)` | #NNNN |
-| `createShapeDiscard` | 図形を溜めた後に次のどちらかを書くと、`Range requires lowerBound <= upperBound` で落ちる。中で呼ばなければ通る。<br>・`createShape { background(255); … }`<br>・`createShape { get(5, 5); … }` | #NNNN |
-| `makeNumbersHuge` | `try? makeNumbers(count: .max)` が投げずに、バイト数の掛け算のあふれで落ちる。`1 << 40` は上限の検査で投げる | #NNNN |
-| `displayImageOutside` | `encodeForDisplay()` で得た `DisplayImage` を `[width, 0]` で読むと、precondition で落ちる。`PixelBuffer` は #1436 で透明を返すようになった | #NNNN |
+| `hugeTextSize`・`textOutline` | 次の 3 通りが、Int への変換でトラップする。`textSize(400)` の対照は通る。<br>・`textSize(1e20); text("M", …)`<br>・`textOutline("o", .nan, 100)`<br>・`textSize(1e21); textOutline("o", 0, 0)` | [#1587](https://github.com/mokume-metal/mokume/issues/1587) |
+| `createShapeDiscard` | 図形を溜めた後に次のどちらかを書くと、`Range requires lowerBound <= upperBound` で落ちる。中で呼ばなければ通る。<br>・`createShape { background(255); … }`<br>・`createShape { get(5, 5); … }` | [#1588](https://github.com/mokume-metal/mokume/issues/1588) |
+| `makeNumbersHuge` | `try? makeNumbers(count: .max)` が投げずに、バイト数の掛け算のあふれで落ちる。`1 << 40` は上限の検査で投げる | [#1589](https://github.com/mokume-metal/mokume/issues/1589) |
+| `displayImageOutside` | `encodeForDisplay()` で得た `DisplayImage` を `[width, 0]` で読むと、precondition で落ちる。`PixelBuffer` は [#1436](https://github.com/mokume-metal/mokume/issues/1436) で透明を返すようになった | [#1590](https://github.com/mokume-metal/mokume/issues/1590) |
 
 ### 既知の問題へ足したもの
 
@@ -137,8 +137,8 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 | --- | --- |
 | 光を足すたびに列が閉じ、光の写しが二乗で増える | **仮説違い。** 光の数を 1〜400 に変えても時間も GPU も変わらなかった。重かったのは立体の線 (`solidStroke`) |
 | 毎フレーム `createGraphics` / `createImage` を作る | main actor を譲れば頭打ちになる。増えるのは譲らないときだけで、`headlessAdvance` と同じ根 |
-| 1 フレームだけ極端な数を描くと、置き場がそのピークのまま縮まない (円 100 万個で GPU 2.3 GB が残る) | **設計どおり** (mokume#754・#734 で「取り直しは寿命に対して稀」と決めた) |
-| 1 フレームで使う字が字形の頁 (4096²) を越えると、毎フレーム頁を焼き直す (96 pt の漢字 4000 字で 1.4 s/枚) | **設計どおり** (mokume#1342・#1492)。画面に収まる字数では踏まない |
+| 1 フレームだけ極端な数を描くと、置き場がそのピークのまま縮まない (円 100 万個で GPU 2.3 GB が残る) | **設計どおり** ([mokume#754](https://github.com/mokume-metal/mokume/issues/754)・[#734](https://github.com/mokume-metal/mokume/issues/734) で「取り直しは寿命に対して稀」と決めた) |
+| 1 フレームで使う字が字形の頁 (4096²) を越えると、毎フレーム頁を焼き直す (96 pt の漢字 4000 字で 1.4 s/枚) | **設計どおり** ([mokume#1342](https://github.com/mokume-metal/mokume/issues/1342)・[#1492](https://github.com/mokume-metal/mokume/issues/1492))。画面に収まる字数では踏まない |
 | `curveDetail` に上限が無い (20 万で GPU 6.8 GB) | 極端な入力でしか踏まない。円 (1024 辺) や球 (128) のような丸めが無いことは記録に留める |
 | 走っていないところから `width` などを読むと `fatalError` | 説明どおりの挙動 (`requireRuntime` の文面が「init から呼ぶな」と名乗る) |
 | 巨大な画像を展開してから大きさを検める・上げ荷の置き場の合計に上限が無い | 確かめるのに GB 単位の確保が要り、検査に置けない |
@@ -153,8 +153,8 @@ v0.11.1 と main のソースを 3 つの範囲に分けて読み、約 25 件�
 
 公開の口だけで踏めて、確かめるのに GB 単位の確保が要らない 17 件を使い捨ての舞台で 1 件ずつ踏んだ。
 本物だった 11 件のうち 10 件を起票し、1 件を既知の Issue へ足した。立体の線 (`solidStroke`) は
-当たりに無く、光の当たりを外したときの切り分けで見つかった。開いている Issue・閉じた Issue に載っているものは除いた (書体の控え = #1431、シェーダの
-重複した組み立て = #728 など)。probes は mokume を外のパッケージとして引いているので、
+当たりに無く、光の当たりを外したときの切り分けで見つかった。既に Issue があるものは新しく起票せず、実害の数字を足すか (書体の控え = [#1431](https://github.com/mokume-metal/mokume/issues/1431))、
+当たりから外した (シェーダの重複した組み立て = [#728](https://github.com/mokume-metal/mokume/issues/728) など)。probes は mokume を外のパッケージとして引いているので、
 `@testable import` には頼らない。
 
 ## どの mokume で測ったか
