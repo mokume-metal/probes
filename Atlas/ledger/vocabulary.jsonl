@@ -1,0 +1,213 @@
+{"checked": "0.9.0", "mokume": "BlendMode.add", "name": "ADD", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "ALPHA", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "ARGB", "note": "createImage は形式を取らない", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "Array", "name": "ArrayList", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "VerticalTextAlign.baseline", "name": "BASELINE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "StrokeJoin.bevel", "name": "BEVEL", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.blend", "name": "BLEND", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "TextStyle.bold", "name": "BOLD", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "VerticalTextAlign.bottom", "name": "BOTTOM", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "createShape { box(...) }", "name": "BOX", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "ShapeMode.center ほか", "name": "CENTER", "note": "文字の整列では VerticalTextAlign.center / HorizontalTextAlign.center", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "ShapeEnd.close", "name": "CLOSE", "verdict": "renamed"}
+{"checked": "0.9.0", "issue": 723, "mokume": null, "name": "CODED", "note": "文字にならないキーの印。**mokume は keyCode が Key? を直に返す**ので、この印を挟む形そのものが要らない", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "ShapeMode.corner", "name": "CORNER", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "ShapeMode.corners", "name": "CORNERS", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.darkest", "name": "DARKEST", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.difference", "name": "DIFFERENCE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "DISABLE_DEPTH_MASK", "note": "hint の引数。hint 自体が無い", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "DISABLE_DEPTH_SORT", "note": "hint の引数。hint 自体が無い", "verdict": "drop"}
+{"checked": "0.9.0", "issue": 723, "mokume": "Key.arrowDown", "name": "DOWN", "note": "v0.6.0 で Int から Key 型になった。`keyCode == DOWN` は `keyCode == .arrowDown` と書く", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "createShape { ellipse(...) }", "name": "ELLIPSE", "note": "種別ではなく、中で描いて束ねる", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "ENABLE_DEPTH_MASK", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "ENABLE_DEPTH_SORT", "verdict": "drop"}
+{"checked": "0.9.0", "issue": 723, "mokume": "Key.enter", "name": "ENTER", "note": "同上 (.enter)", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "Float.ulpOfOne", "name": "EPSILON", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "BlendMode.exclusion", "name": "EXCLUSION", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "GRAY", "verdict": "drop"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "GROUP", "note": "createShape の種別として空の入れ物を作れない", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "Float.pi / 2", "name": "HALF_PI", "verdict": "host"}
+{"checked": "0.9.0", "issue": 778, "mokume": "color(hue:saturation:brightness:)", "name": "HSB", "note": "v0.6.0 で入った。**目盛りは 360/100/100** (p5 と同じ。Processing は 3 成分とも 0…255)", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "Dictionary", "name": "HashMap", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "IMAGE", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "TextStyle.italic", "name": "ITALIC", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "[Int]", "name": "IntList", "note": "Swift の配列がそのまま持つ", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "JSONObject", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "LANDSCAPE", "note": "面の向きを指定する口が無い (大きさで決まる)", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "HorizontalTextAlign.left", "name": "LEFT", "note": "キーの向きとしての LEFT は別物で、mokume は Key.arrowLeft で引く (v0.6.0 で Int から Key 型になった)", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.lightest", "name": "LIGHTEST", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "createShape { line(...) }", "name": "LINE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "VertexKind.lines", "name": "LINES", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "StrokeJoin.miter", "name": "MITER", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.multiply", "name": "MULTIPLY", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "NORMAL", "note": "textureMode の引数", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "TextStyle.normal", "name": "NORMAL_STYLE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "ShapeEnd.open", "name": "OPEN", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "OPENGL", "note": "同上", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "P2D", "note": "同上", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "P3D", "note": "描き方のモードが無い。立体は初めから同じ面で描ける", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "Float.pi", "name": "PI", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "VertexKind.points", "name": "POINTS", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "POLYGON", "note": "beginShape の既定が .polygon", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "StrokeCap.project", "name": "PROJECT", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "SIMD2<Float> / SIMD3<Float>", "name": "PVector", "note": "算術は演算子で書けるが、原典が持ち回る型と同じにはならない", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": "createShape { quad(...) }", "name": "QUAD", "verdict": "renamed"}
+{"checked": "0.9.0", "issue": 882, "mokume": null, "name": "QUADS", "note": "四角の並べ方が無い。三角形 2 枚へ畳む。**v0.6.0 が入れたのは帯と扇だけ**", "verdict": "bend"}
+{"checked": "0.9.0", "issue": 882, "mokume": null, "name": "QUAD_STRIP", "note": "同上", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": "Float.pi / 4", "name": "QUARTER_PI", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "ShapeMode.radius", "name": "RADIUS", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "createShape { rect(...) }", "name": "RECT", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.replace", "name": "REPLACE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "RGB", "note": "既定が線形 RGB", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "HorizontalTextAlign.right", "name": "RIGHT", "note": "キーの向きとしての RIGHT は Key.arrowRight。LEFT と同じ", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "StrokeCap.round ほか", "name": "ROUND", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.screen", "name": "SCREEN", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "createShape { sphere(...) }", "name": "SPHERE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "StrokeCap.square", "name": "SQUARE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "BlendMode.subtract", "name": "SUBTRACT", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "\"\\t\"", "name": "TAB", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "2 * Float.pi", "name": "TAU", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "VerticalTextAlign.top", "name": "TOP", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "createShape { triangle(...) }", "name": "TRIANGLE", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "VertexKind.triangles", "name": "TRIANGLES", "verdict": "renamed"}
+{"checked": "0.9.0", "issue": 882, "mokume": "VertexKind.triangleFan", "name": "TRIANGLE_FAN", "note": "v0.6.0 で入った", "verdict": "renamed"}
+{"checked": "0.9.0", "evidence": "Ring", "issue": 882, "mokume": "VertexKind.triangleStrip", "name": "TRIANGLE_STRIP", "note": "v0.6.0 で入った。Ring で実測 — 手で三角形へ畳んだものと絵が 1 ビットも変わらない", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "2 * Float.pi", "name": "TWO_PI", "verdict": "host"}
+{"checked": "0.9.0", "issue": 723, "mokume": "Key.arrowUp", "name": "UP", "note": "同上 (.arrowUp)", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "abs", "name": "abs", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Shape.group", "name": "addChild", "note": "作るときに束ねる。後から足せない", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": null, "name": "addRow", "note": "表を読む型が無いので、行を足す口も自分で書く", "verdict": "write"}
+{"checked": "0.9.0", "mokume": null, "name": "angleBetween", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "Array.append", "name": "append", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Array の代入", "name": "arrayCopy", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "bezierVertex", "name": "bezier", "note": "頂点として置く形しか無く、単独で 1 本引く口は無い", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": null, "name": "bezierPoint", "note": "曲線上の点を求める式を書く", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "brightness(_:)", "name": "brightness", "note": "同上。0…100 の百分率で、表示範囲の外では 100 を超える", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "UInt8", "name": "byte", "verdict": "host"}
+{"checked": "0.9.0", "mokume": ".rounded(.up)", "name": "ceil", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Character", "name": "char", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "String の添字", "name": "charAt", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "background(_:)", "name": "clear", "note": "透明で塗り潰す口が無い", "verdict": "bend"}
+{"checked": "0.9.0", "evidence": "Ring", "mokume": "color(_:_:_:_:)", "name": "color", "note": "v0.6.0 で目盛りが揃った (0…255)。灰色 1 つの color(128) も color(hex:) も書ける", "verdict": "same"}
+{"checked": "0.9.0", "evidence": "Ring", "mokume": "color(hue:saturation:brightness:)", "name": "colorMode", "note": "**目盛りを切り替える状態を持たない** (ADR-0033)。色相で作る口は v0.6.0 で入ったが、原典が 1 度宣言して以降の fill を全部支配する形は保てない。目盛りの張り替え (colorMode(HSB, 255, 255, 255)) も呼ぶ側の仕事 v0.9.0 でも口は無い — mokume#911 が変えたのは数と色の対応 (P3 → sRGB) であって、目盛りではない", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": null, "name": "constrain", "note": "Swift なら min(max(v, lo), hi)", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "Swift の値型は代入で複製される", "name": "copy", "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "createFont", "note": "フォントファイルを読む口が無い。textFont はシステムのフォント名を取る", "verdict": "none"}
+{"checked": "0.9.0", "evidence": "Ring", "mokume": "expose(_:_:)", "name": "createP", "note": "DOM は持たない。観測へ差し出すと、撮った絵と同じ応答に値が載る", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "simd_cross", "name": "cross", "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "day", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "degrees(_:)", "name": "degrees", "note": "同上", "verdict": "same"}
+{"checked": "0.9.0", "evidence": "Solids", "mokume": null, "name": "describe", "note": "落とした", "verdict": "drop"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "disableStyle", "verdict": "none"}
+{"checked": "0.9.0", "mokume": null, "name": "dist", "note": "引く・掛ける・平方根", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "/", "name": "div", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "simd_dot", "name": "dot", "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "enableStyle", "note": "Shape の塗りを後から切り替えられない", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "exp", "name": "exp", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "effects([Effect])", "name": "filter", "note": "組み込みの効き目 (BLUR / INVERT) は無く、効果を自分で書いて挟む", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": "Float()", "name": "float", "verdict": "host"}
+{"checked": "0.9.0", "mokume": ".rounded(.down)", "name": "floor", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "String(format:)", "name": "format", "verdict": "host"}
+{"checked": "0.9.0", "evidence": "Atlas", "mokume": "SketchSettings.frameRate", "name": "frameRate", "note": "起動時にだけ決まる。**走っている最中に settings.frameRate へ代入しても黙って無視される** — 値は書き換わるが枚数は 60 のまま (v0.9.0 で実測)。読み出しの currentFrameRate は Sketch の面に無い", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": null, "name": "fromAngle", "verdict": "write"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "getChild", "note": "Shape は組み立てたら読み出せない (vertexCount と isEmpty だけ)", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "getChildCount", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "getFloat", "note": "JSON も表も、読んだ辞書から引く", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "getInt", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "getJSONArray", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "getJSONObject", "note": null, "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "getName", "verdict": "none"}
+{"checked": "0.9.0", "mokume": null, "name": "getRowCount", "note": "表を読む型が無い", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "getString", "note": null, "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "getVertex", "verdict": "none"}
+{"checked": "0.9.0", "mokume": null, "name": "getVertexCount", "note": "Shape.vertexCount はあるが、頂点そのものは取れない", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": null, "name": "heading", "note": "atan2(y, x) と書く", "verdict": "write"}
+{"checked": "0.9.0", "mokume": null, "name": "hint", "note": "描画系への指示は持たない", "verdict": "drop"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "hour", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "hue(_:)", "name": "hue", "note": "v0.6.0 で入った。**目盛りが違う** — 0…360 の度で返る (Processing は colorMode の上限)", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "Int() / Float()", "name": "int", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "keyCode (Key?)", "name": "keyCode", "note": "**数ではなく Key 型**を返す。運んでいるのは macOS の仮想キーコードで、p5 / Processing の体系とは違う — 写した keyCode == 32 は型が合わずビルドで止まる", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "keyPressed()", "name": "keyPressed", "note": "v0.6.0 で出来事の口が入った。押しっぱなしは連射する。真偽値のほうは isKeyDown(_:)", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "keyReleased()", "name": "keyReleased", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "keyTyped()", "name": "keyTyped", "note": "文字を生むキーでだけ呼ばれる (矢印・F キー・Escape・Delete・Tab では呼ばれない)", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "count", "name": "length", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "lerp", "verdict": "write"}
+{"checked": "0.9.0", "mokume": null, "name": "lerpColor", "note": "成分ごとに書く", "verdict": "write"}
+{"checked": "0.9.0", "evidence": "Atlas", "mokume": "shininess / metalness", "name": "lightSpecular", "note": "光の側へ鏡面反射の色を渡す口が無い。材質の側の shininess / metalness へ寄せるしかない。**mokume#913 が直したのは明るさで**、この寄せ方の歪みは v0.9.0 でも残る", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": null, "name": "limit", "verdict": "write"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "list", "note": "使えるフォントを列挙する口が無い", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "loadFont", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "loadJSONObject", "note": null, "verdict": "host"}
+{"blocks": "picture", "checked": "0.9.0", "mokume": null, "name": "loadShape", "note": "SVG を読む口が無い。形そのものが来ないので面に出るものが無い (OBJ だけは loadModel がある)", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "String(contentsOf:) を行で割る", "name": "loadStrings", "note": "mokume に読み書きの口は無い。Foundation を直に使う", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "loadTable", "note": "CSV を読む型が Foundation にも無いので、自分で書く", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "log", "name": "log", "verdict": "host"}
+{"checked": "0.9.0", "evidence": "Atlas", "mokume": "loop()", "name": "loop", "note": "v0.9.0 で入った。**止まっている間に呼べるのは入力の呼び出しからだけ** — mousePressed() から呼ぶと毎フレームへ戻ることを実測した。draw() の中や別の Task から呼んでも効かない", "verdict": "same"}
+{"checked": "0.9.0", "mokume": null, "name": "mag", "verdict": "write"}
+{"checked": "0.9.0", "evidence": "Ring", "mokume": "map(_:_:_:_:_:)", "name": "map", "note": "v0.6.0 で入った。原典と同じく範囲を締めない", "verdict": "same"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "mask", "note": "画像を切り抜く口が無い", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "max", "name": "max", "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "millis", "note": "壁時計が無い。time (起動からの秒) と frameCount と deltaTime はある", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "min", "name": "min", "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "minute", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "month", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "mouseClicked()", "name": "mouseClicked", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "mouseDragged(deltaX:deltaY:)", "name": "mouseDragged", "note": "**その 1 件ぶんの量**を引数で受ける (原典は引数を取らない)。フレームの合計は dragX / dragY", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "mouseMoved()", "name": "mouseMoved", "verdict": "same"}
+{"checked": "0.9.0", "evidence": "Garden", "mokume": "mousePressed()", "name": "mousePressed", "note": "v0.6.0 で出来事の口が入った。**1 つの名前で 2 つのもの**を指すので注意 — 関数は mousePressed()、真偽値のほうは isMousePressed", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "mouseReleased()", "name": "mouseReleased", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "mouseWheel(deltaX:deltaY:)", "name": "mouseWheel", "note": "v0.6.0 で出来事の口が入った。その 1 件ぶんの量を引数で受ける", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "*", "name": "mult", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "String(format:)", "name": "nf", "verdict": "host"}
+{"checked": "0.9.0", "evidence": "Atlas", "mokume": "noLoop()", "name": "noLoop", "note": "v0.9.0 で入った。setup() で呼ぶと draw() は 1 度だけ呼ばれ、走っている最中に呼ぶとその枚で止まる", "verdict": "same"}
+{"checked": "0.9.0", "mokume": null, "name": "noSmooth", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "norm", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "simd_normalize", "name": "normalize", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "pow", "name": "pow", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "print", "name": "printArray", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "print", "name": "println", "verdict": "host"}
+{"checked": "0.9.0", "evidence": "Ring", "mokume": "radians(_:)", "name": "radians", "note": "v0.6.0 で入った。angleMode() は無く、単位は呼んだ 1 行から読む", "verdict": "same"}
+{"checked": "0.9.0", "mokume": null, "name": "random2D", "verdict": "write"}
+{"checked": "0.9.0", "mokume": null, "name": "random3D", "verdict": "write"}
+{"checked": "0.9.0", "mokume": null, "name": "randomGaussian", "verdict": "write"}
+{"checked": "0.9.0", "evidence": "Atlas", "mokume": "redraw()", "name": "redraw", "note": "v0.9.0 で入った。呼べる場所の縛りは loop() と同じで、mousePressed() から呼ぶと**1 枚だけ進んでまた止まる**ことを実測した。**呼び出しの外から頼むと「the sketch is not running」と断られる** — 走っている最中でもそう言う", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "Array.remove", "name": "remove", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "removeRow", "note": "表を読む型が無い", "verdict": "write"}
+{"checked": "0.9.0", "evidence": "Ring", "mokume": ".rounded()", "name": "round", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "rows", "note": "表を読む型が無い", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "saturation(_:)", "name": "saturation", "note": "同上。0…100 の百分率で、色域の外では 100 を超える", "verdict": "same"}
+{"checked": "0.9.0", "mokume": "save(_:)", "name": "saveFrame", "note": "連番の綴りは持たない", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "saveJSONObject", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "String.write(to:)", "name": "saveStrings", "note": "mokume に読み書きの口は無い。Foundation を直に使う", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "saveTable", "note": "表を読む型が無い", "verdict": "write"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "second", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "setFill", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "setFloat", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "setInt", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "setJSONObject", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "setMag", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "Foundation の JSONSerialization", "name": "setString", "note": null, "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "setStroke", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "setStrokeWeight", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "setVertex", "note": "組み上がった Shape を書き換える口が無い", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "shuffled()", "name": "shuffle", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "SketchSettings(width:height:)", "name": "size", "note": "起動の瞬間に決まる (走っている最中には変えられない)", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": null, "name": "smooth", "note": "書く口が無い。既定の描き味に任せる", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "shininess / metalness", "name": "specular", "note": "鏡面反射の色を指定する口が無い (強さは shininess)。v0.9.0 でも specular という名前の口は無い", "verdict": "bend"}
+{"checked": "0.9.0", "mokume": "sphere(_:detail:)", "name": "sphereDetail", "note": "状態ではなく引数で渡す", "verdict": "renamed"}
+{"checked": "0.9.0", "mokume": "split(separator:)", "name": "split", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "sq", "verdict": "write"}
+{"checked": "0.9.0", "mokume": "sqrt", "name": "sqrt", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "String()", "name": "str", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "-", "name": "sub", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "配列のスライス", "name": "subset", "note": null, "verdict": "host"}
+{"checked": "0.9.0", "mokume": "String の添字", "name": "substring", "verdict": "host"}
+{"checked": "0.9.0", "mokume": "super", "name": "super", "verdict": "host"}
+{"checked": "0.9.0", "mokume": null, "name": "textureMode", "note": "uv は常に 0..1 で渡す", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": null, "name": "textureWrap", "verdict": "drop"}
+{"checked": "0.9.0", "mokume": "String.trimmingCharacters", "name": "trim", "verdict": "host"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "updatePixels", "note": "loadPixels と get/set はあるが、書き戻しの合図が無い", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "windowMove", "note": "窓の位置と大きさを動かす口が無い", "verdict": "none"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "windowResizable", "verdict": "none"}
+{"checked": "0.9.0", "mokume": "SketchSettings.title", "name": "windowTitle", "verdict": "renamed"}
+{"blocks": "structure", "checked": "0.9.0", "mokume": null, "name": "year", "verdict": "none"}

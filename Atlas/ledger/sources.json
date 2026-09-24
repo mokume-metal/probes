@@ -1,0 +1,23 @@
+{
+  "constants": {
+    "entries": 171,
+    "repo": "processing/processing4",
+    "sha": "0d8bde55f71764f4c6091beab7881fcb00738d20"
+  },
+  "examples": {
+    "pde_files": 315,
+    "repo": "processing/processing-examples",
+    "sha": "b10c9e9a05a0d6c20d233ca7f30d315b5047720e"
+  },
+  "mokume": {
+    "lines": 1685,
+    "version": "0.9.0"
+  },
+  "reference": {
+    "entries": 671,
+    "repo": "processing/processing-website",
+    "sha": "1fce63d07182becca614b95ab76b3b1416424d8d",
+    "site_examples": 162,
+    "site_live": 156
+  }
+}

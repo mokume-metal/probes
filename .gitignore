@@ -1,0 +1,23 @@
+.build/
+.swiftpm/
+.mokume/
+shots/
+out/
+out-*/
+upstream/
+__pycache__/
+
+# **スケッチが自分で書き出したもの。** `Topics/File IO/SaveOneImage` は押されたら
+# `save("line.png")` を呼ぶ作りで、`Atlas --motion` が道すじの途中でマウスを押すため
+# 撮影のたびに作業ディレクトリへ残る。mokume v0.6.0 で押下を受け取れるようになって
+# 初めて出るようになったもので、**証跡を撮ると副作用が走る**ことの記録でもある。
+line.png
+
+# scripts/ を import すると出る (publish.py の集計をなぞって確かめるとき)
+__pycache__/
+
+# **例パッケージが解決した版。** Atlas は例 1 本ずつが SwiftPM パッケージなので
+# `Package.resolved` も 157 枚できるが、**再現の正本は `Atlas/Package.resolved`
+# 1 枚**である。例の側は `exact` で釘を打ってあり、版は
+# `python3 Atlas/scripts/examples.py` が正本から流し込む (ずれは `--check` が捕まえる)。
+Atlas/Examples/**/Package.resolved

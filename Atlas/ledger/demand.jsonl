@@ -1,0 +1,25 @@
+{"examples": 3, "in_scope": 0, "name": "exit", "where": ["Topics/File IO/SaveFile1", "Topics/File IO/SaveFile2", "Topics/File IO/TileImages"]}
+{"examples": 3, "in_scope": 0, "name": "join", "where": ["Topics/Advanced Data/CountingStrings", "Topics/Advanced Data/HashMapClass", "Topics/Advanced Data/Threads"]}
+{"examples": 3, "in_scope": 0, "name": "toLowerCase", "where": ["Topics/Advanced Data/CountingStrings", "Topics/Advanced Data/HashMapClass", "Topics/Advanced Data/Threads"]}
+{"examples": 2, "in_scope": 0, "name": "DISABLE_DEPTH_TEST", "where": ["Demos/Performance/CubicGridImmediate", "Demos/Performance/CubicGridRetained"]}
+{"examples": 2, "in_scope": 0, "name": "ENABLE_DEPTH_TEST", "where": ["Demos/Performance/CubicGridImmediate", "Demos/Performance/CubicGridRetained"]}
+{"examples": 2, "in_scope": 0, "name": "REPEAT", "where": ["Topics/Shaders/Deform", "Topics/Shaders/InfiniteTiles"]}
+{"examples": 2, "in_scope": 0, "name": "flush", "where": ["Topics/File IO/SaveFile2", "Topics/Shaders/DomeProjection"]}
+{"examples": 2, "in_scope": 0, "name": "splitTokens", "where": ["Topics/Advanced Data/CountingStrings", "Topics/Advanced Data/HashMapClass"]}
+{"examples": 1, "in_scope": 0, "name": "DEG_TO_RAD", "where": ["Topics/Shaders/DomeProjection"]}
+{"examples": 1, "in_scope": 0, "name": "IntDict", "where": ["Topics/Advanced Data/CountingStrings"]}
+{"examples": 1, "in_scope": 0, "name": "createWriter", "where": ["Topics/File IO/SaveFile2"]}
+{"examples": 1, "in_scope": 0, "name": "getChildren", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "getContent", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "getFloatContent", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "increment", "where": ["Topics/Advanced Data/CountingStrings"]}
+{"examples": 1, "in_scope": 0, "name": "keyArray", "where": ["Topics/Advanced Data/CountingStrings"]}
+{"examples": 1, "in_scope": 0, "name": "loadXML", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "matchAll", "where": ["Topics/Advanced Data/Regex"]}
+{"examples": 1, "in_scope": 0, "name": "removeChild", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "saveXML", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "setContent", "where": ["Topics/Advanced Data/LoadSaveXML"]}
+{"examples": 1, "in_scope": 0, "name": "sort", "where": ["Topics/Advanced Data/Threads"]}
+{"examples": 1, "in_scope": 0, "name": "sortValues", "where": ["Topics/Advanced Data/CountingStrings"]}
+{"examples": 1, "in_scope": 0, "name": "toString", "where": ["Topics/File IO/DirectoryList"]}
+{"examples": 1, "in_scope": 0, "name": "values", "where": ["Topics/Advanced Data/HashMapClass"]}
