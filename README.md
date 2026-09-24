@@ -1,1 +1,96 @@
 # probes
+
+[mokume](https://github.com/mokume-metal/mokume) を**外から測る物差し**を置く。作品ではない。
+
+mokume で作った作品は [works](https://github.com/mokume-metal/works) にある。物差しは
+もともと works に置いていたが、2026-09 にこちらへ移した (works の `68306a8` まで)。**作品を
+読みに来た人が最初に出会うものではない**からで、works の README が「作品は測る口を持たない」と
+決めていた (works#39・works#40) のに、物差しが増えるたびに例外の但し書きが増えていた。
+移す前の履歴は works 側で辿れる。
+
+## mokume との関係
+
+**依存は一方向で、こちらが mokume を使う。** mokume はこのリポジトリを参照しない — あちらの
+`Package.swift` にも CI にも入らない。だから**ここが赤くなっても mokume は赤くならない**。
+物差しが赤くなるのは、約束の破れを見つけたか、直った約束に気付いたかのどちらかで、
+故障ではなく情報である。
+
+測って踏んだことは、mokume 側の Issue 1 本にして戻す。
+
+| 踏んだもの | mokume 側 |
+| --- | --- |
+| 約束されていないことが**できない** | `Feature` の Issue。どの物差しで何を測ろうとして何ができなかったかを書き、こちらへリンクを張る |
+| 約束されていることが**期待と違う** | `Bug` の Issue。再現は数行のスケッチにして載せる |
+
+体制の正典は mokume 側の [ADR-0022](https://github.com/mokume-metal/mokume/blob/main/docs/decisions/0022-production-track.md)。
+
+## 物差し
+
+| | |
+| --- | --- |
+| [Atlas](Atlas/) | Processing の Examples を全数で当てた台帳と、[公式ページ](https://processing.org/examples/)の 162 本のうち移せる 157 本の実測。**作品ではなく物差し**で、1 本ずつでは出ない「どの欠けが何本の例を止めるか」を数える。**mokume `v0.6.0` で 26 本が `clean` へ移り、台帳が重いと数えた欠けから順に埋まった** |
+| [Probe](Probe/) | mokume `v0.11.0` の継ぎ目を突いた記録。**作品ではなく物差し**で、候補 1 件を同じ絵になるはずの 2 つの経路で描き、窓では左右に並べて目で、`swift test` では画素で比べる。**13 件を突いて 8 件が約束を破っており、mokume へ 8 件の Bug と 1 件の docs を戻した** (鏡映した立体の裏面・透明な下地の上の混ぜ方・楕円の `arc`・`curveVertex` の穴・範囲外の不透明度・細い線の濃さ・右揃えの末尾の空白・`lerp` の端)。直ると `withKnownIssue` が赤くなって知らせる |
+| [Drift](Drift/) | mokume `v0.11.0` の**フレームをまたぐ**継ぎ目を突いた記録。Probe と同じく**作品ではなく物差し**で、候補 1 件を同じ動きになるはずの 2 つの経路で描き、窓では左右に並べた動きで、`swift test` では `SketchRuntime` で N 枚回して画素で比べる。**6 件を突いて 6 件とも約束を破っており、mokume へ 6 件の Bug を戻した** (描き場所の時刻・噴き口どうしの繰り越し・残像への効果の焼き込み・`numbers` の寿命・低い fps の `drag`・止まっている間の変換)。1 枚目では食い違わず、フレームを重ねてはじめてずれる |
+
+測り方は 2 通りある。
+
+- **Atlas** は語彙の台帳 (`ledger/`) を持ち、`checks.json` に版の刻印を持つ。
+  `python3 scripts/verify.py --check` が「道具を上げたのに測り直していない」を捕まえる。
+- **Probe と Drift** は、同じ結果になるはずの 2 つの経路で描いて画素で比べる検査
+  (`Tests/`) を持つ。破れていた約束は `withKnownIssue` で包んであり、**mokume 側で直ると
+  赤くなって知らせる。**
+
+## 並べ方
+
+**1 本 = 1 フォルダ = 1 SwiftPM パッケージ。** これは `mokume` の単位である — `run` /
+`watch` はディレクトリ直下の `Package.swift` を求め、実行ファイルの名前を `products` から取る。
+道具 ([`scripts/pieces.py`](scripts/pieces.py)) も、直下に `Package.swift` を持つ
+ディレクトリを 1 本として数える。
+
+```
+<物差し>/
+  Package.swift        products に実行ファイルを 1 つ宣言する (Atlas は持たない)
+  Package.resolved     どの mokume で測ったか。コミットする
+  README.md            その物差しの記録
+  Sources/<物差し>/     スケッチ
+  Tests/<物差し>Tests/  画素で比べる検査 (Probe・Drift)
+```
+
+**Atlas だけがこの形に収まらない。** Processing の例 157 本を**それぞれ独立した mokume の
+スケッチ**として持ち、1 フォルダの中に 157 個の `Package.swift` がある。引数で例を選ぶ形を
+やめたのは、`mokume watch` が通らないためである。`Atlas/Package.swift` は例が引く共有の面と
+版の正本を持つ (executable は無い)。入れ子の 157 枚は `pieces.py` が拾わないので、Atlas は
+1 本と数えられる。
+
+```bash
+mokume watch Atlas/Examples/Basics/Input/Mouse2D
+```
+
+## 走らせる
+
+```bash
+mokume run Probe                      # 窓で左右に並べて見る
+(cd Probe && swift test)              # 窓を出さずに描いて、画素で比べる
+(cd Drift && swift test)
+python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
+```
+
+道具は Homebrew で入る:
+
+```bash
+brew install mokume-metal/tap/mokume
+```
+
+## 版を追う
+
+```bash
+python3 scripts/status.py      # どれが遅れているか
+python3 scripts/api-diff.py    # 何が変わったか
+python3 scripts/upstream.py    # 戻した Issue がどうなったか
+```
+
+新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
+手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
+
+**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0` を引いている** (後の 2 本は、
+測る版で始めた)。

@@ -1,0 +1,67 @@
+name: mokume watch
+
+# mokume が新しい版を出していないか日次で見に行き、追随の Issue を立てる。
+#
+# ## なぜ見に行くのか
+#
+# mokume の ADR-0022 が「依存は一方向。追随のタイミングは使う側の裁量」と
+# 決めているので、あちらから「出した」と伝えてもらう経路は設計上あり得ない。伝える
+# 形にすると mokume 側へこのリポジトリを書ける鍵を常設することになるためで、
+# mokume-metal/homebrew-tap も同じ理由で repository_dispatch をやめて日次の
+# ポーリングに変えている (mokume-metal/mokume#410)。
+#
+# ## なぜ検出だけなのか
+#
+# ビルドも描画もテストもここでは走らせない。Probe と Drift の `swift test` は画素を
+# 読むので GPU (Metal) が要り、GitHub の Linux の runner では回らない。絵や検査が
+# 動いたのが**直った約束なのか退行なのか**も、読むのは人である。ここが担うのは
+# 「版が出たことに気付く」までで、そこから先は手元でスキルが回す。
+#
+# ## 赤にしないこと
+#
+# **差があること自体は失敗ではない。** 「壊れていることは情報であって故障ではない」
+# (README) ので、遅れを見つけてもこのジョブは緑で終わる。赤くなるのは *見に行けな
+# かった* とき — mokume のリリースが引けない・Issue が立てられない — だけである。
+#
+# ## 手で起こせるようにしてあること
+#
+# GitHub は 60 日コミットが無い public リポジトリの scheduled workflow を自動で
+# 止める。probes は活動が波なので現実的に起こりうる。cron が止まっても
+# workflow_dispatch で回せるようにしてあり、判定の中身は scripts/watch.py に
+# 置いてある (cron は既定ブランチのファイルしか走らないので、PR で検証できるのは
+# 手元の --dry-run だけ)。
+
+on:
+  schedule:
+    # 01:00 UTC は Homebrew tap が formula を追随する時刻なので、その後に見る。
+    # (GitHub の schedule は実測で数時間ずれるので、時刻そのものは目安)
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "立てずに本文だけ出す"
+        type: boolean
+        default: false
+
+# 同じ Issue を 2 つの実行が同時に書きに行かないようにする
+concurrency:
+  group: mokume-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: 見に行く
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/watch.py ${{ inputs.dry_run && '--dry-run' || '' }}
