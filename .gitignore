@@ -21,3 +21,7 @@ __pycache__/
 # 1 枚**である。例の側は `exact` で釘を打ってあり、版は
 # `python3 Atlas/scripts/examples.py` が正本から流し込む (ずれは `--check` が捕まえる)。
 Atlas/Examples/**/Package.resolved
+
+# 秘密情報の置き場。追跡しない
+.env
+.env.*

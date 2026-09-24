@@ -1,0 +1,31 @@
+# PR の決まりごとを検査する。**main の ruleset が必須にしているのはこのジョブだけ**である。
+#
+# 物差しの本体の検査 (Probe・Drift の swift test) は画素を読むので Metal が要り、GitHub の
+# Linux の runner では回らない。手元で回して、結果を PR 本文に書く (CONTRIBUTING.md)。
+name: PR policy
+
+on:
+  pull_request:
+    # タイトルを直したときも検査し直す
+    types: [opened, synchronize, reopened, edited]
+
+concurrency:
+  group: pr-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pr-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PR_TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # squash merge では PR タイトルがそのまま main のコミットの要約になる
+      - name: PR タイトルが Conventional Commits の形か
+        run: ./scripts/check-pr-title.sh
