@@ -20,19 +20,20 @@
 (cd Probe && swift test)
 (cd Drift && swift test)
 (cd Routine && swift test)
+(cd Reach && swift test)
 python3 scripts/verify.py --check
 python3 Atlas/scripts/examples.py --check
 ```
 
 どの `swift test` も緑で終わる。約束の破れは `withKnownIssue` で包んであり、件数は
-各 README の「既知の問題」と一致する。**件数が変わったら、その理由を PR に書く。**
+各 README の「既知の問題」と一致する。Reach は README の表が一覧と揃っていることも見る。**件数が変わったら、その理由を PR に書く。**
 
 ## 見つけたものの行き先
 
 | 見つけたもの | 行き先 |
 | --- | --- |
 | mokume の約束が期待と違う | mokume に `Bug` として起票する。再現は数行のスケッチにして載せ、こちらの検査は `withKnownIssue("mokume#NNNN: …")` で名指しする |
-| mokume にできないことがある | mokume に `Feature` として起票する |
+| mokume にできないことがある | mokume に `Feature` として起票する。**手本にあるだけでは足りない** — works の作品 2 本以上が手で書いたことを示す ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md)) |
 | 物差しや道具の不具合・改善 | このリポジトリに起票する |
 
 絵や動きの証跡は、PR や Issue のコメント欄から GitHub の添付として上げる。リポジトリには

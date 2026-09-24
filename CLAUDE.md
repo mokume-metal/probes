@@ -10,6 +10,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift・Routine) を置く�
 (cd Probe && swift test)              # 既知の問題の件数が Probe/README.md と一致すること
 (cd Drift && swift test)              # 同じく Drift/README.md と
 (cd Routine && swift test)            # 同じく Routine/README.md と
+(cd Reach && swift test)              # 届くと判定した口が描けること・README の表が一覧と揃っていること
 python3 scripts/verify.py --check     # Atlas の台帳の版と Package.resolved が揃っていること
 python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が正本と揃っていること
 ```
@@ -25,11 +26,15 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
 - **生成物を手で書かない。**
   - Atlas の例 157 本の `Package.swift` は `python3 Atlas/scripts/examples.py` が書く。
   - `Atlas/README.md` の `<!-- verify:… -->` の区間は `python3 scripts/verify.py --write-readme` が書く。
+  - `Reach/README.md` の `<!-- reach:… -->` の区間は `(cd Reach && REACH_WRITE_README=1 swift test)` が書く。
 - **書き込むスクリプトがある。**
   - `scripts/bump.py` は全部の `Package.swift` と `Package.resolved` を書き換える。しかも引数を版として検めない (`--help` も版とみなす。#6)。
   - `scripts/watch.py` は `--dry-run` を付けないと Issue を立てる。
 - **`scripts/` は mokume-metal/works の写しである。** 特に `mokume_api.py` の名前の起こし方は、
   works の側と同じでないと台帳の区分がずれる。変えるときは両方を直す。
+- **「手本にあるのに mokume に無い」だけでは mokume へ起票しない。** mokume は機能を実需で
+  足す (mokume ADR-0022 決定 6)。works の作品 2 本以上が手で書いたか、規範から導ける欠けに
+  限る ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md))。
 - **mokume の不具合は mokume 側へ起票する。** 再現は数行のスケッチにして載せ、こちらの検査は
   `withKnownIssue("mokume#NNNN: …")` で包んで名指しする。
 - **絵と動きの証跡は GitHub の添付に上げる。** Gyazo に置いた絵は一斉に 404 になった
