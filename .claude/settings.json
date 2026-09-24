@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(swift build:*)",
+      "Bash(swift test:*)",
+      "Bash(python3 scripts/status.py:*)",
+      "Bash(python3 scripts/verify.py --check:*)",
+      "Bash(python3 scripts/upstream.py:*)",
+      "Bash(python3 scripts/api-diff.py:*)",
+      "Bash(python3 scripts/watch.py --dry-run:*)",
+      "Bash(python3 Atlas/scripts/examples.py --check:*)",
+      "Bash(./scripts/check-pr-title.sh:*)",
+      "Bash(mokume doctor:*)"
+    ]
+  }
+}
