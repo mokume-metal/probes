@@ -6,7 +6,7 @@
 ## 流れ
 
 1. `main` から `<type>/<短い説明>` のブランチを切る。
-2. 手元で確かめる (下)。**CI では物差しの検査は回らない** — Probe・Drift の `swift test` は
+2. 手元で確かめる (下)。**CI では物差しの検査は回らない** — Probe・Drift・Routine の `swift test` は
    画素を読むので Metal が要り、GitHub の Linux の runner には無い。
 3. PR を出す。
    - **タイトル**は Conventional Commits の形 `<type>(<scope>): <要約>` にする。type は feat / fix / docs / refactor / test / chore / ci / perf / build。`pr-policy` が検査する。
@@ -19,11 +19,12 @@
 ```bash
 (cd Probe && swift test)
 (cd Drift && swift test)
+(cd Routine && swift test)
 python3 scripts/verify.py --check
 python3 Atlas/scripts/examples.py --check
 ```
 
-どちらの `swift test` も緑で終わる。約束の破れは `withKnownIssue` で包んであり、件数は
+どの `swift test` も緑で終わる。約束の破れは `withKnownIssue` で包んであり、件数は
 各 README の「既知の問題」と一致する。**件数が変わったら、その理由を PR に書く。**
 
 ## 見つけたものの行き先
