@@ -1,6 +1,6 @@
 # probes
 
-mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・Soak) を置く。何を置くか・並べ方・走らせ方は
+mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・Soak・Aftermath) を置く。何を置くか・並べ方・走らせ方は
 [README.md](README.md) が正本で、ここでは繰り返さない。ここに置くのは、作業するときに
 踏みやすいことだけである。
 
@@ -11,6 +11,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・So
 (cd Drift && swift test)              # 同じく Drift/README.md と
 (cd Routine && swift test)            # 同じく Routine/README.md と
 (cd Soak && swift test)               # 同じく Soak/README.md と (メモリ・時間・落ちるか。30 秒ほど)
+(cd Aftermath && swift test)          # 同じく Aftermath/README.md と
 (cd Reach && swift test)              # 届くと判定した口が描けること・README の表が一覧と揃っていること
 python3 scripts/verify.py --check     # Atlas の台帳の版と Package.resolved が揃っていること
 python3 -m unittest discover -s scripts -p 'test_*.py'   # scripts の読み取りと判定 (GPU 不要)
@@ -21,7 +22,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
 ## 踏みやすいこと
 
 - **`swift test` は CI では回らない。** 画素を読むので Metal が要り、GitHub の Linux の
-  runner には無い。CI (`pr-policy`) が見るのは PR タイトルだけなので、Probe・Drift・Routine・Soak を
+  runner には無い。CI (`pr-policy`) が見るのは PR タイトルだけなので、Probe・Drift・Routine・Soak・Aftermath を
   触った PR は手元で回した結果 (既知の問題の件数) を本文に書く。
 - **赤くなった `withKnownIssue` は、直った約束である。** 壊したのではない。版上げの後なら
   `.claude/skills/probes-bump/` の手順で包みを外す。版を上げていないのに赤いなら、検査の
@@ -30,7 +31,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
   - Atlas の例 157 本の `Package.swift` は `python3 Atlas/scripts/examples.py` が書く。
   - `Atlas/README.md` の `<!-- verify:… -->` の区間は `python3 scripts/verify.py --write-readme` が書く。
   - `Reach/README.md` の `<!-- reach:… -->` の区間は `(cd Reach && REACH_WRITE_README=1 swift test)` が書く。
-- **画素を見る 4 本 (Probe・Drift・Routine・Reach) の `Stage.swift` で絵を読んだら、`fingerprint` を通す。**
+- **画素を見る 5 本 (Probe・Drift・Routine・Reach・Aftermath) の `Stage.swift` で絵を読んだら、`fingerprint` を通す。**
   `scripts/stress.py` は、その指紋を実行をまたいで突き合わせる。通さずに読んだ絵は、決定論の
   判定から漏れる (ADR-0007)。
 - **書き込むスクリプトがある。**
