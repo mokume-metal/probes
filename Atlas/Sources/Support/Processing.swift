@@ -22,9 +22,12 @@ import mokume
 
 /// 原典の `lerpColor(a, b, t)`。**混ぜる空間が違う** — mokume は線形の空間で持つので、
 /// 原典 (表示値のまま混ぜる) とは中間の色が変わる。
+///
+/// **`LinearRGBA` の成分は乗算済みなので、乗算済みのまま混ぜて乗算済みの口で戻す**
+/// (`straightRed:` へ渡すと不透明度をもう一度掛け、半透明の色が暗く出る。probes#14)。
 public func lerpColor(_ from: LinearRGBA, _ to: LinearRGBA, _ amount: Float) -> LinearRGBA {
     LinearRGBA(
-        straightRed: from.red + (to.red - from.red) * amount,
+        premultipliedRed: from.red + (to.red - from.red) * amount,
         green: from.green + (to.green - from.green) * amount,
         blue: from.blue + (to.blue - from.blue) * amount,
         alpha: from.alpha + (to.alpha - from.alpha) * amount)
