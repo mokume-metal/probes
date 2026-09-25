@@ -37,6 +37,8 @@ vocabulary.jsonl は**移した作品が書き足す台帳**として持ち、�
 例ごとの picture 欄がそれを持つ (draws / bent / none)。
 """
 
+from __future__ import annotations
+
 import collections
 import json
 import pathlib

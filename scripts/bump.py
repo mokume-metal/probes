@@ -19,6 +19,8 @@ Probe・Drift・Routine・Soak は `swift test` を回す — 赤くなったも
 `swift test` に加えて、増えた口が穴の行を埋めていないかを見る。
 """
 
+from __future__ import annotations
+
 import pathlib
 import re
 import subprocess

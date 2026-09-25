@@ -35,6 +35,8 @@
 (`checks.json` の `prepare` から呼ばれるので、verify が必ず通る)。
 """
 
+from __future__ import annotations
+
 import json
 import os
 import pathlib
