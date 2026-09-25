@@ -10,7 +10,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・So
 (cd Probe && swift test)              # 既知の問題の件数が Probe/README.md と一致すること
 (cd Drift && swift test)              # 同じく Drift/README.md と
 (cd Routine && swift test)            # 同じく Routine/README.md と
-(cd Soak && swift test)               # 同じく Soak/README.md と (メモリ・時間・落ちるか。15 秒ほど)
+(cd Soak && swift test)               # 同じく Soak/README.md と (メモリ・時間・落ちるか。30 秒ほど)
 (cd Reach && swift test)              # 届くと判定した口が描けること・README の表が一覧と揃っていること
 python3 scripts/verify.py --check     # Atlas の台帳の版と Package.resolved が揃っていること
 python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が正本と揃っていること

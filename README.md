@@ -88,7 +88,7 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Drift && swift test)
 (cd Routine && swift test)
 (cd Reach && swift test)
-(cd Soak && swift test)               # メモリ・時間・落ちるか (15 秒ほど)
+(cd Soak && swift test)               # メモリ・時間・落ちるか (30 秒ほど)
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
 ```
 
