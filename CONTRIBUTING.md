@@ -24,7 +24,11 @@
 (cd Reach && swift test)
 python3 scripts/verify.py --check
 python3 Atlas/scripts/examples.py --check
+python3 -m unittest discover -s scripts -p 'test_*.py'
 ```
+
+`scripts/stress.py` を触ったとき、画素を見る物差しの `Stage.swift` を触ったときは、
+`python3 scripts/stress.py --repeat 2` も回して要約の表を PR に貼る ([ADR-0007](docs/decisions/0007-stress-and-determinism.md))。
 
 どの `swift test` も緑で終わる。約束の破れは `withKnownIssue` で包んであり、件数は
 各 README の「既知の問題」と一致する。Reach は README の表が一覧と揃っていることも見る。**件数が変わったら、その理由を PR に書く。**

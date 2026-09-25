@@ -54,6 +54,22 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
   メモリは参照との増え方の差、時間は仕事を倍にしたときの比で見るので、機械に依らない。落ちる口は
   exit test (子プロセス) に閉じ込める。破れは Probe と同じく `withKnownIssue` で包んである。
 
+**画素を見る 4 本 (Probe・Drift・Routine・Reach) は、条件を変えて何度も回せる。**
+[`scripts/stress.py`](scripts/stress.py) が、次の条件で同じ検査を繰り返す。
+
+- そのまま
+- Metal の検証レイヤを有効にする
+- 同じ物差しを数本同時に回す
+
+見るのは次の 2 つである。
+
+- **終わり方** — 落ちた・止まった・既知の問題の件数がゆれた
+- **描いた絵の指紋** — 同じフレーム番号からはバイト単位で同じ絵が出る約束 (mokume ADR-0001
+  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである
+
+稀にしか出ない GPU 同期と並行性の破れを捕まえるための道具である
+([ADR-0007](docs/decisions/0007-stress-and-determinism.md))。
+
 ## 並べ方
 
 **1 本 = 1 フォルダ = 1 SwiftPM パッケージ。** これは `mokume` の単位である — `run` /
@@ -90,6 +106,7 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Reach && swift test)
 (cd Soak && swift test)               # メモリ・時間・落ちるか (30 秒ほど)
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
+python3 scripts/stress.py             # 画素を見る 4 本を反復・検証レイヤ・同時実行で (数十分)
 ```
 
 道具は Homebrew で入る:

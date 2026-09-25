@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import mokume
 
@@ -28,7 +29,9 @@ final class Stage: Sketch {
         defer { current = nil }
         let runtime = try SketchRuntime(sketch: Stage(), gpu: gpu)
         for _ in 0..<frames { try runtime.advance() }
-        let picture = Picture(try runtime.target.readPixels())
+        let pixels = try runtime.target.readPixels()
+        try fingerprint(pixels, name: "\(probe.key)-\(route)", frame: frames)
+        let picture = Picture(pixels)
         if let directory = ProcessInfo.processInfo.environment["PROBE_DUMP"] {
             let url = URL(fileURLWithPath: directory).appendingPathComponent("\(probe.key)-\(route).png")
             try runtime.target.writePNG(to: url)
@@ -95,4 +98,33 @@ extension Picture {
 @MainActor
 func sketch(_ body: @escaping @MainActor (Canvas) -> Void) throws -> Picture {
     try Stage.render(Case(key: .hairline, title: "", solid: false) { s, _ in body(s) }, .suspect)
+}
+
+/// 描いた絵の指紋を、環境変数 `PROBES_FINGERPRINT` の置き場へ 1 行足す (`scripts/stress.py` が読む)。
+///
+/// **同じフレーム番号からはバイト単位で同じ絵が出る** (mokume ADR-0001 原則 2)。反復・検証レイヤ・
+/// 同時実行をまたいで指紋が食い違えば、許容誤差の内に収まるずれでも約束の破れである (ADR-0007)。
+/// 変数が無ければ何もしない。
+@MainActor
+func fingerprint(_ pixels: PixelBuffer, name: String, frame: Int) throws {
+    guard let directory = ProcessInfo.processInfo.environment["PROBES_FINGERPRINT"] else { return }
+    var hasher = SHA256()
+    for y in 0..<pixels.height {
+        for x in 0..<pixels.width {
+            let c = pixels[x, y]
+            for value in [c.red, c.green, c.blue, c.alpha] {
+                withUnsafeBytes(of: value.bitPattern) { hasher.update(bufferPointer: $0) }
+            }
+        }
+    }
+    let digest = hasher.finalize().map { String(format: "%02x", $0) }.joined()
+    let url = URL(fileURLWithPath: directory).appendingPathComponent("Probe-\(getpid()).tsv")
+    let line = Data("\(name)\t\(frame)\t\(digest)\n".utf8)
+    if !FileManager.default.fileExists(atPath: url.path) {
+        try Data().write(to: url)
+    }
+    let handle = try FileHandle(forWritingTo: url)
+    defer { try? handle.close() }
+    try handle.seekToEnd()
+    try handle.write(contentsOf: line)
 }

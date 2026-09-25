@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import mokume
 
@@ -24,7 +25,11 @@ func run(
     for frame in 1...frames {
         before?(frame, runtime)
         try runtime.advance()
-        if wanted.contains(frame) { pictures[frame] = Picture(try runtime.target.readPixels()) }
+        if wanted.contains(frame) {
+            let pixels = try runtime.target.readPixels()
+            try fingerprint(pixels, name: dump ?? "unnamed", frame: frame)
+            pictures[frame] = Picture(pixels)
+        }
     }
     if let dump, let directory = ProcessInfo.processInfo.environment["ROUTINE_DUMP"] {
         let url = URL(fileURLWithPath: directory).appendingPathComponent("\(dump).png")
@@ -115,4 +120,33 @@ final class Scene: Sketch {
     /// `Sketch` が求めるだけで、検査からは呼ばない。
     convenience init() { self.init { _ in } }
     func draw() { body(self) }
+}
+
+/// 描いた絵の指紋を、環境変数 `PROBES_FINGERPRINT` の置き場へ 1 行足す (`scripts/stress.py` が読む)。
+///
+/// **同じフレーム番号からはバイト単位で同じ絵が出る** (mokume ADR-0001 原則 2)。反復・検証レイヤ・
+/// 同時実行をまたいで指紋が食い違えば、許容誤差の内に収まるずれでも約束の破れである (ADR-0007)。
+/// 変数が無ければ何もしない。
+@MainActor
+func fingerprint(_ pixels: PixelBuffer, name: String, frame: Int) throws {
+    guard let directory = ProcessInfo.processInfo.environment["PROBES_FINGERPRINT"] else { return }
+    var hasher = SHA256()
+    for y in 0..<pixels.height {
+        for x in 0..<pixels.width {
+            let c = pixels[x, y]
+            for value in [c.red, c.green, c.blue, c.alpha] {
+                withUnsafeBytes(of: value.bitPattern) { hasher.update(bufferPointer: $0) }
+            }
+        }
+    }
+    let digest = hasher.finalize().map { String(format: "%02x", $0) }.joined()
+    let url = URL(fileURLWithPath: directory).appendingPathComponent("Routine-\(getpid()).tsv")
+    let line = Data("\(name)\t\(frame)\t\(digest)\n".utf8)
+    if !FileManager.default.fileExists(atPath: url.path) {
+        try Data().write(to: url)
+    }
+    let handle = try FileHandle(forWritingTo: url)
+    defer { try? handle.close() }
+    try handle.seekToEnd()
+    try handle.write(contentsOf: line)
 }
