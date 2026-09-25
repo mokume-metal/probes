@@ -47,15 +47,6 @@ import mokume
         }
     }
 
-    @Test("連番の OBJ を読み進めても、読んだモデルが控えに溜まり続けない")
-    func modelSequence() async throws {
-        // 毎フレーム 1 モデルずつ積むので、1 枚ごとの増分で見る (`stepKilobytes`)
-        let (a, b) = try await memory(.modelSequence, frames: ModelSequence.length, warmup: 10)
-        withKnownIssue("mokume#1593: loadModel の控えに上限も追い出しも無い") {
-            #expect(a.stepKilobytes < b.stepKilobytes + Self.flat, "連番 \(a.summary)、同じ 1 枚 \(b.summary)")
-        }
-    }
-
     @Test("sin で脈打つ textSize でも、書体の控えが増え続けない")
     func pulsingText() async throws {
         let (a, b) = try await memory(.pulsingText, frames: 600, warmup: 60)
@@ -90,9 +81,12 @@ import mokume
         let reference = (try await ms(.reference, 1000), try await ms(.reference, 2000))
         let suspect = (try await ms(.suspect, 1000), try await ms(.suspect, 2000))
         #expect(reference.1 / reference.0 < Self.linear, "扇: 1000 頂点 \(reference.0) ms、2000 頂点 \(reference.1) ms")
+        // **倍の比ではなく、同じ機械の扇との比で見る。** mokume#1595 が採った直し方 (earcut 系)
+        // でも debug の倍の比は 3.0 までしか下がらない (試作)。扇との比は、いま 2000 頂点で約 41 倍、
+        // 直った後の試作で約 5 倍なので、10 倍で分かれる
         withKnownIssue("mokume#1595: 耳を探すたびに頭から走査し、耳の判定で全頂点を見る (頂点数の二乗)") {
             #expect(
-                suspect.1 / suspect.0 < Self.linear,
+                suspect.1 < reference.1 * 10,
                 "多角形: 1000 頂点 \(suspect.0) ms、2000 頂点 \(suspect.1) ms (扇は \(reference.0)・\(reference.1) ms)")
         }
     }
@@ -105,7 +99,9 @@ import mokume
         #expect(b.lit > 1000, "参照が描いていない: 明るい画素 \(b.lit)")
         // 線の費用は立体の数に比例する (倍にして 2 倍前後)。ここまでは約束どおり
         #expect(a.milliseconds / half.milliseconds < Self.linear, "50 個 \(half.summary)、100 個 \(a.summary)")
-        withKnownIssue("mokume#1596: 稜線の帯と頂点ごとの円板を、立体ごと・毎フレーム CPU で組み直す") {
+        // mokume#1596 は視点を 1 度だけ読む手前の直しで閉じ、この期待 (線なしの 10 倍 + 16 ms・
+        // GPU の山 32 MB 未満) は #1604 (Design) へ移った。手前の直しでは線なしの 25 倍が残る
+        withKnownIssue("mokume#1604: 稜線の帯と角を、立体ごと・毎フレーム CPU で組み直す (根本は GPU で広げるか)") {
             // 線を付けても、1 フレーム (60 fps の 16 ms) と線なしの 10 倍を足した分に収まる
             #expect(
                 a.milliseconds < b.milliseconds * 10 + 16,
@@ -161,6 +157,22 @@ import mokume
         await #expect(processExitsWith: .success) { await survive(.displayImageOutside, extreme: false) }
         await withKnownIssue("mokume#1590: DisplayImage の添字が precondition で止まる (PixelBuffer は #1436 で透明を返す)") {
             await #expect(processExitsWith: .success) { await survive(.displayImageOutside, extreme: true) }
+        }
+    }
+
+    // MARK: - 最後に回す
+
+    /// **いちばん重いメモリの検査なので、最後に回す。** 列を読み切ると 160 MB ほど確保して
+    /// 手放す。この検査の直後に回した `pulsingText` が 1 度だけ既知の問題を記録しなかった
+    /// (2026-09-25・4 回に 1 回。原因は確かめていない)。小さな増え方を見る検査
+    /// (`pulsingText`・`headlessAdvance`) に後始末が混ざる疑いがあるので、後ろに何も置かない。
+    /// `.serialized` は宣言順に回す。
+    @Test("連番の OBJ を読み進めても、読んだモデルが控えに溜まり続けない")
+    func modelSequence() async throws {
+        // 毎フレーム 1 モデルずつ積むので、1 枚ごとの増分で見る (`stepKilobytes`)
+        let (a, b) = try await memory(.modelSequence, frames: ModelSequence.length, warmup: 10)
+        withKnownIssue("mokume#1593: loadModel の控えに上限も追い出しも無い") {
+            #expect(a.stepKilobytes < b.stepKilobytes + Self.flat, "連番 \(a.summary)、同じ 1 枚 \(b.summary)")
         }
     }
 }

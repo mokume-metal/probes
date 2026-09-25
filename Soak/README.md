@@ -60,7 +60,7 @@ Soak が見るのは**資源**である。
 | 見るもの | 閾値 | 理由 |
 | --- | --- | --- |
 | メモリ | 疑いの増え方が「参照 + 32 KB/枚」を越えないこと | 参照はほぼ 0 だが、malloc の領域が 1 度だけ 2 MB 伸びる段を踏むと 300 枚で 10 KB/枚に見える。疑いの側はどれも 100 KB/枚を越える |
-| 時間 | 仕事を倍にしたときの時間の比が 2.6 未満であること | 線形なら 2、二乗なら 4 に近づく。固定の費用があると 2 より小さく出る |
+| 時間 | 同じ機械で回した参照との比で見る。多角形は「扇の 10 倍以内」、立体の線は「線なしの 10 倍 + 16 ms 以内」。参照が線形であることは、仕事を倍にしたときの比が 2.6 未満であることで押さえる | 絶対の ms は機械で変わるが、参照との比は変わりにくい。倍の比 (線形なら 2、二乗なら 4) は、直し方が次数を下げきらないと解けない (mokume#1595 の直し方でも debug で 3.0) ので、疑いの側には使わない |
 | 落ちる | 極端な値でも子プロセスが成功で終わること | 対照 (極端でない値) が通ることを先に押さえる |
 
 増え方は、暖機の後の**頭の 1/4 と尻の 1/4 の中央値どうし**で測る。malloc は空きを一度に
@@ -76,7 +76,7 @@ Soak が見るのは**資源**である。
 
 ```bash
 mokume run .      # 窓で 1 候補ずつ回す (← → で候補、スペースで経路、r で回し直す)
-swift test        # 窓を出さずに回して、数で比べる (15 秒ほど)
+swift test        # 窓を出さずに回して、数で比べる (30 秒ほど)
 ```
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、「既知の問題」
@@ -98,15 +98,15 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 | --- | --- | --- |
 | `unclosedShape` | `setup()` で開いた `beginShape()` に毎フレーム 1000 点足すと、約 170 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (毎フレーム閉じる参照は 0) | [#1591](https://github.com/mokume-metal/mokume/issues/1591) |
 | `offFrameGraphics` | `beginDraw()` を付けずに描き場所へ円を 1000 個置くと、約 130 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (挟む参照は 0) | [#1592](https://github.com/mokume-metal/mokume/issues/1592) |
-| `modelSequence` | 連番の OBJ (1681 頂点) を 1 枚ずつ `loadModel` すると、読んだモデルが控えに残り、1 枚ごとに 464 KB 増える。画像の控え (64 MiB) と違って上限が無い | [#1593](https://github.com/mokume-metal/mokume/issues/1593) |
+| `modelSequence` | 連番の OBJ (3721 頂点) を 1 枚ずつ `loadModel` すると、読んだモデルが控えに残り、1 枚ごとに約 1 MB 増える。画像の控え (64 MiB) と違って上限が無い。列 (160 枚・約 160 MB) は、mokume が決めた予算 64 MiB より大きくしてある — 予算に収まる列だと、直っても 1 巡の間は増え続けて知らせない | [#1593](https://github.com/mokume-metal/mokume/issues/1593) |
 | `headlessAdvance` (テストだけ) | main actor を譲らずに `advance()` を回すと、GPU の完了の後始末 (`Task { @MainActor in releaseFinished }`) が走れずに溜まる。何もしないスケッチで 1.45 KB/枚、毎フレーム `createGraphics` すると 5.8 KB/枚 (譲れば 0) | [#1594](https://github.com/mokume-metal/mokume/issues/1594) |
 
 #### 時間
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。同じ形を扇で置く参照は 2.6 倍に届かない | [#1595](https://github.com/mokume-metal/mokume/issues/1595) |
-| `solidStroke` | 既定の線のままの `sphere()` 100 個で 465 ms/枚・GPU +183 MB (`noStroke()` なら 0.4 ms/枚)。稜線の帯と頂点ごとの円板を、立体ごと・毎フレーム CPU で組み直す。個数には比例する | [#1596](https://github.com/mokume-metal/mokume/issues/1596) |
+| `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。2000 頂点で、同じ形を扇で置く参照の約 41 倍かかる | [#1595](https://github.com/mokume-metal/mokume/issues/1595) |
+| `solidStroke` | 既定の線のままの `sphere()` 100 個で 465 ms/枚・GPU +183 MB (`noStroke()` なら 0.4 ms/枚)。稜線の帯と角 (既定の `.miter` では正方形) を、立体ごと・毎フレーム CPU で組み直す。個数には比例する。#1596 は視点を 1 度だけ読む手前の直し (時間が半分) で閉じ、この期待 (線なしの 10 倍 + 16 ms・GPU の山 32 MB 未満) は Design の [#1604](https://github.com/mokume-metal/mokume/issues/1604) へ移った | [#1604](https://github.com/mokume-metal/mokume/issues/1604) ([#1596](https://github.com/mokume-metal/mokume/issues/1596)) |
 
 #### 落ちる (テストだけ)
 
@@ -130,6 +130,21 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
 | `pulsingText` | `textSize(14 * (1 + 0.3 * sin(t)))` で漢字 12 字を描くと、約 100 KB/枚ずつ増え続ける。同じ脈を `scale` で付ける参照は 0。書体の控えが大きさごとに増える件の、作品の書き方での実害である | [#1431](https://github.com/mokume-metal/mokume/issues/1431) (実害待ち) へ数字を足した |
+
+### mokume でのトリアージ (2026-09-25)
+
+起票した 10 件と #1431 は、直し方をメンテナが決めて `verify: triaged` が付いた (各 Issue の本文の「決定」と「完了条件」)。トリアージの中で、次の 7 件を分けて起票した。
+
+| mokume | 何か |
+| --- | --- |
+| [#1602](https://github.com/mokume-metal/mokume/issues/1602) | 控えを上限つきの型 1 つに畳む (Task・triaged)。[#1593](https://github.com/mokume-metal/mokume/issues/1593) と [#1431](https://github.com/mokume-metal/mokume/issues/1431) はこの後に直る |
+| [#1603](https://github.com/mokume-metal/mokume/issues/1603) | フレームの外で置いた図形の寿命を決める (Design)。[#1592](https://github.com/mokume-metal/mokume/issues/1592) は描き場所でだけ断る形に狭めた |
+| [#1604](https://github.com/mokume-metal/mokume/issues/1604) | 立体の稜線を GPU で広げるか (Design)。`solidStroke` の見張りはここへ付け替えた |
+| [#1605](https://github.com/mokume-metal/mokume/issues/1605) | フレームの外の `effects()` が黙って捨てられる (Bug) |
+| [#1606](https://github.com/mokume-metal/mokume/issues/1606) | 64 種を超える立体で控えを毎フレーム組み直す (Task) |
+| [#1607](https://github.com/mokume-metal/mokume/issues/1607)・[#1608](https://github.com/mokume-metal/mokume/issues/1608) | 閉じ忘れた形の周辺 (`createShape` をまたぐ・`beginShape` の二重呼び) (Bug) |
+
+**直っても知らせない見込みのものがある。** `pulsingText` は、書体の控えに上限が入っても OS 側の焼きの控えが頭打ちするまで (mokume の外で測って 1 万枚前後) 増えるので、600 枚の区間ではまだ増えて見える見込みである。#1431 が直ったら、回す枚数を延ばして確かめる。
 
 ### 踏んだが起票しなかったもの
 

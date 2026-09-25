@@ -150,9 +150,14 @@ final class OffFrameGraphics: Sketch {
 /// 全部のモデルが控えに残る。参照は同じ 1 枚を読み続ける (控えに当たる)。
 final class ModelSequence: Sketch {
     /// 列の長さ。窓では 1 巡した後は控えに当たって増えなくなる。
-    static let length = 120
-    /// 1 枚の格子の分割数。頂点は (grid + 1)² = 1681、三角形は 2 × grid² = 3200。
-    static let grid = 40
+    ///
+    /// **列全体は、控えに上限が入ったときの予算より大きくしておく。** mokume#1593 は量で
+    /// 64 MiB の予算を持たせると決めた。列が予算に収まると、直っても 1 巡の間は増え続けるので
+    /// `withKnownIssue` が「起きなかった」で知らせない。1 枚約 1 MB × 160 枚で、予算の約 2.5 倍。
+    static let length = 160
+    /// 1 枚の格子の分割数。頂点は (grid + 1)² = 3721、三角形は 2 × grid² = 7200
+    /// (1 枚の控えは 7200 × 3 点 × 48 B ≈ 1.04 MB の見込み)。
+    static let grid = 60
 
     /// 列を書いた場所。**名前は中身 (列の長さと格子) だけで決め、既にあるファイルは書き直さない。**
     ///
@@ -290,8 +295,8 @@ final class PolygonFill: Sketch {
 /// 組み込みの立体を、既定の線 (`stroke` が効いたまま) で並べる。
 ///
 /// **立体の線が、立体の数ぶん毎フレーム CPU で組み直される。** 稜線 1 本ごとに視線へ
-/// 向けた帯を組み、頂点ごとに 16 枚の三角形の円板を置く (mokume の `Canvas+Solid.swift` の
-/// `strokeSolidEdges`)。既定で線が効いているので、`noStroke()` を書かない作品はみな
+/// 向けた帯を組み、点ごとに角を置く (既定の `.miter` では正方形、`.round` では円板 16 枚。
+/// mokume の `Canvas+Solid.swift` の `strokeSolidEdges`)。既定で線が効いているので、`noStroke()` を書かない作品はみな
 /// 通る。参照は `noStroke()` にした同じ置き方。
 final class SolidStroke: Sketch {
     var settings = Loads.settings
