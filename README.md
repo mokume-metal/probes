@@ -2,6 +2,11 @@
 
 [mokume](https://github.com/mokume-metal/mokume) を**外から測る物差し**を置く。作品ではない。
 
+**目的は、mokume に実装されたものが適切に動くことを徹底的に確かめ、mokume へ戻すことである。**
+見た目の小さなずれより、ハング・クラッシュ・データ破壊・戻らない劣化・GPU 同期を先に測る
+([ADR-0006](docs/decisions/0006-thorough-verification.md))。観点の地図は
+[#26](https://github.com/mokume-metal/probes/issues/26) にある。
+
 mokume で作った作品は [works](https://github.com/mokume-metal/works) にある。物差しは
 もともと works に置いていたが、2026-09 にこちらへ移した (works の `68306a8` まで)。**作品を
 読みに来た人が最初に出会うものではない**からで、works の README が「作品は測る口を持たない」と
