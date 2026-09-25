@@ -75,7 +75,7 @@ func curvePoint(_ a: Float, _ b: Float, _ c: Float, _ d: Float, _ t: Float) -> F
 /// 手本 (表示値のまま混ぜる) とは中間の色が変わる (mokume ADR-0033 決定 7)。
 ///
 /// **`LinearRGBA` の成分は乗算済み**なので、乗算済みのまま混ぜて乗算済みの口で戻す
-/// (Atlas の `Processing.swift` は同じ成分を `straightRed:` へ渡していて、半透明の色で狂う)。
+/// (`straightRed:` へ渡すと不透明度をもう一度掛け、半透明の色が暗く出る。probes#14)。
 func lerpColor(_ from: LinearRGBA, _ to: LinearRGBA, _ amount: Float) -> LinearRGBA {
     LinearRGBA(
         premultipliedRed: from.red + (to.red - from.red) * amount,
