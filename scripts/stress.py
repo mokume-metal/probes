@@ -10,7 +10,7 @@ GPU 同期と並行性のバグは稀にしか出ない (mokume#341 は 59 回�
 - **指紋** — 描いた絵のハッシュ。**同じフレーム番号からはバイト単位で同じ絵が出る**
   (mokume ADR-0001 原則 2) ので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである
 
-    python3 scripts/stress.py                              # Probe Drift Routine Reach を全条件で
+    python3 scripts/stress.py                              # Probe Drift Routine Reach Aftermath を全条件で
     python3 scripts/stress.py Probe --repeat 20 --workers 4
     python3 scripts/stress.py --condition validation       # 条件を絞る
 
@@ -44,7 +44,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-RULERS = ["Probe", "Drift", "Routine", "Reach"]
+RULERS = ["Probe", "Drift", "Routine", "Reach", "Aftermath"]
 CONDITIONS: Dict[str, Dict[str, str]] = {
     "plain": {},
     "validation": {"MTL_DEBUG_LAYER": "1", "MTL_SHADER_VALIDATION": "1"},
