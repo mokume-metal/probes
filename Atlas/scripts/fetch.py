@@ -12,6 +12,8 @@
 ledger/sources.json の差分がそのまま「何が変わって台帳を組み直したか」の記録になる。
 """
 
+from __future__ import annotations
+
 import json
 import pathlib
 import subprocess

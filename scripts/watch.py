@@ -20,6 +20,8 @@ open なものがあれば立て直さずに本文を書き直す。判定に使
 見に行けなかったとき**だけ — つまり終了コードは「検出が動いたか」だけを表す。
 """
 
+from __future__ import annotations
+
 import json
 import pathlib
 import subprocess

@@ -18,6 +18,8 @@ Probe・Drift・Reach は台帳の代わりに `swift test` を持つので、�
 ビルドも GPU も要らない。
 """
 
+from __future__ import annotations
+
 import concurrent.futures
 import hashlib
 import pathlib
