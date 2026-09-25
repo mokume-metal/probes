@@ -34,7 +34,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
   `scripts/stress.py` は、その指紋を実行をまたいで突き合わせる。通さずに読んだ絵は、決定論の
   判定から漏れる (ADR-0007)。
 - **書き込むスクリプトがある。**
-  - `scripts/bump.py` は全部の `Package.swift` と `Package.resolved` を書き換える。しかも引数を版として検めない (`--help` も版とみなす。#6)。
+  - `scripts/bump.py` は全部の `Package.swift` と `Package.resolved` を書き換える。
   - `scripts/watch.py` は `--dry-run` を付けないと Issue を立てる。
 - **`scripts/` は mokume-metal/works の写しである。** 特に `mokume_api.py` の名前の起こし方は、
   works の側と同じでないと台帳の区分がずれる。変えるときは両方を直す。

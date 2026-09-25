@@ -28,6 +28,15 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import pieces  # noqa: E402
 
 FROM = re.compile(r'(from:\s*")([0-9]+\.[0-9]+\.[0-9]+)(")')
+VERSION = re.compile(r"v?([0-9]+\.[0-9]+\.[0-9]+)")
+
+
+def version_of(arg: str) -> str:
+    """引数を版として検める。**書き換える前に落とす** — 検めないと `--help` まで全部の `from:` へ書き込む (#6)。"""
+    found = VERSION.fullmatch(arg)
+    if not found:
+        raise SystemExit(f"版ではない: {arg!r} (`0.11.2` か `v0.11.2` の形で渡す)\n{__doc__}")
+    return found[1]
 
 
 def rewrite(path: pathlib.Path, version: str) -> str | None:
@@ -47,7 +56,10 @@ def rewrite(path: pathlib.Path, version: str) -> str | None:
 def main(argv: list[str]) -> int:
     if not argv:
         raise SystemExit(__doc__)
-    version, named = argv[0].lstrip("v"), argv[1:]
+    if argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0
+    version, named = version_of(argv[0]), argv[1:]
     targets = [pieces.piece(n) for n in named] if named else pieces.pieces()
 
     for path in targets:
