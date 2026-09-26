@@ -63,7 +63,7 @@ enum Cases {
         Scene(SketchSettings(width: 100, height: 100, title: "lattice", pixelDensity: density)) { s in
             if !clear { s.background(0) }
             s.noStroke()
-            s.fill(255); s.circle(50, 60, 40)
+            s.fill(255); s.circle(50, 50, 40)
             s.fill(255, 0, 0); s.rect(10, 10, 20, 20)
             s.fill(0); s.rect(30, 10, 20, 20)
         }
