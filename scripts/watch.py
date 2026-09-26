@@ -130,7 +130,7 @@ def body(now: dict) -> str:
             f"python3 scripts/api-diff.py {oldest} {now['latest']}   # 何が変わったか",
             f"python3 scripts/bump.py {now['latest']}              # 版を上げる (中身は変えない)",
             "python3 scripts/verify.py --jobs=4        # 台帳を持つ物差しを測り直す",
-            "(cd Probe && swift test); (cd Drift && swift test); (cd Routine && swift test); (cd Soak && swift test); (cd Aftermath && swift test); (cd Imprint && swift test); (cd Weave && swift test)   # 赤くなったものは直った約束",
+            "(cd Probe && swift test); (cd Drift && swift test); (cd Routine && swift test); (cd Soak && swift test); (cd Aftermath && swift test); (cd Imprint && swift test); (cd Lattice && swift test); (cd Weave && swift test)   # 赤くなったものは直った約束",
             "(cd Reach && swift test)                  # 届く口の一覧 (増えた口で穴が埋まっていないかも見る)",
             "```", ""]
     for name in sorted(now["works"]):
