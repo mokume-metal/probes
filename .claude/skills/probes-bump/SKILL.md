@@ -108,8 +108,8 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 ## mokume へ戻す
 
 判断の表はルート README にある (できない → `Feature` / 期待と違う → `Bug`)。
-本文には「**どの物差しの・どの検査で・何が期待と違ったか**」と、probes へのリンク 1 本を書く。
-再現は数行のスケッチにして載せる (Probe・Drift の起票がその形)。
+**版上げで新しく破れた `Bug` も、起票の約束 ([`docs/filing.md`](../../../docs/filing.md)) に従う。**
+段取りは skill `probes-file` に置いた。調べきり、`Repros/` に再現を置いてから `filing.py draft` で組む。
 
 **閉じた Issue は表から消さない。** `upstream.py --stale` が書き戻し漏れを出す。
 

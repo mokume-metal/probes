@@ -18,6 +18,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・So
 (cd Reach && swift test)              # 届くと判定した口が描けること・README の表が一覧と揃っていること
 python3 scripts/verify.py --check     # Atlas の台帳の版と Package.resolved が揃っていること
 python3 -m unittest discover -s scripts -p 'test_*.py'   # scripts の読み取りと判定 (GPU 不要)
+python3 scripts/filing.py check       # 検査が名指しする mokume の起票が、再現と骨格を持つこと (CI でも回る)
 python3 scripts/stress.py --repeat 2  # 反復・検証レイヤ・同時実行で落ちず、指紋が揃うこと
 python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が正本と揃っていること
 ```
@@ -25,7 +26,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
 ## 踏みやすいこと
 
 - **`swift test` は CI では回らない。** 画素を読むので Metal が要り、GitHub の Linux の
-  runner には無い。CI (`pr-policy`) が見るのは PR タイトルだけなので、Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave を
+  runner には無い。CI (`pr-policy`) が見るのは PR タイトルと起票の骨格 (`filing.py check`) だけなので、Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave を
   触った PR は手元で回した結果 (既知の問題の件数) を本文に書く。
 - **赤くなった `withKnownIssue` は、直った約束である。** 壊したのではない。版上げの後なら
   `.claude/skills/probes-bump/` の手順で包みを外す。版を上げていないのに赤いなら、検査の
@@ -41,14 +42,19 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
   - `scripts/bump.py` は全部の `Package.swift` と `Package.resolved` を書き換える。
   - `scripts/watch.py` は `--dry-run` を付けないと Issue を立てる。
 - **`scripts/` は mokume-metal/works の写しである。** 特に `mokume_api.py` の名前の起こし方は、
-  works の側と同じでないと台帳の区分がずれる。変えるときは両方を直す。
+  works の側と同じでないと台帳の区分がずれる。変えるときは両方を直す。起票をする `filing.py` だけは
+  probes のもので、works には写さない。
 - **「手本にあるのに mokume に無い」だけでは mokume へ起票しない。** mokume は機能を実需で
   足す (mokume ADR-0022 決定 6)。works の作品 2 本以上が手で書いたか、規範から導ける欠けに
   限る ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md))。
-- **mokume の不具合は mokume 側へ起票する。** 再現は数行のスケッチにして載せ、こちらの検査は
-  `withKnownIssue("mokume#NNNN: …")` で包んで名指しする。**比べる絵 (経路 2 つと差分・動きなら GIF) も
-  添える。** `PROBES_SHOTS` で書き出して `scripts/shots.py` で組み、Chrome で添付に上げる手順は
-  `.claude/skills/probes-evidence/` にある。
+- **mokume の不具合は mokume 側へ起票する。約束は [`docs/filing.md`](docs/filing.md)、段取りは
+  `.claude/skills/probes-file/` にある (ADR-0012)。**
+  - 起票の前に調べきる。単独の再現・main・反復・陰性対照と境界・重複の 5 つである。
+  - 再現は `Repros/` に mokume だけで閉じたファイルとして置き、検査が走らせる。本文にはそれをそのまま貼る。
+    手で写さない。
+  - 本文は `scripts/filing.py draft` で組む。区間の印で囲んだ骨格を欠くと、`pr-policy` が落ちる。
+  - 比べる絵 (経路 2 つと差分・動きなら GIF) も添える。`PROBES_SHOTS` で書き出して `scripts/shots.py` で組み、
+    Chrome で添付に上げる手順は `.claude/skills/probes-evidence/` にある。
 - **絵と動きの証跡は GitHub の添付に上げる。** Gyazo に置いた絵は一斉に 404 になった
   (mokume-metal/works#80・#5)。リポジトリには画像をコミットしない。
 - **設計の判断は [`docs/decisions/`](docs/decisions/) に残す。**

@@ -21,3 +21,5 @@
 | `(cd Lattice && swift test)` | |
 | `(cd Weave && swift test)` | |
 | `python3 scripts/verify.py --check` | |
+| `python3 -m unittest discover -s scripts -p 'test_*.py'` | |
+| `python3 scripts/filing.py check` | |
