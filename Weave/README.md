@@ -60,7 +60,8 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 
 ## 結果 — mokume `v0.12.0`
 
-**19 件を突いて、16 件が約束を破っていた。** 16 件とも mokume へ Bug として戻した。陰性対照の 3 件は、
+**19 件を突いて、16 件が約束を破っていた。** 15 件を mokume へ Bug として起票した。残る 1 件 (`clipFraction`) は、同じ版を
+先に突いた [Lattice](../Lattice/) の起票 (mokume#1641) と根が同じだったので、そちらへ観察を足した。陰性対照の 3 件は、
 1 画素も違わなかった。
 
 ### 破れていたもの
@@ -71,7 +72,7 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 | 混ぜ方・線 | `polylineJoin` | 斜めの折れ線 × 太い線 | 一直線の 3 点の中点で、形の座標軸に沿った正方形が帯の外へはみ出す (白黒の形で 38 画素)。`rotate` して描くのと、回した座標で描くのとでも、形が違う | [#1644](https://github.com/mokume-metal/mokume/issues/1644) |
 | 混ぜ方・線 | `roundCapScale` | `scale(20)` × 折れ線の丸い端 | 円板の分割数を拡大前の半径で決めるので、端が三角形になる (白黒の形で 116 画素) | [#1645](https://github.com/mokume-metal/mokume/issues/1645) |
 | 状態 | `shapeCurveDetail` | `createShape` × `curveDetail` | 組み立ての中で変えた細かさが外へ漏れ、後の曲線が折れ線になる (1627 画素) | [#1646](https://github.com/mokume-metal/mokume/issues/1646) |
-| 切り抜き | `clipFraction` | `clip` × 小数の座標 | 右端・下端を切り捨てて、切り抜きの内側の半分覆われた列と行を削る (81 画素) | [#1647](https://github.com/mokume-metal/mokume/issues/1647) |
+| 切り抜き | `clipFraction` | `clip` × 小数の座標 | 右端・下端を切り捨てて、切り抜きの内側の半分覆われた列と行を削る (81 画素) | [#1641](https://github.com/mokume-metal/mokume/issues/1641) (Lattice の起票へ足した) |
 | 切り抜き | `clipBackground` | `clip` × `background` | 切り抜きを無視して面全体を塗り、先に置いた図形も捨てる (12800 画素)。Processing と p5 は内側だけを塗る | [#1648](https://github.com/mokume-metal/mokume/issues/1648) |
 | 粒 | `particlesTexture` | `particles` × `texture` | 白い粒が、貼った絵の赤に染まる (400 画素)。CPU の経路は記録した面を張り直すが、既定の GPU の経路は張り直さない | [#1649](https://github.com/mokume-metal/mokume/issues/1649) |
 | 粒 | `particlesShader` | `particles` × `shader` | 粒が利用者の断片で塗られる (400 画素)。同じく GPU の経路だけが、記録した塗りを当て直さない | [#1650](https://github.com/mokume-metal/mokume/issues/1650) |

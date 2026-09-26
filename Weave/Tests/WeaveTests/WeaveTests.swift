@@ -105,7 +105,7 @@ import mokume
 
     @Test("小数の座標でも、描く矩形と同じ切り抜きは何も削らない")
     func clipFraction() throws {
-        try compareKnown(.clipFraction, "mokume#1647: 切り抜きの右端・下端を Int へ切り捨て、半分覆われた列と行を落とす")
+        try compareKnown(.clipFraction, "mokume#1641: 切り抜きの右端・下端を Int へ切り捨て、半分覆われた列と行を落とす")
     }
 
     @Test("陰性対照: 整数の座標なら、描く矩形と同じ切り抜きは何も削らない")
