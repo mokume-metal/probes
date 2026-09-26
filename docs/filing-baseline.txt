@@ -1,0 +1,58 @@
+# 起票の骨格 (docs/filing.md・ADR-0012) より前に起票した、検査が名指しする mokume の番号。
+# `python3 scripts/filing.py check` はここに載った番号を検めない。
+# **足さない。減らすだけ。** 骨格へ移した (本文を区間の印で囲み、再現のファイルを置いた) ものから消す。
+# 1 行 1 件で、`#` の後ろは名指ししている物差し。
+
+931  # Probe
+1431  # Soak
+1446  # Probe
+1447  # Probe
+1448  # Probe
+1449  # Probe
+1450  # Probe
+1451  # Probe
+1452  # Probe
+1453  # Probe
+1467  # Drift
+1468  # Drift
+1469  # Drift
+1470  # Drift
+1471  # Drift
+1472  # Drift
+1550  # Routine
+1587  # Soak
+1588  # Soak
+1589  # Soak
+1590  # Soak
+1591  # Soak
+1592  # Soak
+1593  # Soak
+1594  # Soak
+1595  # Soak
+1604  # Soak
+1622  # Aftermath
+1623  # Aftermath
+1626  # Imprint
+1627  # Imprint
+1628  # Imprint
+1637  # Lattice
+1638  # Lattice
+1639  # Lattice
+1640  # Lattice
+1641  # Lattice, Weave
+1642  # Lattice
+1643  # Weave
+1644  # Weave
+1645  # Weave
+1646  # Weave
+1648  # Weave
+1649  # Weave
+1650  # Weave
+1651  # Weave
+1652  # Weave
+1653  # Weave
+1654  # Weave
+1655  # Weave
+1656  # Weave
+1657  # Weave
+1658  # Weave
