@@ -1,6 +1,6 @@
 ---
 name: probes-bump
-description: "mokume の新しい版に probes の物差し (Atlas・Probe・Drift・Routine・Reach・Soak・Aftermath・Imprint) を追随させるときに読む。版上げ・Probe・Drift・Routine・Soak の既知の問題の読み方・Atlas の語彙の台帳の再判定・mokume への起票までの順序と、版上げでだけ踏む落とし穴。Use when mokume releases a new version, when a mokume watch issue is filed, when running scripts/bump.py or scripts/verify.py, when a withKnownIssue starts failing, or when a ruler's Package.resolved is behind."
+description: "mokume の新しい版に probes の物差し (Atlas・Probe・Drift・Routine・Reach・Soak・Aftermath・Imprint・Weave) を追随させるときに読む。版上げ・Probe・Drift・Routine・Soak の既知の問題の読み方・Atlas の語彙の台帳の再判定・mokume への起票までの順序と、版上げでだけ踏む落とし穴。Use when mokume releases a new version, when a mokume watch issue is filed, when running scripts/bump.py or scripts/verify.py, when a withKnownIssue starts failing, or when a ruler's Package.resolved is behind."
 ---
 
 # mokume の版上げに物差しを追随させる
@@ -28,8 +28,8 @@ mokume の口を名指しで持っている。works#21 が「該当ゼロ件」�
 
 | | PR | なぜ分けるか |
 | --- | --- | --- |
-| ① | `build:` 版だけ上げる。**中身は 1 行も変えない** | Probe・Drift・Routine・Soak・Aftermath・Imprint の検査と Atlas の台帳が、ここで基準線を取る。②③で何かが動いたときに「版差か書き直しか」を言い切れる |
-| ② | `test(probe|drift|routine|soak|aftermath|imprint):` 直った約束の包みを外す | ①で赤くなったテストは、mokume 側で直った約束である |
+| ① | `build:` 版だけ上げる。**中身は 1 行も変えない** | Probe・Drift・Routine・Soak・Aftermath・Imprint・Weave の検査と Atlas の台帳が、ここで基準線を取る。②③で何かが動いたときに「版差か書き直しか」を言い切れる |
+| ② | `test(probe|drift|routine|soak|aftermath|imprint|weave):` 直った約束の包みを外す | ①で赤くなったテストは、mokume 側で直った約束である |
 | ③ | `feat(atlas):` 語彙の台帳の再判定 / `feat(reach):` 届く口の一覧の再判定 | 埋まった穴のぶんだけ `vocabulary.jsonl` と Reach の一覧の判定が変わる。見るものが②と違う |
 
 ```bash
@@ -41,12 +41,13 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 (cd Soak && swift test)            # 時間の検査は比で見るので、機械を替えても判定は変わらない
 (cd Aftermath && swift test)
 (cd Imprint && swift test)         # mokume#1627 は稀にしか出ない。直ったかは stress.py の件数のゆれで見る
+(cd Weave && swift test)
 (cd Reach && swift test)           # 届く口の一覧が描けること (①では緑のまま)
 ```
 
 ## 物差しごとの落とし穴
 
-### Probe・Drift・Routine・Soak・Aftermath・Imprint
+### Probe・Drift・Routine・Soak・Aftermath・Imprint・Weave
 
 **赤くなったテストは、直った約束である。** 破れていた約束は `withKnownIssue("mokume#NNNN: …")`
 で包んであり、直ると「Known issue was not recorded」で落ちる。
@@ -116,5 +117,5 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 - ルート README の表と「全 N 本が mokume `vX.Y.Z` を引いている」の行
 - `python3 scripts/verify.py --check` が黙ること
 - `python3 scripts/upstream.py --stale` が黙ること
-- `swift test` が Probe・Drift・Routine・Soak・Aftermath・Imprint で緑になること (既知の問題の件数が README と一致する)
+- `swift test` が Probe・Drift・Routine・Soak・Aftermath・Imprint・Weave で緑になること (既知の問題の件数が README と一致する)
 - `swift test` が Reach で緑になること (README の表が一覧と揃っている)

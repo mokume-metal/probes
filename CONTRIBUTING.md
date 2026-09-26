@@ -6,7 +6,7 @@
 ## 流れ
 
 1. `main` から `<type>/<短い説明>` のブランチを切る。
-2. 手元で確かめる (下)。**CI では物差しの検査は回らない** — Probe・Drift・Routine・Soak・Aftermath・Imprint の `swift test` は
+2. 手元で確かめる (下)。**CI では物差しの検査は回らない** — Probe・Drift・Routine・Soak・Aftermath・Imprint・Weave の `swift test` は
    画素を読むので Metal が要り、GitHub の Linux の runner には無い。
 3. PR を出す。
    - **タイトル**は Conventional Commits の形 `<type>(<scope>): <要約>` にする。type は feat / fix / docs / refactor / test / chore / ci / perf / build。`pr-policy` が検査する。
@@ -23,6 +23,7 @@
 (cd Soak && swift test)
 (cd Aftermath && swift test)
 (cd Imprint && swift test)
+(cd Weave && swift test)
 (cd Reach && swift test)
 python3 scripts/verify.py --check
 python3 Atlas/scripts/examples.py --check
