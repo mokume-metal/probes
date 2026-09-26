@@ -25,7 +25,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 | 踏んだもの | mokume 側 |
 | --- | --- |
 | 約束されていないことが**できない** | `Feature` の Issue。どの物差しで何を測ろうとして何ができなかったかを書き、こちらへリンクを張る |
-| 約束されていることが**期待と違う** | `Bug` の Issue。再現は数行のスケッチにして載せる |
+| 約束されていることが**期待と違う** | `Bug` の Issue。mokume だけで走る再現・比べる絵・環境を、決まった骨格で載せる ([docs/filing.md](docs/filing.md)) |
 
 体制の正典は mokume 側の [ADR-0022](https://github.com/mokume-metal/mokume/blob/main/docs/decisions/0022-production-track.md)。
 

@@ -29,6 +29,7 @@
 python3 scripts/verify.py --check
 python3 Atlas/scripts/examples.py --check
 python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/filing.py check
 ```
 
 `scripts/stress.py` を触ったとき、画素を見る物差しの `Stage.swift` を触ったときは、
@@ -41,7 +42,7 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 
 | 見つけたもの | 行き先 |
 | --- | --- |
-| mokume の約束が期待と違う | mokume に `Bug` として起票する。再現は数行のスケッチにして載せ、こちらの検査は `withKnownIssue("mokume#NNNN: …")` で名指しする |
+| mokume の約束が期待と違う | mokume に `Bug` として起票する。調べきってから、`Repros/` に置いた再現と `scripts/filing.py draft` の骨格で書き、こちらの検査は `withKnownIssue("mokume#NNNN: …")` で名指しする ([docs/filing.md](docs/filing.md)・[ADR-0012](docs/decisions/0012-filing-quality.md)) |
 | mokume にできないことがある | mokume に `Feature` として起票する。**手本にあるだけでは足りない** — works の作品 2 本以上が手で書いたことを示す ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md)) |
 | 物差しや道具の不具合・改善 | このリポジトリに起票する |
 
