@@ -121,7 +121,13 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Weave && swift test)              # 機能を組み合わせたときだけ崩れる継ぎ目
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
 python3 scripts/stress.py             # 画素を見る 7 本と Imprint を反復・検証レイヤ・同時実行で (数十分)
+(cd Weave && PROBES_SHOTS=/tmp/shots swift test)   # 読んだ絵を /tmp/shots/Weave/<名前>-<フレーム>.png に書き出す
+python3 scripts/shots.py /tmp/shots/Weave addSky --frames 1-2   # 経路 2 つと差分を 1 枚 (2 枚以上なら GIF) に組む
 ```
+
+画素を見る 7 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
+ときに添える比べる絵の元で、組み方と上げ方は [`.claude/skills/probes-evidence/`](.claude/skills/probes-evidence/SKILL.md)
+にある。
 
 道具は Homebrew で入る:
 

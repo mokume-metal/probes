@@ -46,7 +46,9 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
   足す (mokume ADR-0022 決定 6)。works の作品 2 本以上が手で書いたか、規範から導ける欠けに
   限る ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md))。
 - **mokume の不具合は mokume 側へ起票する。** 再現は数行のスケッチにして載せ、こちらの検査は
-  `withKnownIssue("mokume#NNNN: …")` で包んで名指しする。
+  `withKnownIssue("mokume#NNNN: …")` で包んで名指しする。**比べる絵 (経路 2 つと差分・動きなら GIF) も
+  添える。** `PROBES_SHOTS` で書き出して `scripts/shots.py` で組み、Chrome で添付に上げる手順は
+  `.claude/skills/probes-evidence/` にある。
 - **絵と動きの証跡は GitHub の添付に上げる。** Gyazo に置いた絵は一斉に 404 になった
   (mokume-metal/works#80・#5)。リポジトリには画像をコミットしない。
 - **設計の判断は [`docs/decisions/`](docs/decisions/) に残す。**

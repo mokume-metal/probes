@@ -21,6 +21,7 @@ enum Stage {
         for _ in 0..<frames { try runtime.advance() }
         let pixels = try runtime.target.readPixels()
         try fingerprint(pixels, name: entry.reference, frame: frames)
+        try shoot(runtime.target, name: entry.reference, frame: frames)
         if let directory = ProcessInfo.processInfo.environment["REACH_DUMP"] {
             let name = entry.reference.map { $0.isLetter || $0.isNumber ? $0 : "_" }
             try runtime.target.writePNG(to: URL(fileURLWithPath: directory).appendingPathComponent(String(name) + ".png"))
@@ -73,6 +74,21 @@ extension PixelBuffer {
         }
         return count
     }
+}
+
+/// 読んだ絵を、環境変数 `PROBES_SHOTS` の置き場へ PNG で書く (`scripts/shots.py` が組み立てる)。
+///
+/// **`fingerprint` と同じ名前とフレームで書く**ので、指紋の行と絵が 1 対 1 に対応する。mokume へ
+/// 起票するときに添える比べる絵の元である (`.claude/skills/probes-evidence/`)。書くのは出す面
+/// (`writePNG` = 表示に符号化した絵) で、置き場は `<PROBES_SHOTS>/Reach/<name>-<frame>.png`。
+/// 変数が無ければ何もしない。
+@MainActor
+func shoot(_ target: RenderTarget, name: String, frame: Int) throws {
+    guard let root = ProcessInfo.processInfo.environment["PROBES_SHOTS"] else { return }
+    let directory = URL(fileURLWithPath: root).appendingPathComponent("Reach", isDirectory: true)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let file = String(name.map { $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "_" })
+    try target.writePNG(to: directory.appendingPathComponent("\(file)-\(frame).png"))
 }
 
 /// 描いた絵の指紋を、環境変数 `PROBES_FINGERPRINT` の置き場へ 1 行足す (`scripts/stress.py` が読む)。

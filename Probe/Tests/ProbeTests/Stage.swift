@@ -31,6 +31,7 @@ final class Stage: Sketch {
         for _ in 0..<frames { try runtime.advance() }
         let pixels = try runtime.target.readPixels()
         try fingerprint(pixels, name: "\(probe.key)-\(route)", frame: frames)
+        try shoot(runtime.target, name: "\(probe.key)-\(route)", frame: frames)
         let picture = Picture(pixels)
         if let directory = ProcessInfo.processInfo.environment["PROBE_DUMP"] {
             let url = URL(fileURLWithPath: directory).appendingPathComponent("\(probe.key)-\(route).png")
@@ -98,6 +99,21 @@ extension Picture {
 @MainActor
 func sketch(_ body: @escaping @MainActor (Canvas) -> Void) throws -> Picture {
     try Stage.render(Case(key: .hairline, title: "", solid: false) { s, _ in body(s) }, .suspect)
+}
+
+/// 読んだ絵を、環境変数 `PROBES_SHOTS` の置き場へ PNG で書く (`scripts/shots.py` が組み立てる)。
+///
+/// **`fingerprint` と同じ名前とフレームで書く**ので、指紋の行と絵が 1 対 1 に対応する。mokume へ
+/// 起票するときに添える比べる絵の元である (`.claude/skills/probes-evidence/`)。書くのは出す面
+/// (`writePNG` = 表示に符号化した絵) で、置き場は `<PROBES_SHOTS>/Probe/<name>-<frame>.png`。
+/// 変数が無ければ何もしない。
+@MainActor
+func shoot(_ target: RenderTarget, name: String, frame: Int) throws {
+    guard let root = ProcessInfo.processInfo.environment["PROBES_SHOTS"] else { return }
+    let directory = URL(fileURLWithPath: root).appendingPathComponent("Probe", isDirectory: true)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let file = String(name.map { $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "_" })
+    try target.writePNG(to: directory.appendingPathComponent("\(file)-\(frame).png"))
 }
 
 /// 描いた絵の指紋を、環境変数 `PROBES_FINGERPRINT` の置き場へ 1 行足す (`scripts/stress.py` が読む)。
