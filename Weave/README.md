@@ -53,7 +53,8 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 ```
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、「既知の問題」として
-数えられる (`v0.12.0` では 19 本のテストで 16 件)。
+数えられる (`v0.12.0` では 20 本のテストで 17 件)。このうち 1 件は、起票に貼った再現 (`Tests/WeaveTests/Repros/`) を
+そのまま走らせる `ReprosTests` の分である (mokume#1644・[docs/filing.md](../docs/filing.md))。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not recorded」で
 落ちる。そのときは包みを外し、下の表を書き換える。
