@@ -11,7 +11,7 @@
 import mokume
 
 enum NaNGravity {
-    static let frames = [2, 3, 10]
+    static let frames = [2, 3, 10, 40]
 
     /// 期待どおりなら `nil`、破れていればその様子を返す。
     static func reproduce() throws -> String? {
