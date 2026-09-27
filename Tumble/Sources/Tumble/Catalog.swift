@@ -548,7 +548,7 @@ enum Catalog {
     /// - mokume#1587: `text` / `textOutline` に数でない座標や巨大な座標を渡すと、Int への変換で落ちる。
     ///   巨大な `textSize` (1e20) の後の字も、無限の `textLeading` の後の `textOutline` も同じ所で落ちる
     ///   (種 9889。#1587 に入口を足した)
-    /// - mokume#未起票: `curveDetail` に上限が無く、巨大な値の後の `bezierVertex` などが止まる
+    /// - mokume#1692: `curveDetail` に上限が無く、巨大な値の後の `bezierVertex` などが止まる
     ///   (種 3161 は 130 秒で 21 GB を確保した)。10000 でも、刻んだ曲線を塗ると三角形分割が頂点数の
     ///   二乗 (mokume#1595) なので止まる (種 5525・6046)。1000 を越える値を避ける
     static func avoidKnown(_ name: String, _ args: inout [Arg], _ kinds: [Kind], _ rng: inout Rng) {

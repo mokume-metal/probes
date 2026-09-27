@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#1692
 //
 // `curveDetail` に上限が無く、大きな値の後の `bezierVertex` は、渡した数だけ点を作る。`curveDetail(Int.max)` の
 // 後に `bezierVertex` を 1 つ呼ぶとフレームが戻らず、確保が増え続ける (130 秒で 21 GB)。立体の分け方

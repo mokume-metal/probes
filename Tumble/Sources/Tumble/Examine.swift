@@ -17,6 +17,8 @@ nonisolated struct Outcome: Codable, Sendable {
     ///   (mokume ADR-0001 原則 2)
     /// - `sentinel`: 番兵のフレームが、列を回さなかった番兵と違う (戻らない劣化)
     /// - `nonfinite`: 画素に数でない値か無限がある (絵へ NaN を通さない)
+    /// - `unlit`: 番兵のフレームが描かれていない (明るい画素がほとんど無い)。参照と比べる `sentinel` は、
+    ///   参照まで描かれていないと見逃す (2026-09-27 に 82 種が、参照ともども全フレーム空だった)
     var breaks: [String]
     /// 投げたときの説明。
     var threw: String?
@@ -107,6 +109,7 @@ enum Examine {
             outcome.sentinelPixels = pixels
             outcome.sentinelGap = Double(gap)
             if pixels > 0 { outcome.breaks.append("sentinel") }
+            if lit(last) < litFloor { outcome.breaks.append("unlit") }
             if let shots {
                 // 参照を、疑う側の番兵と同じフレーム番号で書く (shots.py が対にする)
                 try writeReference(to: shots.appendingPathComponent("\(key)-reference-\(program.frames.count + 1).png"))
@@ -121,6 +124,21 @@ enum Examine {
         defer { runtime.closePlugins() }
         try runtime.advance()
         try runtime.target.writePNG(to: url)
+    }
+
+    /// 番兵が描けているとみなす、明るい画素の下限。番兵は 160×120 のうち 4000 画素ほどを明るく描く。
+    static let litFloor = 2000
+
+    /// 明るい画素 (成分のどれかが 0.2 を越える) の数。
+    static func lit(_ picture: PixelBuffer) -> Int {
+        var count = 0
+        let c = picture.components
+        var i = 0
+        while i < c.count {
+            if max(Float(c[i]), Float(c[i + 1]), Float(c[i + 2])) > 0.2 { count += 1 }
+            i += 4
+        }
+        return count
     }
 
     /// 画素の成分のビット列から取る指紋 (FNV-1a 64)。
@@ -182,13 +200,14 @@ nonisolated struct Soaked: Codable, Sendable {
 }
 
 extension Examine {
-    /// 漏れとみなす増え方 (1 枚 32 KB・GPU 8 MB)。
+    /// 漏れとみなす増え方 (1 枚 32 KB・GPU 32 MB)。
     ///
     /// **Soak の閾値 (2 KB) より大きく置く。** Soak は候補ごとに参照と対にして測るが、ここは口録の列を
     /// そのまま回すので、割り当て器の溜め方のゆれがそのまま出る。同じ列 (毎フレーム `createGraphics`) を
     /// 測り直すと、0 と 13 KB/枚の間でゆれた (捨てた描き場所は弱い参照で解放を確かめた。2026-09-27)。
     static let leakKilobytes = 32.0
-    static let leakGPUMegabytes = 8.0
+    /// GPU の確保量も、束の中で回すと 8〜16 MB ゆれた (種 265・412。単独では 0。2026-09-27)。
+    static let leakGPUMegabytes = 32.0
 
     /// 目盛りを読む装置。GPU の確保量はこの装置から読むので、`gpu` と同じもの。
     static let meter: any MTLDevice = MTLCreateSystemDefaultDevice()!
@@ -210,7 +229,7 @@ extension Examine {
         let measured = once.kilobytes <= twice.kilobytes ? once : twice
         var soaked = Soaked(
             seed: program.seed, kilobytesPerFrame: measured.kilobytes - soakReference,
-            gpuPeakMegabytes: measured.gpuPeak, gpuRiseMegabytes: measured.gpuRise, breaks: [])
+            gpuPeakMegabytes: measured.gpuPeak, gpuRiseMegabytes: min(once.gpuRise, twice.gpuRise), breaks: [])
         if soaked.kilobytesPerFrame > leakKilobytes { soaked.breaks.append("leak") }
         if soaked.gpuRiseMegabytes > leakGPUMegabytes { soaked.breaks.append("gpuLeak") }
         return soaked

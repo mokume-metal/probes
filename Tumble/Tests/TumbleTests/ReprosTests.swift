@@ -10,7 +10,7 @@ import Testing
     @Test("再現: 白を越える明るさの background の上でも、不透明な図形は下地を覆う")
     func backgroundOverflowRepro() throws {
         let broken = try BackgroundOverflowRepro.reproduce()
-        withKnownIssue("mokume#未起票: background が色を締めずに Float16 の面へ置き、面が +inf を持つ") {
+        withKnownIssue("mokume#1691: background が色を締めずに Float16 の面へ置き、面が +inf を持つ") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }
@@ -18,7 +18,7 @@ import Testing
     @Test("再現: curveDetail に大きな値を渡しても、曲線の点の数は上限で止まる")
     func curveDetailUnboundedRepro() throws {
         let broken = try CurveDetailUnboundedRepro.reproduce()
-        withKnownIssue("mokume#未起票: curveDetail が下限だけを締め、渡した数だけ曲線の点を作る") {
+        withKnownIssue("mokume#1692: curveDetail が下限だけを締め、渡した数だけ曲線の点を作る") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }

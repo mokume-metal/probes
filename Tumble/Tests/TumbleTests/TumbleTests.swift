@@ -63,7 +63,7 @@ import mokume
     func backgroundOverflow() throws {
         let outcome = try examine(try finding("backgroundOverflow"), name: "backgroundOverflow")
         #expect(outcome.hashes.count == 2, "番兵まで回っていない: \(outcome)")
-        withKnownIssue("mokume#未起票: background が色を締めずに Float16 の面へ置き、面が +inf を持つ") {
+        withKnownIssue("mokume#1691: background が色を締めずに Float16 の面へ置き、面が +inf を持つ") {
             #expect(!outcome.breaks.contains("nonfinite"), "数でない画素 \(outcome.nonfinitePixels)")
         }
         // 番兵は background(24) で塗り直すので、汚れは次のフレームへ持ち越さない

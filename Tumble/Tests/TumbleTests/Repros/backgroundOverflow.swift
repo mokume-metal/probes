@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#1691
 //
 // 白を越える明るさの `background(40000)` の上に、不透明な青い矩形を描くと、矩形の中が NaN になり、表示では
 // 黒く抜ける。`background` が色を締めずに Float16 の面へ置き、面が +inf を持つため (inf × 0 = NaN)。

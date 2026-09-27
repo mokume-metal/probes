@@ -36,7 +36,11 @@ import time
 
 HERE = pathlib.Path(__file__).resolve().parent.parent
 BINARY = HERE / ".build" / "debug" / "Tumble"
-KINDS = ["crash", "hang", "threw", "nondeterministic", "sentinel", "nonfinite", "leak", "gpuLeak"]
+KINDS = ["crash", "hang", "threw", "nondeterministic", "sentinel", "unlit", "nonfinite", "leak", "gpuLeak", "gpuFault"]
+# 子プロセスが「参照の番兵が描けていない」で終わったときの終了コード (Sources/Tumble/Tumble.swift)
+UNLIT_REFERENCE = 4
+# mokume が GPU の打ち切りを知らせる文面 (mokume#1065)。出た束の判定は当てにならない
+GPU_FAULT = "The GPU dropped the work"
 
 
 def build(binary: pathlib.Path | None = None) -> None:
@@ -98,6 +102,10 @@ def run_batch(seeds: range, stall: float, soak: bool = False) -> tuple[list[dict
         else:
             outcomes.append(line)
             current = None
+    if GPU_FAULT in stderr or (process.returncode == UNLIT_REFERENCE and not lines):
+        # GPU が仕事を打ち切った。列の破れではないので、束ごと回し直させる
+        return [], seeds.start, {"seed": seeds.start, "breaks": ["gpuFault"], "returncode": process.returncode,
+                                 "stderr": tail(stderr)}
     if current is None and not hung and process.returncode == 0:
         return outcomes, None, None
     if not lines:
@@ -125,7 +133,14 @@ def run(args: argparse.Namespace) -> int:
     while cursor < seeds.stop:
         batch = range(cursor, min(seeds.stop, cursor + args.batch))
         stall = args.stall or (180 if args.soak else 20)
-        outcomes, resume, record = run_batch(batch, stall=stall, soak=args.soak)
+        for attempt in range(3):
+            outcomes, resume, record = run_batch(batch, stall=stall, soak=args.soak)
+            if not (record and record["breaks"] == ["gpuFault"]):
+                break
+            print(f"  束 {batch.start}..<{batch.stop}: GPU が仕事を打ち切った。10 秒おいて回し直す", file=sys.stderr, flush=True)
+            time.sleep(10)
+        else:
+            resume = batch.stop  # 3 回とも打ち切られた束は、打ち切りの記録だけ残して先へ進む
         found = outcomes + ([record] if record else [])
         results += found
         if args.out:

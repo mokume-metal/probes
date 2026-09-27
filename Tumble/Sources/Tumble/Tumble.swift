@@ -5,7 +5,7 @@ import mokume
 ///
 /// **作品ではない。** 種 1 つから口録 (`Catalog`) の口と引数 (端の値を含む) を引いて列を
 /// 作り、窓を出さずに回して判定する — 落ちない・止まらない・投げない・毎回同じ絵が出る・
-/// 列の後の番兵が列を回さなかった番兵と同じ・絵が数である・漏れない (README「何をしているか」)。
+/// 列の後の番兵が列を回さなかった番兵と同じ・番兵が描かれている・絵が数である・漏れない (README「何をしているか」)。
 ///
 /// 引数で走り方が変わる:
 ///
@@ -135,6 +135,12 @@ enum Command {
             guard let range = value("--seeds").flatMap(parse) else {
                 FileHandle.standardError.write(Data("--seeds A..<B か --program が要る\n".utf8))
                 return 2
+            }
+            // 参照の番兵が描けていなければ、この子プロセスの判定は全部当てにならない。ドライバが間を置いて
+            // 束ごと回し直す (GPU が仕事を打ち切っている間は、参照も列も空の絵になる。mokume#1065)
+            if Examine.lit(Examine.reference) < Examine.litFloor {
+                FileHandle.standardError.write(Data("参照の番兵が描けていない (明るい画素 \(Examine.lit(Examine.reference)))\n".utf8))
+                return 4
             }
             for seed in range {
                 // 落ちたときにどの種だったか分かるよう、回す前に名乗る
