@@ -42,7 +42,7 @@ python3 scripts/filing.py check
 
 | 見つけたもの | 行き先 |
 | --- | --- |
-| mokume の約束が期待と違う | mokume に `Bug` として起票する。調べきってから、`Repros/` に置いた再現と `scripts/filing.py draft` の骨格で書き、こちらの検査は `withKnownIssue("mokume#NNNN: …")` で名指しする ([docs/filing.md](docs/filing.md)・[ADR-0012](docs/decisions/0012-filing-quality.md)) |
+| mokume の約束が期待と違う | mokume に `Bug` として起票する。調べきってから、`Repros/` に置いた再現と `scripts/filing.py draft` の骨格で書き、こちらの検査は `withKnownIssue("mokume#NNNN: …")` で名指しする ([docs/filing.md](docs/filing.md)・[ADR-0012](docs/decisions/0012-filing-quality.md))。同じ回に出た同じ根の破れは、根の Issue で束ねる ([docs/filing.md](docs/filing.md) の 7) |
 | mokume にできないことがある | mokume に `Feature` として起票する。**手本にあるだけでは足りない** — works の作品 2 本以上が手で書いたことを示す ([ADR-0004](docs/decisions/0004-reach-reference-coverage.md)) |
 | 物差しや道具の不具合・改善 | このリポジトリに起票する |
 
