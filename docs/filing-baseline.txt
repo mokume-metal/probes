@@ -35,18 +35,3 @@
 1637  # Lattice
 1639  # Lattice
 1641  # Lattice, Weave
-1643  # Weave
-1644  # Weave
-1645  # Weave
-1646  # Weave
-1648  # Weave
-1649  # Weave
-1650  # Weave
-1651  # Weave
-1652  # Weave
-1653  # Weave
-1654  # Weave
-1655  # Weave
-1656  # Weave
-1657  # Weave
-1658  # Weave
