@@ -64,7 +64,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
   (鏡映・回転・切り抜き・縮小…) で比べる検査 (`Tests/`) を持つ。関係は mokume のどの経路にも
   頼らない。破れは Probe と同じく `withKnownIssue` で包んである。
 
-**画素を見る 7 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave) と Imprint は、条件を変えて何度も回せる。**
+**画素を見る 8 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble) と Imprint は、条件を変えて何度も回せる。**
 [`scripts/stress.py`](scripts/stress.py) が、次の条件で同じ検査を繰り返す。
 
 - そのまま
@@ -75,7 +75,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 
 - **終わり方** — 落ちた・止まった・既知の問題の件数がゆれた
 - **描いた絵の指紋** — 同じフレーム番号からはバイト単位で同じ絵が出る約束 (mokume ADR-0001
-  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである (画素を見る 7 本だけ)
+  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである (画素を見る 8 本だけ)
 
 稀にしか出ない GPU 同期と並行性の破れを捕まえるための道具である
 ([ADR-0007](docs/decisions/0007-stress-and-determinism.md))。
@@ -119,13 +119,15 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Imprint && swift test)            # 書き出したファイルの中身
 (cd Lattice && swift test)            # 条件を振った絵どうしの関係
 (cd Weave && swift test)              # 機能を組み合わせたときだけ崩れる継ぎ目
+(cd Tumble && swift test)             # 乱数から作った呼び出しの列 (固定の種の束と、縮めた列)
+python3 Tumble/scripts/tumble.py run --seeds '0..<3000'   # 種を回して破れを探す (10 分ほど)
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
-python3 scripts/stress.py             # 画素を見る 7 本と Imprint を反復・検証レイヤ・同時実行で (数十分)
+python3 scripts/stress.py             # 画素を見る 8 本と Imprint を反復・検証レイヤ・同時実行で (数十分)
 (cd Weave && PROBES_SHOTS=/tmp/shots swift test)   # 読んだ絵を /tmp/shots/Weave/<名前>-<フレーム>.png に書き出す
 python3 scripts/shots.py /tmp/shots/Weave addSky --frames 1-2   # 経路 2 つと差分を 1 枚 (2 枚以上なら GIF) に組む
 ```
 
-画素を見る 7 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
+画素を見る 8 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
 ときに添える比べる絵の元で、組み方と上げ方は [`.claude/skills/probes-evidence/`](.claude/skills/probes-evidence/SKILL.md)
 にある。
 
@@ -146,5 +148,5 @@ python3 scripts/upstream.py    # 戻した Issue がどうなったか
 新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
 手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
 
-**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0` を引いている**
-(後の 9 本は、測る版で始めた)。
+**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0`、Tumble は `v0.12.1` を引いている**
+(後の 10 本は、測る版で始めた)。
