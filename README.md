@@ -114,7 +114,7 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Drift && swift test)
 (cd Routine && swift test)
 (cd Reach && swift test)
-(cd Soak && swift test)               # メモリ・時間・落ちるか (30 秒ほど)
+(cd Soak && swift test)               # メモリ・時間・落ちるか (1 分ほど)
 (cd Aftermath && swift test)          # 失敗の後のフレームが汚れないか
 (cd Imprint && swift test)            # 書き出したファイルの中身
 (cd Lattice && swift test)            # 条件を振った絵どうしの関係
