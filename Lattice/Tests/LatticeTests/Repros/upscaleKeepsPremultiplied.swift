@@ -20,8 +20,8 @@ enum UpscaleKeepsPremultiplied {
         for y in 0..<pixels.height {
             for x in 0..<pixels.width {
                 let c = pixels[x, y]
-                if c.alpha > 1.001 { alphaOver += 1 }
-                if Swift.max(c.red, c.green, c.blue) > c.alpha + 0.001 { colorOver += 1 }
+                if c.alpha > 1 { alphaOver += 1 }
+                if Swift.max(c.red, c.green, c.blue) > c.alpha { colorOver += 1 }
                 largest = Swift.max(largest, c.alpha)
             }
         }
