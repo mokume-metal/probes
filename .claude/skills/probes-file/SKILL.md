@@ -69,6 +69,11 @@ description: "probes の物差しで見つけた破れを mokume へ Bug とし�
     - 物差しの README の表と既知の問題の件数を直す。
     - `python3 scripts/filing.py check` が黙ることを確かめる。
 
+11. **同じ根に見える破れが同じ回に 2 件以上あれば、根の Issue で束ねる。**
+    - 根の Issue を `Bug` で立て、破られた約束・範囲の見立て・子の一覧を書く (完了条件は書かない)。
+    - mokume のチェックアウトで `bash scripts/sub-issue.sh <根> --attach <子>` を打つ。
+    - 書き方は [docs/filing.md](../../../docs/filing.md) の 7。
+
 ## pr-policy の `filing.py check` が落ちたら
 
 - **`再現のファイル … が無い`**: 新しく名指しした番号に、`Repros/` の再現が無い。段取りの 2 から置く。
