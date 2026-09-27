@@ -1,8 +1,9 @@
 // repro: mokume#1587
 //
-// 有限だが巨大な `textSize` (1e20) で字を 1 つ描くと、プロセスごと落ちる
-// (`Float value cannot be converted to Int because it is either infinite or NaN` の類)。
-// `text` は描く口なので、投げずに何も置かないはず (mokume ADR-0020 決定 5)。`textSize(400)` なら通る。
+// 有限だが巨大な `textSize` (1e20) で字を 1 つ描くと、プロセスごと落ちる (SIGTRAP。lldb で止めると
+// `Double value cannot be converted to Int because the result would be greater than Int.max`)。
+// `text` は描く口なので、投げずに何も置かないはず (mokume ADR-0020 決定 5)。`textSize(1e19)` なら
+// 「大きすぎる」と注意して何も置かずに通る。
 //
 // **落ちる事象なので、`reproduce()` の中で落ちる。** 戻ってくれば期待どおりで `nil` を返す。
 //
