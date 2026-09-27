@@ -33,11 +33,8 @@
 1627  # Imprint
 1628  # Imprint
 1637  # Lattice
-1638  # Lattice
 1639  # Lattice
-1640  # Lattice
 1641  # Lattice, Weave
-1642  # Lattice
 1643  # Weave
 1644  # Weave
 1645  # Weave
