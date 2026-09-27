@@ -173,6 +173,15 @@ def baseline() -> set[int]:
             if line.split("#")[0].strip()}
 
 
+def kind(title: str) -> str:
+    """タイトルの型 (`fix(stroke): …` なら `fix`)。**骨格を求めるのは `fix` だけ**である。
+
+    docs・design・perf の起票は「いまの振る舞いが誤り」という再現にならない (ADR-0012)。
+    """
+    match = re.match(r"(\w+)[(!:]", title)
+    return match.group(1) if match else ""
+
+
 def fetch(number: int) -> dict:
     """`upstream.py` の `fetch` と同じく gh api で引く。本文とタイトルも取る。"""
     done = subprocess.run(
@@ -200,10 +209,9 @@ def check_all() -> int:
             if int(mark) not in names:
                 problems.append(f"{where}: mokume#{mark} を名指しする検査 (`withKnownIssue`) が無い")
     exempt = baseline()
+    other = []
     for number in sorted(set(names) - exempt):
         where = ", ".join(sorted(names[number]))
-        if number not in marks:
-            problems.append(f"mokume#{number} ({where}): 再現のファイル (`// repro: mokume#{number}`) が無い")
         issue = fetch(number)
         if "error" in issue:
             problems.append(f"mokume#{number} ({where}): 引けない: {issue['error']}")
@@ -211,11 +219,17 @@ def check_all() -> int:
         if issue["pr"]:
             problems.append(f"mokume#{number} ({where}): Issue ではなく PR")
             continue
+        if kind(issue["title"]) not in ("fix", ""):  # 型の無いタイトルは Bug とみなして検める
+            other.append(number)
+            continue
+        if number not in marks:
+            problems.append(f"mokume#{number} ({where}): 再現のファイル (`// repro: mokume#{number}`) が無い")
         problems += [f"mokume#{number} ({where}): {p}" for p in check_body(issue["body"], issue["title"])]
     for line in problems:
         print(line)
-    checked = len(set(names) - exempt)
-    print(f"起票の骨格: 名指し {len(names)} 件 (台帳で猶予 {len(set(names) & exempt)} 件・検めた {checked} 件)・"
+    checked = len(set(names) - exempt) - len(other)
+    print(f"起票の骨格: 名指し {len(names)} 件 (台帳で猶予 {len(set(names) & exempt)} 件・"
+          f"対象外の型 {len(other)} 件・検めた {checked} 件)・"
           f"再現 {len(repro_files())} 本・問題 {len(problems)} 件", file=sys.stderr)
     return 1 if problems else 0
 

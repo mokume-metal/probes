@@ -218,7 +218,8 @@ class CheckAll(unittest.TestCase):
         self.enter(mock.patch.object(filing.pieces, "ROOT", self.root))
         self.enter(mock.patch.object(filing, "BASELINE", self.root / "docs" / "filing-baseline.txt"))
         self.baseline("1643  # Weave\n")
-        self.issues = {1644: {"title": TITLE, "body": GOOD}}
+        self.issues = {1643: {"title": "fix(blend): 既存", "body": "## 事象\n\n骨格より前の本文"},
+                       1644: {"title": TITLE, "body": GOOD}}
         self.enter(mock.patch.object(filing.subprocess, "run", self.gh))
 
     def enter(self, manager):
@@ -280,6 +281,25 @@ class CheckAll(unittest.TestCase):
         code, out = self.run_check()
         self.assertEqual(code, 1)
         self.assertIn("mokume#1700 を名指しする検査", out)
+
+    def test_only_fix_filings_need_skeleton_and_repro(self):
+        tests = self.root / "Weave/Tests/WeaveTests/WeaveTests.swift"
+        tests.write_text(tests.read_text() + 'withKnownIssue("mokume#1700: 説明に無い") {}\n')
+        self.issues[1700] = {"title": "docs(color): 説明に無い", "body": "雑なメモ"}
+        self.assertEqual(self.run_check(), (0, ""))
+        for title in ("fix(color): 説明に無い", "fix: 説明に無い", "説明に無い"):
+            with self.subTest(title=title):
+                self.issues[1700]["title"] = title
+                code, out = self.run_check()
+                self.assertEqual(code, 1)
+                self.assertIn("mokume#1700 (Weave): 再現のファイル", out)
+
+    def test_kind_reads_conventional_type(self):
+        cases = {"fix(stroke): …": "fix", "fix: …": "fix", "fix!: …": "fix", "design(solid): …": "design",
+                 "perf(vertex): …": "perf", "fixed the stroke": "", "": ""}
+        for title, expected in cases.items():
+            with self.subTest(title=title):
+                self.assertEqual(filing.kind(title), expected)
 
     def test_unreachable_issue_fails(self):
         del self.issues[1644]
