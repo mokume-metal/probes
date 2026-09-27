@@ -56,7 +56,9 @@ AFTERMATH_DUMP=/tmp/aftermath swift test  # 比べた最後の絵を PNG で書�
 ```
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、
-「既知の問題」として数えられる (`v0.11.2` では 16 本のテストで 4 件)。
+「既知の問題」として数えられる (`v0.11.2` では 18 本のテストで 6 件)。このうち 2 件は、起票に貼った再現
+(`Tests/AftermathTests/Repros/`) をそのまま走らせる `ReprosTests` の分である (mokume#1622・#1623・
+[docs/filing.md](../docs/filing.md))。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは
 「Known issue was not recorded」で落ちる。そのときは包みを外し、下の表を書き換える。
