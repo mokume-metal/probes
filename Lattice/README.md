@@ -48,7 +48,9 @@ LATTICE_DUMP=/tmp/lattice swift test  # 比べた絵を PNG で書き出す
 ```
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、
-「既知の問題」として数えられる (`v0.12.0` では 14 本のテストで 16 件)。
+「既知の問題」として数えられる (`v0.12.0` では 20 本のテストで 22 件)。このうち 6 件は、起票に貼った再現
+(`Tests/LatticeTests/Repros/`) をそのまま走らせる `ReprosTests` の分である (mokume#1637〜#1642・
+[docs/filing.md](../docs/filing.md))。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは
 「Known issue was not recorded」で落ちる。そのときは包みを外し、下の表を書き換える。
