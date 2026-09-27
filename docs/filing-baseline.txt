@@ -4,7 +4,6 @@
 # 1 行 1 件で、`#` の後ろは名指ししている物差し。
 
 931  # Probe
-1431  # Soak
 1446  # Probe
 1447  # Probe
 1448  # Probe
@@ -19,14 +18,8 @@
 1470  # Drift
 1471  # Drift
 1472  # Drift
-1587  # Soak
-1588  # Soak
 1589  # Soak
 1590  # Soak
-1591  # Soak
-1592  # Soak
-1593  # Soak
-1594  # Soak
 1622  # Aftermath
 1623  # Aftermath
 1637  # Lattice
