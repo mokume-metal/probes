@@ -19,7 +19,6 @@
 1470  # Drift
 1471  # Drift
 1472  # Drift
-1550  # Routine
 1587  # Soak
 1588  # Soak
 1589  # Soak
@@ -28,8 +27,6 @@
 1592  # Soak
 1593  # Soak
 1594  # Soak
-1595  # Soak
-1604  # Soak
 1622  # Aftermath
 1623  # Aftermath
 1626  # Imprint

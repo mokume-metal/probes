@@ -1,7 +1,8 @@
 # mokume へ起票する
 
 物差しで見つけた破れを、mokume へ `Bug` として戻すときの約束。理由は [ADR-0012](decisions/0012-filing-quality.md)、
-コマンドの段取りは skill [`probes-file`](../.claude/skills/probes-file/SKILL.md) にある。`Feature` (できないこと) の行き先は
+コマンドの段取りは skill [`probes-file`](../.claude/skills/probes-file/SKILL.md) にある。**骨格を求めるのは `fix` の起票だけである。** 説明の欠け (`docs`)、設計の目標 (`design`)、速さ (`perf`) は、
+「いまの振る舞いが誤り」という再現にならないので、`filing.py check` は型を見て外す。`Feature` (できないこと) の行き先は
 [CONTRIBUTING.md](../CONTRIBUTING.md) の表に従う。
 
 **読み手は 2 種類いる。** 1 つは probes を知らない mokume の開発者、もう 1 つは Issue だけを渡された AI である。
