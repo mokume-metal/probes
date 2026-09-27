@@ -41,6 +41,7 @@ description: "probes の物差しで見つけた破れを mokume へ Bug とし�
 5. **絵を出して GitHub の添付へ上げる** (skill `probes-evidence`)。画素に出ない事象なら飛ばし、本文に `不要: 理由` と書く。
 
 6. **commit して push してから、下書きを組む。** 出どころのリンクは HEAD の commit で固定するので、push していないと開かない。
+   **起票した後は、その commit を rebase や force push で枝から外さない。** main は merge で取り込み、その commit を PR から辿れるように残す。squash merge の後も、GitHub は PR の head から辿れる commit を残す。枝から外すと、いつかリンクが開かなくなる (#45 で踏んだ)。
 
    ```bash
    python3 scripts/filing.py draft <物差し> <鍵> --shot <添付の URL> --search <API 名> > /tmp/draft.md

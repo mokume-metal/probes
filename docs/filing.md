@@ -93,6 +93,8 @@ API 名で検索する AI が引けるようにするためである。
 
 ## 6. 起票の後
 
+**出どころのリンクが指す commit を、枝から外さない。** 本文を組んだ後で rebase や force push をすると、その commit はどの ref からも辿れなくなり、いつかリンクが開かなくなる。main は merge で取り込み、その commit を含む枝から PR を立てる。
+
 1. 再現の 1 行目と `withKnownIssue` の文面に番号を書く。
 2. 物差しの README の破れの表に行を足し、既知の問題の件数を直す。
 3. `python3 scripts/filing.py check` が黙ることを確かめる。
