@@ -83,8 +83,9 @@ nonisolated struct Arg: Codable, Hashable, Sendable {
     var swift: String {
         if value == Double(Int.max) { return "Int.max" }
         if value == Double(Int.min) { return "Int.min" }
-        if value.isNaN { return ".nan" }
-        if value.isInfinite { return value > 0 ? ".infinity" : "-.infinity" }
+        // `some ScalarConvertible` の口は型を決められないので、`.nan` ではなく `Float.nan` と綴る (mokume ADR-0035)
+        if value.isNaN { return "Float.nan" }
+        if value.isInfinite { return value > 0 ? "Float.infinity" : "-Float.infinity" }
         if value == value.rounded(), abs(value) < 1e15 { return String(Int(value)) }
         return String(value)
     }

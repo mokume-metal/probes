@@ -182,8 +182,12 @@ nonisolated struct Soaked: Codable, Sendable {
 }
 
 extension Examine {
-    /// 漏れとみなす増え方。Soak の検査の閾値と揃える (1 枚 2 KB・GPU 8 MB)。
-    static let leakKilobytes = 2.0
+    /// 漏れとみなす増え方 (1 枚 32 KB・GPU 8 MB)。
+    ///
+    /// **Soak の閾値 (2 KB) より大きく置く。** Soak は候補ごとに参照と対にして測るが、ここは口録の列を
+    /// そのまま回すので、割り当て器の溜め方のゆれがそのまま出る。同じ列 (毎フレーム `createGraphics`) を
+    /// 測り直すと、0 と 13 KB/枚の間でゆれた (捨てた描き場所は弱い参照で解放を確かめた。2026-09-27)。
+    static let leakKilobytes = 32.0
     static let leakGPUMegabytes = 8.0
 
     /// 目盛りを読む装置。GPU の確保量はこの装置から読むので、`gpu` と同じもの。
@@ -200,7 +204,10 @@ extension Examine {
     /// 増え方は、暖機の後の頭の 1/4 と尻の 1/4 の中央値どうしで測る (Soak の `kilobytesPerFrame`)。
     static func soak(_ program: Program, frames: Int = 240, warmup: Int = 60) throws -> Soaked {
         _ = soakReference
-        let measured = try measure(program, frames: frames, warmup: warmup)
+        // 2 回測って、増え方の小さいほうを採る。1 回だけの段差 (割り当て器がまとめて取る) を漏れと数えない
+        let once = try measure(program, frames: frames, warmup: warmup)
+        let twice = try measure(program, frames: frames, warmup: warmup)
+        let measured = once.kilobytes <= twice.kilobytes ? once : twice
         var soaked = Soaked(
             seed: program.seed, kilobytesPerFrame: measured.kilobytes - soakReference,
             gpuPeakMegabytes: measured.gpuPeak, gpuRiseMegabytes: measured.gpuRise, breaks: [])

@@ -124,7 +124,8 @@ def run(args: argparse.Namespace) -> int:
     cursor = seeds.start
     while cursor < seeds.stop:
         batch = range(cursor, min(seeds.stop, cursor + args.batch))
-        outcomes, resume, record = run_batch(batch, stall=args.stall, soak=args.soak)
+        stall = args.stall or (180 if args.soak else 20)
+        outcomes, resume, record = run_batch(batch, stall=stall, soak=args.soak)
         found = outcomes + ([record] if record else [])
         results += found
         if args.out:
@@ -198,12 +199,14 @@ def shrink(args: argparse.Namespace) -> int:
     build(args.binary)
     program = load_program(args.target)
     kind = args.break_kind
+    # 漏れは繰り返して測る。止まるのも、繰り返したときにだけ出るものがある (`--soak`)
+    soaking = args.soak or kind in ("leak", "gpuLeak")
     tries = 0
 
     def still(candidate: dict) -> bool:
         nonlocal tries
         tries += 1
-        return kind in examine(candidate, args.timeout, soak=kind in ("leak", "gpuLeak")).get("breaks", [])
+        return kind in examine(candidate, args.timeout, soak=soaking).get("breaks", [])
 
     if not still(program):
         sys.exit(f"この列は `{kind}` で破れない (種か破れの種類を見直す)")
@@ -257,7 +260,7 @@ def shrink(args: argparse.Namespace) -> int:
         swift = subprocess.run([str(BINARY), "--swift", handle.name], capture_output=True, text=True).stdout
         os.unlink(handle.name)
     print(swift)
-    print(json.dumps(examine(program, args.timeout, soak=kind in ("leak", "gpuLeak")), ensure_ascii=False))
+    print(json.dumps(examine(program, args.timeout, soak=soaking), ensure_ascii=False))
     return 0
 
 
@@ -267,7 +270,8 @@ def main(argv: list[str] | None = None) -> int:
     runner = commands.add_parser("run", help="種の範囲を回す")
     runner.add_argument("--seeds", type=parse_range, required=True, help="`A..<B`")
     runner.add_argument("--batch", type=int, default=50, help="1 本の子プロセスで回す種の数")
-    runner.add_argument("--stall", type=float, default=20, help="出力がこの秒数進まなければ、止まったとみなして殺す")
+    runner.add_argument("--stall", type=float, help="出力がこの秒数進まなければ、止まったとみなして殺す (既定: 判定 20・`--soak` 180)。"
+                        "`--soak` は 1 種に 480 枚回すまで何も出さず、既定の線を持つ `sphere(detail: 128)` は debug で 1 枚 183 ms かかる")
     runner.add_argument("--out", type=pathlib.Path, help="判定を 1 種 1 行で書く")
     runner.add_argument("--soak", action="store_true", help="判定の代わりに、列を繰り返して漏れを測る (1 種 3 秒前後)")
     runner.set_defaults(handler=run)
@@ -276,6 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     shrinker.add_argument("--break", dest="break_kind", choices=KINDS, required=True)
     shrinker.add_argument("--timeout", type=float, default=20, help="1 回の試しの猶予 (秒)。越えたら止まったとみなす")
     shrinker.add_argument("--out", type=pathlib.Path, help="縮めた列を書く (`Tumble/Findings/<鍵>.json`)")
+    shrinker.add_argument("--soak", action="store_true", help="繰り返して回す形で試す (`run --soak` で止まった種を縮めるとき)")
     shrinker.set_defaults(handler=shrink)
     for command in (runner, shrinker):
         command.add_argument("--binary", type=pathlib.Path, help="組まずに使う実行ファイル (組み直しても入れ替わらない写し)")

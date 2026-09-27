@@ -68,7 +68,10 @@ import Testing
                     #expect(op.args.dropFirst().allSatisfy { $0.value.isFinite && abs($0.value) <= 1e15 }, "種 \(seed): \(op)")
                 }
                 if op.name == "curveDetail" {
-                    #expect(op.args[0].value <= 100_000, "種 \(seed): \(op)")
+                    #expect(op.args[0].value <= 1000, "種 \(seed): \(op)")
+                }
+                if op.name == "textLeading" {
+                    #expect(!op.args[0].value.isInfinite, "種 \(seed): \(op)")
                 }
             }
         }
