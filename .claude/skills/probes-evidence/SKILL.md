@@ -16,7 +16,7 @@ mokume-metal/works#80)。リポジトリには画像をコミットしない。
 ls /tmp/shots/Weave        # addSky-suspect-1.png addSky-reference-1.png …
 ```
 
-- 画素を見る 7 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave) の `Stage.swift` は、
+- 画素を見る 8 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble) の `Stage.swift` は、
   `fingerprint` に通した絵を、同じ名前とフレームで `<PROBES_SHOTS>/<物差し>/<name>-<frame>.png` に書く
   (`shoot`)。**書き出されるのは、検査が読んだフレームだけ**である。動きを見せたいフレームが要るなら、
   検査の `reading` を広げるか、候補の枚数を増やす。

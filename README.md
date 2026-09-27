@@ -43,8 +43,9 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 | [Imprint](Imprint/) | mokume `v0.11.2` が**書き出したファイルの中身**を突いた記録。**作品ではなく物差し**で、各フレームに番号を 2 値の升で焼き、`save`・連番・`.mov` を読み戻して、枚数・順序・時刻の間隔・色の刻印・バイトの一致を見る。**10 件を突き、3 件が約束を破っていたので mokume へ 3 件の Bug を戻した** (録画中の `save` の失敗で動画が途切れる・同じ名前への `save` の順序が崩れる・`.mov` の容れ物の時刻でバイトが一致しない)。後の 2 件は `stress.py` で反復してはじめて見えた |
 | [Lattice](Lattice/) | mokume `v0.12.0` を**条件の格子**の上で動かし、**成り立つはずの関係**で突いた記録。**作品ではなく物差し**で、他の物差しが 160²・細かさ 1・30 fps の 1 点で mokume の別経路と比べるのに対し、面の大きさ・縦横比・`pixelDensity`・fps を振り、鏡映・90° 回転・切り抜き・細かさと縮小・fps をまたいだ 1 秒などの関係で比べる。**14 通りの関係を突き、6 通りが約束を破っていたので mokume へ 6 件を戻した** (細かさ 0.5 で三角形の経路の細い線が消える・拡大段が乗算済みの決まりを破る・利用者の効果の `Pixel.position`・fps 25/50/100 の `emit`・`clip` の小数の丸め・`frameRate` 0 を断らない)。6 件とも細かさか fps を 1 点から動かした所で出た |
 | [Weave](Weave/) | mokume `v0.12.0` で**機能を組み合わせたときだけ崩れる継ぎ目**を突いた記録。**作品ではなく物差し**で、1 つずつなら正しく動く機能を組み合わせて 1 回で描き、同じ機能を 1 つずつ使って合成した絵と画素で比べる。**19 件を突き、16 件が約束を破っていたので mokume へ 15 件の Bug を戻し、1 件を Lattice の起票 (mokume#1641) へ足した** (加算の混ぜ方で輪郭の内側の塗りが消える・粒が `texture` / `shader` に染まる・1 フレームに 2 回描いた粒が消える・本体の断片の `set` が描き場所に効かない・`get` を挟むと影が割れる・`clip` の中の `background` が面全体を塗る ほか)。落ちる組み合わせ 1 件を mokume#1588 へ足した |
+| [Tumble](Tumble/) | mokume `v0.12.1` を**乱数から作った呼び出しの列**で突いた記録。**作品ではなく物差し**で、他の物差しが突く候補を人が選ぶのに対し、種 1 つから口録 111 口の口と引数 (端の値を含む) を引いて列を作り、落ちない・止まらない・投げない・毎回同じ絵・列の後の番兵・番兵が描かれている・絵が数である・漏れない、の 8 つで判定する。破れた列は delta debugging で縮める。**10000 種と、漏れを 500 種回し、mokume へ 2 件の Bug を戻し、2 件を既知の Issue へ足した** (白を越える明るさの `background` が面を +inf にして上の図形が黒く抜ける・`curveDetail` に上限が無くフレームが戻らない / 無限の `textLeading` の後の `textOutline` が落ちる入口を mokume#1587 へ・閉じ忘れた描き場所の 1 枚 6.7 MB の増え方が main で止まることを mokume#1622 へ) |
 
-測り方は 6 通りある。
+測り方は 7 通りある。
 
 - **Atlas** は語彙の台帳 (`ledger/`) を持ち、`checks.json` に版の刻印を持つ。
   `python3 scripts/verify.py --check` が「道具を上げたのに測り直していない」を捕まえる。
@@ -63,8 +64,11 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 - **Lattice** は、条件 (面の大きさ・細かさ・fps) を振った絵どうしを、**成り立つはずの関係**
   (鏡映・回転・切り抜き・縮小…) で比べる検査 (`Tests/`) を持つ。関係は mokume のどの経路にも
   頼らない。破れは Probe と同じく `withKnownIssue` で包んである。
+- **Tumble** は、種から作った呼び出しの列を子プロセスで数千本回すドライバ (`Tumble/scripts/tumble.py`) と、
+  判定の陰性対照・固定の種の束・縮めた列・起票した再現を回す検査 (`Tests/`) を持つ。破れを探すのはドライバで、
+  `swift test` は見つけたものを `withKnownIssue` で押さえる。
 
-**画素を見る 7 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave) と Imprint は、条件を変えて何度も回せる。**
+**画素を見る 8 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble) と Imprint は、条件を変えて何度も回せる。**
 [`scripts/stress.py`](scripts/stress.py) が、次の条件で同じ検査を繰り返す。
 
 - そのまま
@@ -75,7 +79,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 
 - **終わり方** — 落ちた・止まった・既知の問題の件数がゆれた
 - **描いた絵の指紋** — 同じフレーム番号からはバイト単位で同じ絵が出る約束 (mokume ADR-0001
-  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである (画素を見る 7 本だけ)
+  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである (画素を見る 8 本だけ)
 
 稀にしか出ない GPU 同期と並行性の破れを捕まえるための道具である
 ([ADR-0007](docs/decisions/0007-stress-and-determinism.md))。
@@ -119,13 +123,15 @@ mokume run Probe                      # 窓で左右に並べて見る
 (cd Imprint && swift test)            # 書き出したファイルの中身
 (cd Lattice && swift test)            # 条件を振った絵どうしの関係
 (cd Weave && swift test)              # 機能を組み合わせたときだけ崩れる継ぎ目
+(cd Tumble && swift test)             # 乱数から作った呼び出しの列 (固定の種の束と、縮めた列)
+python3 Tumble/scripts/tumble.py run --seeds '0..<3000'   # 種を回して破れを探す (10 分ほど)
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
-python3 scripts/stress.py             # 画素を見る 7 本と Imprint を反復・検証レイヤ・同時実行で (数十分)
+python3 scripts/stress.py             # 画素を見る 8 本と Imprint を反復・検証レイヤ・同時実行で (数十分)
 (cd Weave && PROBES_SHOTS=/tmp/shots swift test)   # 読んだ絵を /tmp/shots/Weave/<名前>-<フレーム>.png に書き出す
 python3 scripts/shots.py /tmp/shots/Weave addSky --frames 1-2   # 経路 2 つと差分を 1 枚 (2 枚以上なら GIF) に組む
 ```
 
-画素を見る 7 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
+画素を見る 8 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
 ときに添える比べる絵の元で、組み方と上げ方は [`.claude/skills/probes-evidence/`](.claude/skills/probes-evidence/SKILL.md)
 にある。
 
@@ -146,5 +152,5 @@ python3 scripts/upstream.py    # 戻した Issue がどうなったか
 新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
 手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
 
-**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0` を引いている**
-(後の 9 本は、測る版で始めた)。
+**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0`、Tumble は `v0.12.1` を引いている**
+(後の 10 本は、測る版で始めた)。

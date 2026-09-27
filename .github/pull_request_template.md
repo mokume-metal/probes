@@ -8,7 +8,7 @@
 
 ## 確認方法
 
-<!-- 手元で回したもの。Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave を触ったら swift test の結果 (既知の問題の件数) を書く。
+<!-- 手元で回したもの。Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave・Tumble を触ったら swift test の結果 (既知の問題の件数) を書く。
      CI では回らない (Metal が要る) -->
 
 | | 結果 |
@@ -20,6 +20,7 @@
 | `(cd Imprint && swift test)` | |
 | `(cd Lattice && swift test)` | |
 | `(cd Weave && swift test)` | |
+| `(cd Tumble && swift test)` | |
 | `python3 scripts/verify.py --check` | |
 | `python3 -m unittest discover -s scripts -p 'test_*.py'` | |
 | `python3 scripts/filing.py check` | |
