@@ -8,14 +8,14 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 
 ## 台帳
 
-| 区分 | 例数 | `v0.6.0` のとき | `v0.5.0` のとき | |
-| --- | ---: | ---: | ---: | --- |
-| `clean` | **100** | 90 | 64 | そのまま届く |
-| `write-only` | **10** | 8 | 23 | 書けば届く |
-| `bend` | **54** | 54 | 63 | 書けるが歪む |
-| `blocked` | **39** | 51 | 53 | 口が無くて止まる |
-| `out-of-scope` | 51 | 51 | 51 | 測らないと決めた |
-| **合計** | **254** | **254** | **254** | |
+| 区分 | 例数 | `v0.9.0` のとき | `v0.6.0` のとき | `v0.5.0` のとき | |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `clean` | **105** | 100 | 90 | 64 | そのまま届く |
+| `write-only` | **5** | 10 | 8 | 23 | 書けば届く |
+| `bend` | **54** | 54 | 54 | 63 | 書けるが歪む |
+| `blocked` | **39** | 39 | 51 | 53 | 口が無くて止まる |
+| `out-of-scope` | 51 | 51 | 51 | 51 | 測らないと決めた |
+| **合計** | **254** | **254** | **254** | **254** | |
 
 **`v0.6.0` で 26 本が `clean` へ移った。** works が戻した Issue が 3 本まとめて閉じたためで、
 これは**台帳が予測した重みの答え合わせ**にあたる — 下の表で `map` (33 例) と `radians`
@@ -25,6 +25,12 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 ([#900](https://github.com/mokume-metal/mokume/issues/900)) が入り、`noLoop` / `loop` /
 `redraw` の 3 行が `none` から `same` になった。**ここでも台帳が「いちばん重い」と数えて
 いた穴が先に埋まっている** — `noLoop` は 18 例を止めていて、`none` の中で最多だった。
+
+**`v0.14.0` で 5 本が `write-only` から `clean` へ移った。** 数の口 `constrain` / `lerp` /
+`norm` と色の `lerpColor` が同名で面に入り、4 行が `write` から `same` になった
+([下の見直し](#語彙の台帳を-v0140-で見直した))。動いたのは `write` の行だけで、`bend` と
+`none` の例数は `v0.9.0` と変わらない。**ここでも `write` の中でいちばん重い 2 つのうち
+1 つが先に埋まった** — `constrain` は 9 例を止めていて、`dist` (10 例) の次だった。
 
 `out-of-scope` は GLSL を書く例 (`Topics/Shaders` ほか)・性能測定と処理系の試験 (`Demos/Performance` / `Demos/Tests`)・ファイル入出力とネットワークが主題の例。**台帳から消さずに理由を持たせて残している** — 消すと「測っていない」と「測ったが届かない」の区別が付かなくなる。
 
@@ -37,11 +43,11 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 | 12 | `colorMode` | `bend` | color(hue:saturation:brightness:) — **目盛りは張り替えられない** |
 | 10 | `dist` | `write` | — |
 | 10 | `updatePixels` | `none` | — |
-| 9 | `constrain` | `write` | — |
 | 8 | `QUADS` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
 | 7 | `mag` | `write` | — |
 | 6 | `QUAD_STRIP` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
 | 6 | `createFont` | `none` | — |
+| 6 | `getChild` | `none` | — |
 
 全 20 行は [`ledger/summary.md`](ledger/summary.md)。
 
@@ -59,6 +65,12 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 | 語彙 | `v0.6.0` の判定 | 止めていた例数 | `v0.9.0` |
 | --- | --- | ---: | --- |
 | `noLoop` | `none` ([#900](https://github.com/mokume-metal/mokume/issues/900)) | 18 | `same` — 同名・引数なし。`loop` / `redraw` も一緒に入った |
+
+**`v0.14.0` でもう 1 つ消えた。**
+
+| 語彙 | `v0.9.0` の判定 | 止めていた例数 | `v0.14.0` |
+| --- | --- | ---: | --- |
+| `constrain` | `write` | 9 | `same` — 同名・同じ引数の並び。`lerp` / `norm` / `lerpColor` も一緒に入った |
 
 **台帳がいちばん重いと数えたものから順に埋まった。** 1 本ずつの移植では出なかった重みが、
 実際に直す順番と一致していたことになる。
@@ -101,11 +113,20 @@ Processing にあって mokume に無い語彙のうち、**面の外に書け�
 | `map` / `radians` / `degrees` | 同名・同じ引数の形 |
 | `red` / `green` / `blue` / `brightness` | 同名。0–255 と 0–100 で返る |
 
+**`v0.14.0` でさらに 4 個が面へ移った。** 書き足しの `public func` は 13 個から 9 個になった。
+**面と同じ名前・同じ引数の形で入ったので、書き足しを残すと例の側が建たない** — `Support` と
+`mokume` の両方から同じ署名が見えて「ambiguous use」になる (下の「`v0.9.0` → `v0.14.0`」)。
+呼ぶ側は 1 文字も変わっていない。
+
+| `v0.14.0` で面へ移ったもの | 面の口 |
+| --- | --- |
+| `constrain` / `lerp` / `norm` | 同名・同じ引数の並び。**`constrain` は上下が逆の範囲を入れ替えて締め、`norm` は幅 0 の範囲で 0 を返す** (原典はどちらもしない) |
+| `lerpColor` | 同名・同じ引数の並び。**混ぜる空間は書き足しと同じく線形の光の量**なので、原典と中間色が変わるのは `v0.9.0` までと同じ |
+
 | まだ外に要るもの | なぜ |
 | --- | --- |
-| `dist` / `constrain` / `lerp` / `norm` / `sq` / `mag` | 面に無い |
-| `lerpColor` | 面に無い。**混ぜる空間が違う**ので、書いても原典と中間色が変わる |
-| `second` / `minute` / `hour` / `millis` | 壁時計が無い。**値は Foundation が持っている**ので、無いのは読む口だけ |
+| `dist` / `sq` / `mag` | 面に無い (`v0.14.0` でも) |
+| `second` / `minute` / `hour` / `millis` | 壁時計が無い。**値は Foundation が持っている**ので、無いのは読む口だけ。`v0.14.0` の `measure(_:_:)` は観測専用で、`millis` の代わりにならない |
 | `asset` | 資材はリポジトリに置けないので、束の外から読む |
 
 ### 移して分かったこと
@@ -296,7 +317,7 @@ python3 scripts/ledger.py    # ledger/ を組み直す
 | | |
 | --- | --- |
 | probes | この物差しのコミット (`Package.resolved` が同じツリーにある) |
-| mokume | `v0.9.0` / `d88a280b0569f922612ff85dbc9e9f91bbaf6dc2` (`Package.resolved` が固定している) |
+| mokume | `v0.14.0` / `34ba2d8ab9b7f0c95b1d38502365c0812674f0a0` (`Package.resolved` が固定している) |
 | 原典 | `processing/processing-examples` @ `b10c9e9a05a0d6c20d233ca7f30d315b5047720e` ([`ledger/sources.json`](ledger/sources.json) が刻む) |
 <!-- verify:end -->
 
@@ -392,6 +413,68 @@ git diff --stat ledger/    # 差分が出なければ、同じ版から同じ台
 
 **据え置いた行にも実測の根拠を足した。** `frameRate` は走っている最中に `settings.frameRate` へ代入しても黙って無視される — 値は書き換わるが枚数は 60 のままである。
 
+## 版を上げたときに動いたもの — `v0.9.0` → `v0.14.0`
+
+**版だけ上げた時点で、11 本が建たなくなっていた。** `v0.14.0` が `constrain` / `lerp` / `norm` /
+`lerpColor` を**同名・同じ引数の形で**面へ入れたため、例の側から `Support` の書き足しと
+`mokume` の口の 2 つが同じ署名で見え、`ambiguous use of 'lerp'` で止まる。版上げの PR
+([#57](https://github.com/mokume-metal/probes/pull/57)) が見たのは `Atlas` の `swift build`
+(`Support` だけ) と `verify.py --check` で、**例 157 本は 1 本も建てていなかった**ので、再判定で
+初めて出た。`Interpolate` / `LinearGradient` / `Clock` の 3 本を建てて確かめ、残る 8 本も同じ
+口を `Support` ごと引いている。
+
+**書き足しの 4 つを消して建て直した。** 呼ぶ側は 1 文字も変わっていない。`Support` から
+この 4 つしか引いていなかった 7 本は、依存ごと外れた (`import Support` を消し、`Package.swift`
+は `examples.py` が使っている口から組み直す。引く例は 45 本 → 38 本)。
+
+```
+建った 157 / 157  失敗 0
+```
+
+**絵はほぼ動かないはずである。** `lerpColor` の書き足しはもともと面と同じく線形の光の量で
+乗算済みのまま混ぜていたので、違うのは `amount` を 0…1 に締めることだけで、移した例は
+0…1 の中でしか呼ばない。`constrain` (上下が逆の範囲を入れ替える) と `norm` (幅 0 で 0 を返す)
+の違いも、移した例の呼び方では踏まない。**絵は測っていない** (「測るのをやめたもの」)。
+
+`scripts/api-diff.py` が挙げた「直さないと通らないもの」6 件のうち、Atlas に当たったと
+出たのは `InputState.button` の 1 件で、**読み違えだった** — `Topics/GUI/Button` は例の
+名前が `Button` なだけで、押した釦を読んでいない。
+
+### 語彙の台帳を `v0.14.0` で見直した
+
+213 行が全部 `checked: "0.9.0"` のままだったので、`v0.9.0` のときと同じく 1 行ずつ見直した。
+`api-diff.py` の「消えた」は 0 件で、**届いている 152 行 (`same` 17・`renamed` 52・`host` 61・
+`drop` 22) の指し先は全部残っていた** (退行ゼロ)。変わった 6 件の署名 (`mouseButton` /
+`InputState.button` / `InputEvent` の釦・`Force.attract` / `repel`) は、どれも台帳の行が
+指していない。
+
+**動いたのは 4 行。** どれも穴の `write` から `same` へ上がった。
+
+| 行 | | |
+| --- | --- | --- |
+| `constrain` | `write` → `same` | `constrain(_:_:_:)`。**上下を逆に渡すと入れ替えて締める** (原典は入れ替えない) |
+| `lerp` | `write` → `same` | `lerp(_:_:_:)`。原典と同じく 0…1 の外は締めない |
+| `norm` | `write` → `same` | `norm(_:_:_:)`。範囲の外は締めない。**幅 0 の範囲では 0 を返す** (原典は ±∞ / NaN) |
+| `lerpColor` | `write` → `same` | `lerpColor(_:_:_:)`。名前と引数の並びは同じだが、**混ぜる空間が違う** — 線形の光の量で混ぜるので中間の色が原典より明るい (黒と白の真ん中が約 187.5、原典は 127.5)。台帳は「語彙が届くか」を測るので `same` に置き、違いは `note` に持たせた (`hue` / `brightness` の目盛りの違いと同じ扱い) |
+
+**`dist` / `mag` / `sq` は `write` のまま。** `v0.14.0` の一覧にも無い。`dist` (10 例) は
+いま `write` の中でいちばん重い。
+
+**`millis` は `none` のまま。** `v0.14.0` で入った `measure(_:_:)` は処理にかかった時間を
+**観測の応答へ差し出すだけ**で、値はスケッチへ返らない。mokume は `millis()` を持たないことを
+意図として書いている (実時間が描く値へ混ざり、フレーム番号から時刻を導く時計の下でも
+実時間で動く絵を黙って作るため — `Sketch+Expose.swift`)。
+
+**ほかに、判定は変えずに `note` だけ足した行が 4 つある。**
+
+| 行 | 足したこと |
+| --- | --- |
+| `LEFT` / `RIGHT` / `CENTER` | マウスの釦としては `MouseButton.left` / `.right` / `.center`。`v0.14.0` で `mouseButton` が `Int` から `MouseButton?` になった。**台帳が拾う原典にマウスの釦を読む例は無い**ので、例数は動かない |
+| `redraw` | 呼び出しの外から頼むと「the sketch is not running」と断られた件は、`v0.11.1` で文面が直った ([mokume#1322](https://github.com/mokume-metal/mokume/issues/1322))。判定には効かない |
+
+`frameRate` は [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) が開いたままで `bend` のまま、
+`colorMode` / `specular` / `lightSpecular` / `QUADS` / `QUAD_STRIP` も口が増えておらず据え置いた。
+
 ## mokume へ戻したもの
 
 台帳が出した重みは、既に立っている実需の**順位**の材料になる。新しく起票するのは、実測で 1 本以上踏んだものに限る — 机上の数字だけで起票すると「一般にそういう API があるから」に落ちる (ADR-0022 決定 6 が禁じている)。
@@ -407,7 +490,7 @@ git diff --stat ledger/    # 差分が出なければ、同じ版から同じ台
 | **`SketchApplication` が投げる失敗を、外から人に見せられない** — `RenderFailure.message` が internal なので、`Sketch.main()` と同じ文面が書けない | [mokume#899](https://github.com/mokume-metal/mokume/issues/899) | **閉じた** (09-08 → `v0.8.0`) |
 | **進行を止める口が無い** — `noLoop` 18 例・`redraw`。`Basics/Structure/NoLoop` がここで止まった | [mokume#900](https://github.com/mokume-metal/mokume/issues/900) | **閉じた** (09-15 → `v0.9.0`)。`noLoop` / `loop` / `redraw` が同名で入り、**12 本が `blocked` から出た** |
 | **走っている最中に枚数を変える口が無い** — `frameRate` **20 例**。`settings.frameRate` への代入は通って値も残るが、枚数だけ変わらない | [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) | 開いたまま。`frameRate` は `bend` のまま |
-| **`redraw()` / `loop()` を呼び出しの外から頼むと、走っている最中でも「the sketch is not running」と断られる** — 断り方が事実と違う | [mokume#1322](https://github.com/mokume-metal/mokume/issues/1322) | 開いたまま。判定には効かない (口はある) |
+| **`redraw()` / `loop()` を呼び出しの外から頼むと、走っている最中でも「the sketch is not running」と断られる** — 断り方が事実と違う | [mokume#1322](https://github.com/mokume-metal/mokume/issues/1322) | **閉じた** (09-23 → `v0.11.1`)。いまは「どこからなら受け付けるか」を言う。判定には効かない (口はある) |
 
 157 本を並べて撮って、**台帳では原理的に見えなかった差が 4 つ出た**。どれも語彙の名前は当たっていて、絵だけが違う。
 

@@ -1,4 +1,4 @@
-# Reach — Processing / p5.js のよく使う口に mokume v0.11.1 が届くか
+# Reach — Processing / p5.js のよく使う口に mokume v0.14.0 が届くか
 
 **作品ではなく物差しである。** Atlas が Processing の *Examples* を全数で当てて「どの欠けが何本の例を止めるか」を数えるのに対し、Reach は *リファレンス* の側から**作品を作るときにまず使う口**を百余り並べ、1 口 1 タイルで実際に mokume で書いてみる。
 
@@ -26,16 +26,16 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 
 **`swift test` が見ているのは「届くと判定した口が、描いて何かを置くか」まで。** 手本と同じ画素が出るかは見ない (mokume は手本の名前と引数の順序までを採り、画素は約束しない — mokume ADR-0020 決定 1 の改訂)。約束の破れを突くのは Probe・Drift の仕事である。
 
-## 結果 — mokume `v0.11.1`
+## 結果 — mokume `v0.14.0`
 
 <!-- reach:summary -->
 | 判定 | 件数 | |
 | --- | ---: | --- |
-| `same` | 55 | 同名・同じ引数の形がある |
+| `same` | 57 | 同名・同じ引数の形がある |
 | `renamed` | 25 | 口はあるが別名・別の形 |
 | `host` | 7 | Swift・Foundation の語彙で当たる |
 | `drop` | 2 | mokume では要らない |
-| `write` | 15 | 面の外に書けば済む (`Support.swift`) |
+| `write` | 13 | 面の外に書けば済む (`Support.swift`) |
 | `bend` | 8 | 書けるが歪む |
 | `none` | 14 | 口が無い |
 | **合計** | **126** | |
@@ -43,12 +43,14 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 
 件数は一覧から起こしている (上の表は手で書かない)。
 
+**`v0.11.1` で測り始めたときは `same` 55・`write` 15 だった。** `v0.14.0` で `fill(rgb, alpha)` と `lerpColor()` が同じ形で入って `write` から `same` へ移り、`norm` も入った (`sq` が残るので行は `write` のまま)。`Support.swift` からは、その 3 つの書き足しを消した。
+
 ### 分かったこと
 
 - **形・色・変換・字・3D の原形は、ほぼ手本の綴りのまま届く。** `rect` から `torus` まで、授業の 1〜2 週目に並ぶ口で `none` は無い。
 - **穴は「1 行で済むはずの便利な口」に寄っている。** 1 行の `bezier()` / `curve()`・角の丸い `rect`・`dist` / `mag`・`randomGaussian`・`scale(s)` — どれも面の上の口を組めば書けるが、手本の 1 行が数行になる。
 - **`none` は環境・画像の加工・3D の材質に固まっている。** 窓の大きさ (`resizeCanvas` / `fullscreen` / `cursor`)・絵を抜く (`erase`)・絵を縮める (`resize`)・書体と SVG の読み込み (`loadFont` / `loadShape`)・鏡の反射と面の向きの塗り (`specularMaterial` / `normalMaterial`)・u, v の扱い (`textureMode` / `textureWrap`)。
-- **手本と同じ名前で、別の体系の数を運ぶ口がある。** `deltaTime` は秒 (手本はミリ秒) で、p5 のコードを写すと黙って 1000 倍ずれる。`mouseButton` は `LEFT` / `RIGHT` ではなく macOS の釦の番号を返す。
+- **手本と同じ名前で、別の体系の数を運ぶ口がある。** `deltaTime` は秒 (手本はミリ秒) で、p5 のコードを写すと黙って 1000 倍ずれる。`mouseButton` は `LEFT` / `RIGHT` ではなく macOS の釦の番号を返す (`v0.11.1`。`v0.14.0` で `MouseButton?` の型になり、写した数との比較はコンパイルで止まるようになった)。
 - **`filter(INVERT)` に当たる `.invert()` は線形の値で反転する。** 灰 128 は 127 ではなく 229 になる。色の計算を線形で行う規範 (mokume ADR-0011) から来るもので、手本と画素が違うことは mokume の約束の外にある。
 
 ## mokume へ戻したもの
@@ -68,6 +70,8 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | [#1572](https://github.com/mokume-metal/mokume/issues/1572) | Design | `deltaTime` の単位 | #1555 から切り出した。直し方 (ミリ秒にする / 名前を変える / 型で単位を名乗る) の判断待ち |
 | [#1556](https://github.com/mokume-metal/mokume/issues/1556) | Task | `isKeyDown`・`isMousePressed`・`textOutline`・`makeShader`・`beginRecord` ほかの名前 | 手本とずれていて理由が見当たらない |
 | [#1283](https://github.com/mokume-metal/mokume/issues/1283#issuecomment-5815642122) (コメント) | — | `norm` / `smoothstep` | 既存の 2 作品に加え、Grain・Quarry・Apex も手で書いていた |
+
+**`v0.14.0` で閉じたもの:** #1552 (`lerpColor`)・#1553 (`fill` / `stroke` の `(color, alpha)`)・#1555 (`mouseButton` が `MouseButton?` に)・#1283 の `norm` / `smoothstep` は、同じ名前で入った。#1554 は `millis()` を足さず、区間を測って観測へ出す `measure(_:_:)` で閉じた (描く値に実時間を混ぜないため、`millis()` の行は `bend` のまま)。#1551・#1572・#1556 は開いたままである。
 
 ### 起票しなかったもの
 
@@ -92,7 +96,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `noLoop() / loop()` | `same` | noLoop() / loop() / redraw() | v0.9.0 で入った (mokume#900) |
 | `frameCount` | `same` | frameCount |  |
 | `deltaTime` | `bend` | deltaTime * 1000 | 同じ名前で単位が違う (手本はミリ秒、mokume は秒)。p5 のコードを写すと黙って 1000 倍ずれる — [mokume#1572](https://github.com/mokume-metal/mokume/issues/1572) |
-| `millis()` | `bend` | time * 1000 | `time` はそのフレームの時刻で、フレームの途中では進まない。処理の時間を測る使い方 (`millis() - t0`) は書けず、works の 4 作品が Date() で書いている。mokume は `millis()` ではなく、区間を測って観測へ出す口を足す方向でトリアージした — [mokume#1554](https://github.com/mokume-metal/mokume/issues/1554) |
+| `millis()` | `bend` | time * 1000 | `time` はそのフレームの時刻で、フレームの途中では進まない。処理の時間を測る使い方 (`millis() - t0`) は書けず、works の 4 作品が Date() で書いている。mokume は `millis()` を足さず、v0.14.0 で区間を測って観測へ出す `measure(_:_:)` を入れた (値はスケッチへ返らない) — [mokume#1554](https://github.com/mokume-metal/mokume/issues/1554) |
 | `frameRate(fps)` | `bend` | SketchSettings(frameRate:) | 起動のときだけ決まる。走っている最中の代入は黙って効かない — [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) |
 | `createCanvas(w, h)` | `renamed` | SketchSettings(width:height:) | Processing の size() |
 | `width / height` | `same` | width / height | Float で返る |
@@ -140,10 +144,10 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `background() / fill() / stroke()` | `same` | 同名。1〜4 個の数 | 目盛りは 0–255 で手本と同じ。混ぜる空間は線形なので、半透明の重ねは手本と色が違う |
 | `noFill() / noStroke()` | `same` | noFill() / noStroke() |  |
 | `color() / "#ff8800"` | `renamed` | color(r, g, b) / color(hex: 0xff8800) | 文字列の色は受けない (mokume#745 で実需待ち) — [mokume#745](https://github.com/mokume-metal/mokume/issues/745) |
-| `fill(rgb, alpha)` | `write` | fill(color, alpha) (Support) | Processing の、色の値 1 つに不透明度を添える形が無い (手本は色の不透明度に alpha / 255 を掛ける)。works の 2 作品が色を薄める口を手で書いている — [mokume#1553](https://github.com/mokume-metal/mokume/issues/1553) |
+| `fill(rgb, alpha)` | `same` | fill(color, alpha) | v0.14.0 で入った。手本と同じく、色が元から持つ不透明度に alpha / 255 を掛ける — [mokume#1553](https://github.com/mokume-metal/mokume/issues/1553) |
 | `red() / hue() / brightness()` | `same` | red / green / blue / alpha / hue / saturation / brightness |  |
 | `colorMode(HSB)` | `bend` | color(hue:saturation:brightness:) | 目盛りを張り替える口は持たないと決めている (mokume ADR-0033 決定 4)。HSB で書く行ごとにラベルを付ける |
-| `lerpColor()` | `write` | lerpColor (Support) | 面に無い。混ぜる空間が違うので、書いても中間色は手本と変わる。works の 2 作品が手で書いている (mokume#745 は実需待ちで閉じていた) — [mokume#1552](https://github.com/mokume-metal/mokume/issues/1552) |
+| `lerpColor()` | `same` | lerpColor | v0.14.0 で入った。線形の光の量で混ぜるので、中間の色は手本より明るい (名前と引数の順だけを揃え、同じ中間色は約束しない) — [mokume#1552](https://github.com/mokume-metal/mokume/issues/1552) |
 | `clear()` | `renamed` | background(LinearRGBA.transparent) |  |
 | `erase() / noErase()` | `none` | — | 描いたところを透明へ抜く口が無い。blendMode(.replace) の α 0 は mokume#1542 で不具合として扱われている |
 | `blendMode(ADD)` | `renamed` | blendMode(.add) | BLEND / ADD / MULTIPLY / SCREEN / DIFFERENCE ほか 10 種 |
@@ -203,7 +207,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `noise() / noiseSeed() / noiseDetail()` | `same` | noise(x, y, z) / noiseSeed / noiseDetail |  |
 | `map() / constrain() / lerp()` | `same` | map / constrain / lerp | constrain / lerp は v0.11.0 で入った |
 | `dist() / mag()` | `write` | dist / mag (Support) | 面に無い。simd_distance は import simd を要し、アンブレラは通さない |
-| `sq() / norm()` | `write` | sq / norm (Support) |  |
+| `sq() / norm()` | `write` | sq (Support) / norm | norm は v0.14.0 で入った (smoothstep も)。sq は無い |
 | `abs() / floor() / pow() / sqrt()` | `host` | Swift の abs / floor / pow / squareRoot | floor / pow は Foundation を import する |
 | `sin() / cos() / atan2()` | `same` | sin / cos / tan / asin / acos / atan / atan2 | アンブレラが名指しで通す 7 本 (mokume ADR-0020 決定 7) |
 | `radians() / degrees()` | `same` | radians / degrees |  |
@@ -221,7 +225,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `mouseX / mouseY` | `same` | mouseX / mouseY |  |
 | `pmouseX / pmouseY` | `same` | pmouseX / pmouseY |  |
 | `mouseIsPressed` | `renamed` | isMousePressed | Processing の変数 mousePressed は関数と同名になり Swift では並べられない。p5 の mouseIsPressed でもない綴りになっている — [mokume#1556](https://github.com/mokume-metal/mokume/issues/1556) |
-| `mouseButton === LEFT` | `renamed` | mouseButton (Int) | 同じ名前で値の体系が違う。LEFT / RIGHT / CENTER ではなく番号 (0 = 主釦) — [mokume#1555](https://github.com/mokume-metal/mokume/issues/1555) |
+| `mouseButton === LEFT` | `renamed` | mouseButton == .left | v0.14.0 で型が MouseButton? になった。LEFT / RIGHT / CENTER は .left / .right / .center と書き、写した数との比較はコンパイルで止まる — [mokume#1555](https://github.com/mokume-metal/mokume/issues/1555) |
 | `mousePressed() / mouseReleased() / mouseClicked()` | `same` | 同名の関数を書く | mouseMoved() も同名。v0.6.0 で入った (mokume#723) |
 | `mouseDragged()` | `renamed` | mouseDragged(deltaX:deltaY:) | 引数で動いた量を受ける |
 | `mouseWheel(event)` | `renamed` | mouseWheel(deltaX:deltaY:) |  |

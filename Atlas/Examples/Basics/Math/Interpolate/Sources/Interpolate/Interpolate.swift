@@ -1,9 +1,9 @@
 import mokume
-import Support
 
 /// Processing の [Interpolate](https://processing.org/examples/interpolate/) を 1 行ずつ移したもの。
 ///
-/// **台帳は `write-only` と言った。当たっている** — `lerp()` が無いので面の外に書く。
+/// **台帳は `write-only` と言った。当たっていた。`v0.14.0` で埋まった** — 面の外に書いていた
+/// `lerp()` が、同名・同じ引数の形で面に入った。
 /// マウスへ寄っていく例なので、窓を持たない書き出しでは原点へ寄る。
 final class Interpolate: Sketch {
     var settings = SketchSettings(width: 640, height: 360, title: "Interpolate")

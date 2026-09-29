@@ -1,12 +1,11 @@
 import mokume
-import Support
 
 /// Processing の [Linear Gradient](https://processing.org/examples/lineargradient/) を 1 行ずつ移したもの。
 ///
 /// **台帳は `blocked` と言った。当たっていた。`v0.9.0` で埋まった** — 進行を止める口が
 /// 入った ([#900](https://github.com/mokume-metal/mokume/issues/900) — 閉じた)。止めても絵は変わらない。
-/// `lerpColor()` も `map()` も無いので面の外に書く。**混ぜる空間が違う**ので、
-/// 原典 (表示値のまま混ぜる) と中間の色がずれる。
+/// `lerpColor()` は面の外に書いていたが、`v0.14.0` で同名が面に入った (`map()` は `v0.6.0`)。
+/// **混ぜる空間が違う**ので、原典 (表示値のまま混ぜる) と中間の色がずれる。
 final class LinearGradient: Sketch {
     var settings = SketchSettings(width: 640, height: 360, title: "Linear Gradient")
 

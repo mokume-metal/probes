@@ -17,29 +17,23 @@ import mokume
 // HSB) ・`map` / `radians` / `degrees` (数) ・`red` / `green` / `blue` / `brightness`
 // (成分の読み出し)。177 行あったこのファイルは 88 行になった。
 // 何が動いたかは README の「面の外に書き足したもの」にある。
+//
+// **`v0.14.0` でさらに 4 個が面へ移った** — `lerpColor` (色) ・`constrain` / `lerp` /
+// `norm` (数)。同名・同じ引数の形で入ったので、ここに残すと例の側で
+// 「ambiguous use」になって建たない。呼ぶ側は 1 文字も変わっていない。
 
 // MARK: - 色
 
-/// 原典の `lerpColor(a, b, t)`。**混ぜる空間が違う** — mokume は線形の空間で持つので、
-/// 原典 (表示値のまま混ぜる) とは中間の色が変わる。
-///
-/// **`LinearRGBA` の成分は乗算済みなので、乗算済みのまま混ぜて乗算済みの口で戻す**
-/// (`straightRed:` へ渡すと不透明度をもう一度掛け、半透明の色が暗く出る。probes#14)。
-public func lerpColor(_ from: LinearRGBA, _ to: LinearRGBA, _ amount: Float) -> LinearRGBA {
-    LinearRGBA(
-        premultipliedRed: from.red + (to.red - from.red) * amount,
-        green: from.green + (to.green - from.green) * amount,
-        blue: from.blue + (to.blue - from.blue) * amount,
-        alpha: from.alpha + (to.alpha - from.alpha) * amount)
-}
+// `lerpColor` は `v0.14.0` で面に入った。ここにあった書き足しと同じく、**線形の光の量で、
+// 乗算済みのまま混ぜる**ので、原典 (表示値のまま混ぜる) とは中間の色が変わる。書き足しと
+// 違うのは、`amount` を 0…1 に締める (原典も `lerpColor` では締める) ことと、数でない
+// `amount` で始まりの色を返すことである。
 
 // MARK: - 数
 
 // `map` / `radians` / `degrees` は `v0.6.0` で面に入った ([mokume#883](https://github.com/mokume-metal/mokume/issues/883))。
 // 綴りも引数の形も原典と同じなので、呼ぶ側は 1 文字も変わっていない。
-
-/// 原典の `constrain(value, low, high)`。**9 本の例が要求する。**
-public func constrain(_ value: Float, _ low: Float, _ high: Float) -> Float { min(max(value, low), high) }
+// `constrain` / `lerp` / `norm` も `v0.14.0` で同じように入った。
 
 /// 原典の `dist(x1, y1, x2, y2)`。**10 本の例が要求する。**
 public func dist(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float) -> Float {
@@ -54,12 +48,6 @@ public func dist(_ x1: Float, _ y1: Float, _ z1: Float, _ x2: Float, _ y2: Float
 /// 原典の `mag(x, y)` — 原点からの長さ。**7 本の例が要求する。**
 public func mag(_ x: Float, _ y: Float) -> Float { (x * x + y * y).squareRoot() }
 
-/// 原典の `lerp(start, stop, amount)`。
-public func lerp(_ start: Float, _ stop: Float, _ amount: Float) -> Float { start + (stop - start) * amount }
-
-/// 原典の `norm(value, start, stop)` — `map` の 0〜1 版。
-public func norm(_ value: Float, _ start: Float, _ stop: Float) -> Float { (value - start) / (stop - start) }
-
 /// 原典の `sq(n)`。
 public func sq(_ value: Float) -> Float { value * value }
 
@@ -69,6 +57,10 @@ public func sq(_ value: Float) -> Float { value * value }
 // `deltaTime` だけで、`millis` / `second` / `hour` は台帳でも `none` に落ちている。
 // ただし壁時計そのものは Foundation が持っているので、面の外でなら書ける — 面に
 // 無いのは「読む口」であって、値そのものが取れないわけではない。
+//
+// **`v0.14.0` で `measure(_:_:)` が入ったが、`millis` の代わりにはならない。** かかった
+// 時間は観測の応答へ載るだけで、スケッチへは返らない。mokume が `millis()` を持たないのは
+// 意図であり (実時間が描く値へ混ざるのを防ぐ)、ここの書き足しはそのまま残す。
 
 /// 原典の `second()`。
 public func second() -> Float { Float(Calendar.current.component(.second, from: Date())) }

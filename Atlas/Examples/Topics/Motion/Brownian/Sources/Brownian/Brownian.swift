@@ -1,10 +1,9 @@
 import mokume
-import Support
 
 /// Processing の [Brownian](https://processing.org/examples/brownian/) を 1 行ずつ移したもの。
 ///
 /// **台帳は `bend` と言った。当たっている** — `frameRate(30)` が走り出す前にしか
-/// 決められない。`constrain()` も無いので面の外に書く。
+/// 決められない。`constrain()` は面の外に書いていたが、`v0.14.0` で面に入った。
 ///
 /// 乱数で歩くので **画素では比べられない。**
 final class Brownian: Sketch {

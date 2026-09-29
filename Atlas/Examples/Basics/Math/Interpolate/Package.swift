@@ -16,14 +16,12 @@ let package = Package(
     products: [.executable(name: "Interpolate", targets: ["Interpolate"])],
     dependencies: [
         .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.14.0"),
-        .package(path: "../../../.."),
     ],
     targets: [
         .executableTarget(
             name: "Interpolate",
             dependencies: [
                 .product(name: "mokume", package: "mokume"),
-                .product(name: "Support", package: "Atlas"),
             ],
             swiftSettings: [
                 // mokume と揃える。既定の隔離が main actor でないと、スケッチに
