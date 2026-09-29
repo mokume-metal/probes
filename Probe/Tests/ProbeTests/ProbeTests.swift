@@ -7,7 +7,8 @@ import mokume
 ///
 /// mokume `v0.11.0` で実際に破れていたものは `withKnownIssue` で包み、起票した Issue を
 /// 名指しする。mokume 側で直って版を上げると「既知の問題が起きなかった」で赤くなるので、
-/// そのときは包みを外して README の表を書き換える。
+/// そのときは包みを外して README の表を書き換える。`v0.14.0` で直った 8 件は包みを外し、
+/// `.bug` で Issue を名指ししたまま、塞がった約束が戻らないことの見張りに残してある。
 @MainActor
 @Suite struct ProbeTests {
     func pair(_ key: ProbeKey) throws -> (suspect: Picture, reference: Picture) {
@@ -15,18 +16,21 @@ import mokume
         return (try Stage.render(probe, .suspect), try Stage.render(probe, .reference))
     }
 
-    // MARK: - 破れていたもの
+    // MARK: - 破れていたもの (v0.14.0 で直った)
 
-    @Test("鏡映した不透明の箱は、逆に回した箱と同じ明るさで写る")
+    @Test(
+        "鏡映した不透明の箱は、逆に回した箱と同じ明るさで写る",
+        .bug("https://github.com/mokume-metal/mokume/issues/1446", "mokume#1446 (v0.14.0 で直った): 鏡映すると裏面を捨てる向きが逆になり、奥の面だけが残る"))
     func mirroredSolid() throws {
         let (a, b) = try pair(.mirroredSolid)
-        withKnownIssue("mokume#1446: 鏡映すると裏面を捨てる向きが逆になり、奥の面だけが残る") {
-            #expect(abs(a.totalLuminance - b.totalLuminance) < b.totalLuminance * 0.05)
-            #expect(a.differing(from: b) < 200)
-        }
+        #expect(abs(a.totalLuminance - b.totalLuminance) < b.totalLuminance * 0.05)
+        #expect(a.differing(from: b) < 200)
     }
 
-    @Test("透明な下地の上では、どの混ぜ方でも blend と同じ色が載る", arguments: BlendMode.allCases)
+    @Test(
+        "透明な下地の上では、どの混ぜ方でも blend と同じ色が載る",
+        .bug("https://github.com/mokume-metal/mokume/issues/1447", "mokume#1447 (v0.14.0 で直った): 下地を読む混ぜ方が下地の α を見ない"),
+        arguments: BlendMode.allCases)
     func blendOnTransparent(mode: BlendMode) throws {
         func draw(_ mode: BlendMode) throws -> LinearRGBA {
             try sketch { s in
@@ -38,16 +42,13 @@ import mokume
             }[80, 80]
         }
         let (got, expected) = (try draw(mode), try draw(.blend))
-        let broken: Set<BlendMode> = [.add, .subtract, .lightest, .darkest, .difference, .exclusion, .multiply, .screen]
-        withKnownIssue("mokume#1447: 下地を読む混ぜ方が下地の α を見ない") {
-            #expect(abs(got.red - expected.red) < 0.01, "\(mode) の赤 \(got.red)、blend は \(expected.red)")
-            #expect(abs(got.alpha - expected.alpha) < 0.01)
-        } when: {
-            broken.contains(mode)
-        }
+        #expect(abs(got.red - expected.red) < 0.01, "\(mode) の赤 \(got.red)、blend は \(expected.red)")
+        #expect(abs(got.alpha - expected.alpha) < 0.01)
     }
 
-    @Test("楕円の arc の塗りは、媒介変数の角で切った扇と同じところで切れる")
+    @Test(
+        "楕円の arc の塗りは、媒介変数の角で切った扇と同じところで切れる",
+        .bug("https://github.com/mokume-metal/mokume/issues/1448", "mokume#1448 (v0.14.0 で直った): 塗りの内外を極角で決め、切り口は媒介変数の角で引いている"))
     func ellipticArc() throws {
         let (a, b) = try pair(.ellipticArc)
         // 媒介変数の角 20° の内側 — どちらの読み方でも塗られる
@@ -55,20 +56,21 @@ import mokume
         #expect(b[81, 67].red > 0.3)
         // 媒介変数の角 60° (扇の外)、極角では 28° (扇の内) に当たる点
         #expect(b[52, 77].red < 0.05)
-        withKnownIssue("mokume#1448: 塗りの内外を極角で決め、切り口は媒介変数の角で引いている") {
-            #expect(a[52, 77].red < 0.05)
-        }
+        #expect(a[52, 77].red < 0.05)
     }
 
-    @Test("curveVertex の穴は、外周の点を引き継がない")
+    @Test(
+        "curveVertex の穴は、外周の点を引き継がない",
+        .bug("https://github.com/mokume-metal/mokume/issues/1449", "mokume#1449 (v0.14.0 で直った): curveVertex の履歴が beginContour をまたいで残る"))
     func curveContour() throws {
         let (a, b) = try pair(.curveContour)
-        withKnownIssue("mokume#1449: curveVertex の履歴が beginContour をまたいで残る") {
-            #expect(a.differing(from: b) < 16)
-        }
+        #expect(a.differing(from: b) < 16)
     }
 
-    @Test("範囲の外の不透明度は 0…255 へ締まる", arguments: [(-100, 0), (400, 255)] as [(Float, Float)])
+    @Test(
+        "範囲の外の不透明度は 0…255 へ締まる",
+        .bug("https://github.com/mokume-metal/mokume/issues/1450", "mokume#1450 (v0.14.0 で直った): fill の α が 0…255 に締まらず、下地が負や 1 超えになる"),
+        arguments: [(-100, 0), (400, 255)] as [(Float, Float)])
     func fillAlpha(given: Float, clamped: Float) throws {
         func draw(_ alpha: Float) throws -> LinearRGBA {
             try sketch { s in
@@ -79,12 +81,13 @@ import mokume
             }[80, 80]
         }
         let (got, expected) = (try draw(given), try draw(clamped))
-        withKnownIssue("mokume#1450: fill の α が 0…255 に締まらず、下地が負や 1 超えになる") {
-            #expect(abs(got.red - expected.red) < 0.01, "α \(given) の赤 \(got.red)、α \(clamped) は \(expected.red)")
-        }
+        #expect(abs(got.red - expected.red) < 0.01, "α \(given) の赤 \(got.red)、α \(clamped) は \(expected.red)")
     }
 
-    @Test("1 画素より細い線の濃さは、置く位置によらず太さに比例する", arguments: [0.1, 0.5] as [Float])
+    @Test(
+        "1 画素より細い線の濃さは、置く位置によらず太さに比例する",
+        .bug("https://github.com/mokume-metal/mokume/issues/1451", "mokume#1451 (v0.14.0 で直った): 縁の被覆が両側で同じ画素に入る場合を扱わない"),
+        arguments: [0.1, 0.5] as [Float])
     func hairline(weight: Float) throws {
         var energies: [Float] = []
         for x: Float in [80, 80.25, 80.5] {
@@ -96,27 +99,25 @@ import mokume
             }
             energies.append(p.redSum(row: 80, columns: 70..<90))
         }
-        withKnownIssue("mokume#1451: 縁の被覆が両側で同じ画素に入る場合を扱わない") {
-            for energy in energies {
-                #expect(abs(energy - weight) < weight * 0.25, "太さ \(weight) の線の濃さ \(energies)")
-            }
+        for energy in energies {
+            #expect(abs(energy - weight) < weight * 0.25, "太さ \(weight) の線の濃さ \(energies)")
         }
     }
 
-    @Test("右揃えの行の末尾の空白は、行の幅に数えない")
+    @Test(
+        "右揃えの行の末尾の空白は、行の幅に数えない",
+        .bug("https://github.com/mokume-metal/mokume/issues/1452", "mokume#1452 (v0.14.0 で直った): 語の後ろの空白が行の幅に残り、右揃えが左へずれる"))
     func trailingSpace() throws {
         let (a, b) = try pair(.trailingSpace)
-        withKnownIssue("mokume#1452: 語の後ろの空白が行の幅に残り、右揃えが左へずれる") {
-            #expect(abs(a.rightmostInk() - b.rightmostInk()) <= 1, "右端 \(a.rightmostInk()) と \(b.rightmostInk())")
-        }
+        #expect(abs(a.rightmostInk() - b.rightmostInk()) <= 1, "右端 \(a.rightmostInk()) と \(b.rightmostInk())")
     }
 
-    @Test("lerp は amount が 1 なら stop を返し、有限の端からは有限の値を返す")
+    @Test(
+        "lerp は amount が 1 なら stop を返し、有限の端からは有限の値を返す",
+        .bug("https://github.com/mokume-metal/mokume/issues/1453", "mokume#1453 (v0.14.0 で直った): start + (stop - start) * amount の丸めと桁あふれ"))
     func lerpEnds() {
-        withKnownIssue("mokume#1453: start + (stop - start) * amount の丸めと桁あふれ") {
-            #expect(lerp(1e8, 1, 1) == 1)
-            #expect(lerp(-3e38, 3e38, 0.5).isFinite)
-        }
+        #expect(lerp(1e8, 1, 1) == 1)
+        #expect(lerp(-3e38, 3e38, 0.5).isFinite)
         // 説明どおりの振る舞いは通る
         #expect(lerp(0, 10, 2) == 20)
         #expect(constrain(5, 10, 0) == 5)

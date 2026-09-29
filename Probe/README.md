@@ -39,6 +39,8 @@ PROBE_DUMP=/tmp/probe swift test   # 比べた絵を PNG で書き出す
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、
 「既知の問題」として数えられる (`v0.11.0` では 13 本のテストで 21 件)。
+`v0.14.0` では 13 本のテストで 1 件になる。残るのは既知の保留の `bevelJoin` (mokume#931) だけで、
+起票した 8 件はすべて直った。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは
 「Known issue was not recorded」で落ちる。そのときは包みを外し、下の表を書き換える。
@@ -50,16 +52,24 @@ PROBE_DUMP=/tmp/probe swift test   # 比べた絵を PNG で書き出す
 
 ### 破れていたもの (起票した)
 
-| 鍵 | 何が起きたか | mokume |
+**8 件とも `v0.14.0` で直った。** 行は下の「約束どおりになったもの (`v0.14.0` で直った)」へ移した。
+
+### 約束どおりになったもの (`v0.14.0` で直った)
+
+上の「破れていたもの」から移した。**行は消さずに残す** — 何を踏んで、どの版で塞がったかは記録である。
+「何が起きたか」は `v0.11.0` での実測で、`v0.14.0` ではどれも期待どおりに通る。検査は包みを外し、
+`.bug` で Issue を名指ししたまま、戻れば赤くなる見張りとして残した。
+
+| 鍵 | 何が起きたか (`v0.11.0`) | mokume |
 | --- | --- | --- |
-| `mirroredSolid` | `scale(-1, 1, 1)` した不透明の箱で、手前の面が捨てられて奥の面だけが写る。輝度の和が期待の 1/10 | [#1446](https://github.com/mokume-metal/mokume/issues/1446) |
-| `blendOnTransparent` | 透明な下地の上で、`blend` / `replace` 以外の 8 種の色が狂う。`multiply` の赤は黒い不透明の矩形になり、`add` などは半分、`subtract` は負になる | [#1447](https://github.com/mokume-metal/mokume/issues/1447) |
-| `ellipticArc` | 楕円の `arc` の塗りの内外を中心から見た角で決め、辺は媒介変数の角で引いている。切り口の外へ三角の塗りがはみ出す | [#1448](https://github.com/mokume-metal/mokume/issues/1448) |
-| `curveContour` | `curveVertex` の履歴が `beginContour` をまたいで残る。穴の書き始めが外周の点に引かれて欠ける | [#1449](https://github.com/mokume-metal/mokume/issues/1449) |
-| `fillAlpha` | 不透明度が 0…255 に締まらない。α -100 で下地が負の値へ落ち (黒く抜け)、α 400 で白を越える | [#1450](https://github.com/mokume-metal/mokume/issues/1450) |
-| `hairline` | 1 画素より細い線の濃さが置く位置で変わる。0.1px の線は、整数の座標で 0.55、半端な座標で 0.093 (期待は 0.1) | [#1451](https://github.com/mokume-metal/mokume/issues/1451) |
-| `trailingSpace` | 流し込みの最後の行の末尾の空白が幅に数えられ、右揃えの行が左へずれる | [#1452](https://github.com/mokume-metal/mokume/issues/1452) |
-| `lerpEnds` (テストだけ) | `lerp(1e8, 1, 1)` が 0 を返し、`lerp(-3e38, 3e38, 0.5)` が inf を返す。説明の約束 (1 なら `stop`、数でない値を返さない) と違う | [#1453](https://github.com/mokume-metal/mokume/issues/1453) |
+| `mirroredSolid` | `scale(-1, 1, 1)` した不透明の箱で、手前の面が捨てられて奥の面だけが写る。輝度の和が期待の 1/10 | [#1446](https://github.com/mokume-metal/mokume/issues/1446) (`v0.14.0` で直った) |
+| `blendOnTransparent` | 透明な下地の上で、`blend` / `replace` 以外の 8 種の色が狂う。`multiply` の赤は黒い不透明の矩形になり、`add` などは半分、`subtract` は負になる | [#1447](https://github.com/mokume-metal/mokume/issues/1447) (`v0.14.0` で直った) |
+| `ellipticArc` | 楕円の `arc` の塗りの内外を中心から見た角で決め、辺は媒介変数の角で引いている。切り口の外へ三角の塗りがはみ出す | [#1448](https://github.com/mokume-metal/mokume/issues/1448) (`v0.14.0` で直った) |
+| `curveContour` | `curveVertex` の履歴が `beginContour` をまたいで残る。穴の書き始めが外周の点に引かれて欠ける | [#1449](https://github.com/mokume-metal/mokume/issues/1449) (`v0.14.0` で直った) |
+| `fillAlpha` | 不透明度が 0…255 に締まらない。α -100 で下地が負の値へ落ち (黒く抜け)、α 400 で白を越える | [#1450](https://github.com/mokume-metal/mokume/issues/1450) (`v0.14.0` で直った) |
+| `hairline` | 1 画素より細い線の濃さが置く位置で変わる。0.1px の線は、整数の座標で 0.55、半端な座標で 0.093 (期待は 0.1) | [#1451](https://github.com/mokume-metal/mokume/issues/1451) (`v0.14.0` で直った) |
+| `trailingSpace` | 流し込みの最後の行の末尾の空白が幅に数えられ、右揃えの行が左へずれる | [#1452](https://github.com/mokume-metal/mokume/issues/1452) (`v0.14.0` で直った) |
+| `lerpEnds` (テストだけ) | `lerp(1e8, 1, 1)` が 0 を返し、`lerp(-3e38, 3e38, 0.5)` が inf を返す。説明の約束 (1 なら `stop`、数でない値を返さない) と違う | [#1453](https://github.com/mokume-metal/mokume/issues/1453) (`v0.14.0` で直った) |
 
 ### 起票しなかったもの
 
@@ -98,5 +108,6 @@ release との差 3.2 倍を測っている)。**物差しなので、速くす�
 
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.11.0` =
 `503082f`)。`from: "0.11.0"` は他の作品と同じく記録であって、留め金ではない。
+`v0.14.0` (`34ba2d8`) へ上げて測り直し、起票した 8 件が直ったことを確かめた。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。**

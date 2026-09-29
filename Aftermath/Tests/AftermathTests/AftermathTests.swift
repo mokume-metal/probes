@@ -124,9 +124,7 @@ import mokume
     func openGraphicsDraw() throws {
         // 1 枚目と、閉じ直した後の 4 枚目は揃う (比べる舞台が効いている)
         try compare(.openGraphicsDraw, frames: [1, 4])
-        try withKnownIssue("mokume#1622: 次の beginDraw() がフレームを始め直さず、変換が積み上がる") {
-            try compare(.openGraphicsDraw, frames: [3])
-        }
+        try compare(.openGraphicsDraw, frames: [3])
     }
 
     @Test("beginDraw の外で描き場所へ置いた図形は、描き直しに紛れ込まない")
@@ -154,9 +152,7 @@ import mokume
     func particleNaNForce() throws {
         // かける前の 1 枚目は揃う
         try compare(.particleNaNForce, frames: [1])
-        try withKnownIssue("mokume#1623: 数でない力を検めずに積み、生きている粒がすべて消える") {
-            try compare(.particleNaNForce, frames: [3, 10, 40])
-        }
+        try compare(.particleNaNForce, frames: [3, 10, 40])
     }
 
     @Test("残像の途中の NaN の効果は、次のフレームからの絵を汚さない")

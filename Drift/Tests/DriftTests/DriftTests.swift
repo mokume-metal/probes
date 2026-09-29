@@ -8,6 +8,9 @@ import mokume
 ///
 /// 各検査は、疑いを確かめる前に**参照の側が動いていること**を押さえる (時刻が進む・
 /// 粒が出る・効果が効く)。参照まで止まっていると、左右が一致しても何も言えないため。
+///
+/// mokume `v0.11.0` で破れていた 6 件は `v0.14.0` で直った。包みを外し、`.bug` で Issue を
+/// 名指ししたまま、塞がった約束が戻らないことの見張りに残してある。
 @MainActor
 @Suite struct DriftTests {
     /// 表示の値で 0…1 の橙・青・桃が、線形の値ではどこに来るかの大まかな判定。
@@ -17,7 +20,9 @@ import mokume
 
     // MARK: - 時刻
 
-    @Test("描き場所の断片が読む in.time は、本体の面と同じだけ進む")
+    @Test(
+        "描き場所の断片が読む in.time は、本体の面と同じだけ進む",
+        .bug("https://github.com/mokume-metal/mokume/issues/1467", "mokume#1467 (v0.14.0 で直った): 時刻を渡すのが本体の面だけで、描き場所は time = 0 のまま"))
     func graphicsTime() throws {
         // frameRate 30 の 16 枚目は 0.5 秒 — 断片の赤が最も強い
         let a = try run(.graphicsTime, .suspect, frames: 16, reading: [1, 16])
@@ -26,16 +31,16 @@ import mokume
         #expect(b[16]![80, 80].red > b[1]![80, 80].red + 0.3)
         // 1 枚目 (0 秒) は左右で同じ
         #expect(abs(a[1]![80, 80].red - b[1]![80, 80].red) < 0.02)
-        withKnownIssue("mokume#1467: 時刻を渡すのが本体の面だけで、描き場所は time = 0 のまま") {
-            #expect(
-                abs(a[16]![80, 80].red - b[16]![80, 80].red) < 0.02,
-                "0.5 秒の赤: 描き場所 \(a[16]![80, 80].red)、本体 \(b[16]![80, 80].red)")
-        }
+        #expect(
+            abs(a[16]![80, 80].red - b[16]![80, 80].red) < 0.02,
+            "0.5 秒の赤: 描き場所 \(a[16]![80, 80].red)、本体 \(b[16]![80, 80].red)")
     }
 
     // MARK: - 粒
 
-    @Test("1 つの粒へ 2 か所から出しても、どちらの噴き口からも頼んだ数が出る")
+    @Test(
+        "1 つの粒へ 2 か所から出しても、どちらの噴き口からも頼んだ数が出る",
+        .bug("https://github.com/mokume-metal/mokume/issues/1468", "mokume#1468 (v0.14.0 で直った): 端数の繰り越しが Particles に 1 つしか無く、噴き口どうしで取り合う"))
     func sharedEmitter() throws {
         let a = try run(.sharedEmitter, .suspect, frames: 60)[60]!
         let b = try run(.sharedEmitter, .reference, frames: 60)[60]!
@@ -44,13 +49,13 @@ import mokume
         let suspect = (a.count(columns: left) { c, _, _ in Self.isOrange(c) }, a.count(columns: right) { c, _, _ in Self.isBlue(c) })
         // 参照は両方から出ている
         #expect(reference.0 > 50 && reference.1 > 50, "参照の橙 \(reference.0)・青 \(reference.1)")
-        withKnownIssue("mokume#1468: 端数の繰り越しが Particles に 1 つしか無く、噴き口どうしで取り合う") {
-            #expect(suspect.0 > reference.0 / 2, "橙の画素: 1 つの粒 \(suspect.0)、別の粒 \(reference.0)")
-            #expect(suspect.1 < reference.1 * 3 / 2, "青の画素: 1 つの粒 \(suspect.1)、別の粒 \(reference.1)")
-        }
+        #expect(suspect.0 > reference.0 / 2, "橙の画素: 1 つの粒 \(suspect.0)、別の粒 \(reference.0)")
+        #expect(suspect.1 < reference.1 * 3 / 2, "青の画素: 1 つの粒 \(suspect.1)、別の粒 \(reference.1)")
     }
 
-    @Test("30 fps の drag(70) の粒は、出た位置のすぐそばで止まる")
+    @Test(
+        "30 fps の drag(70) の粒は、出た位置のすぐそばで止まる",
+        .bug("https://github.com/mokume-metal/mokume/issues/1471", "mokume#1471 (v0.14.0 で直った): 減速を陽的に積分しており、a·Δt > 2 で速さが毎フレーム増える"))
     func dragLowRate() throws {
         let frames = Set(1...60)
         let a = try run(.dragLowRate, .suspect, frames: 60, reading: frames)
@@ -68,14 +73,14 @@ import mokume
         #expect(frames.map { far(b[$0]!) }.max() == 0)
         let farthest = frames.map { far(a[$0]!) }.max()!
         #expect(near(a[60]!) > 20, "噴き口のそばの画素 \(near(a[60]!))")
-        withKnownIssue("mokume#1471: 減速を陽的に積分しており、a·Δt > 2 で速さが毎フレーム増える") {
-            #expect(farthest == 0, "噴き口から 16 px より外の画素が、多いフレームで \(farthest)")
-        }
+        #expect(farthest == 0, "噴き口から 16 px より外の画素が、多いフレームで \(farthest)")
     }
 
     // MARK: - フレームをまたぐ描き方
 
-    @Test("残像の上にかけた効果は、次のフレームへ焼き込まれない (描き場所)")
+    @Test(
+        "残像の上にかけた効果は、次のフレームへ焼き込まれない (描き場所)",
+        .bug("https://github.com/mokume-metal/mokume/issues/1469", "mokume#1469 (v0.14.0 で直った): 最後の段が描画先へ直接書き、次のフレームがその絵を読み込む"))
     func effectsCarry() throws {
         let a = try run(.effectsCarry, .suspect, frames: 12, reading: [1, 12])
         let b = try run(.effectsCarry, .reference, frames: 12, reading: [1, 12])
@@ -83,14 +88,14 @@ import mokume
         #expect(b[12]![3, 3].red < b[12]![80, 3].red - 0.05)
         #expect(abs(b[12]![3, 3].red - b[1]![3, 3].red) < 0.01)
         #expect(abs(a[1]![3, 3].red - b[1]![3, 3].red) < 0.01)
-        withKnownIssue("mokume#1469: 最後の段が描画先へ直接書き、次のフレームがその絵を読み込む") {
-            #expect(
-                abs(a[12]![3, 3].red - b[12]![3, 3].red) < 0.02,
-                "12 枚目の隅: 残像 \(a[12]![3, 3].red)、描き直し \(b[12]![3, 3].red)")
-        }
+        #expect(
+            abs(a[12]![3, 3].red - b[12]![3, 3].red) < 0.02,
+            "12 枚目の隅: 残像 \(a[12]![3, 3].red)、描き直し \(b[12]![3, 3].red)")
     }
 
-    @Test("残像の上にかけた効果は、次のフレームへ焼き込まれない (本体の面)")
+    @Test(
+        "残像の上にかけた効果は、次のフレームへ焼き込まれない (本体の面)",
+        .bug("https://github.com/mokume-metal/mokume/issues/1469", "mokume#1469 (v0.14.0 で直った): 最後の段が描画先へ直接書き、次のフレームがその絵を読み込む"))
     func effectsCarryOnMain() throws {
         func corner(trail: Bool) throws -> [Int: Picture] {
             try run(
@@ -101,30 +106,30 @@ import mokume
         }
         let (a, b) = (try corner(trail: true), try corner(trail: false))
         #expect(b[12]![3, 3].red < b[12]![80, 80].red - 0.05)
-        withKnownIssue("mokume#1469: 最後の段が描画先へ直接書き、次のフレームがその絵を読み込む") {
-            #expect(
-                abs(a[12]![3, 3].red - b[12]![3, 3].red) < 0.02,
-                "12 枚目の隅: 残像 \(a[12]![3, 3].red)、描き直し \(b[12]![3, 3].red)")
-        }
+        #expect(
+            abs(a[12]![3, 3].red - b[12]![3, 3].red) < 0.02,
+            "12 枚目の隅: 残像 \(a[12]![3, 3].red)、描き直し \(b[12]![3, 3].red)")
     }
 
-    @Test("1 度だけ渡した numbers は、shader と同じく次のフレームにも残る")
+    @Test(
+        "1 度だけ渡した numbers は、shader と同じく次のフレームにも残る",
+        .bug("https://github.com/mokume-metal/mokume/issues/1470", "mokume#1470 (v0.14.0 で直った): 並びだけがフレームの頭で外れ、寿命も名乗られていない"))
     func numbersOnce() throws {
         // 16 枚目 (0.5 秒) は並びの値が 1
         let a = try run(.numbersOnce, .suspect, frames: 16, reading: [1, 2, 16])
         let b = try run(.numbersOnce, .reference, frames: 16, reading: [1, 2, 16])
         #expect(b[16]![80, 80].red > b[1]![80, 80].red + 0.2)
         #expect(abs(a[1]![80, 80].red - b[1]![80, 80].red) < 0.02)
-        withKnownIssue("mokume#1470: 並びだけがフレームの頭で外れ、寿命も名乗られていない") {
-            #expect(
-                abs(a[16]![80, 80].red - b[16]![80, 80].red) < 0.02,
-                "16 枚目の赤: 1 度だけ \(a[16]![80, 80].red)、毎フレーム \(b[16]![80, 80].red)")
-        }
+        #expect(
+            abs(a[16]![80, 80].red - b[16]![80, 80].red) < 0.02,
+            "16 枚目の赤: 1 度だけ \(a[16]![80, 80].red)、毎フレーム \(b[16]![80, 80].red)")
     }
 
     // MARK: - 止まっている間
 
-    @Test("止まっている間のコールバックで置いた図形には、前のフレームの変換が効かない")
+    @Test(
+        "止まっている間のコールバックで置いた図形には、前のフレームの変換が効かない",
+        .bug("https://github.com/mokume-metal/mokume/issues/1472", "mokume#1472 (v0.14.0 で直った): 変換を戻すのがフレームの頭だけで、フレームの外の図形に前の変換が効く"))
     func stoppedCallback() throws {
         /// `draw()` は `translate(50, 0)` で終わって止まる。押すと赤い 10 px 四方を置く —
         /// 疑う口はコールバックの中で、参照は次に描く `draw()` の頭で。
@@ -162,10 +167,8 @@ import mokume
         let (a, b) = (try press(Stopped(inCallback: true)), try press(Stopped(inCallback: false)))
         // 参照: draw() の頭で置いた四角は、変換の無い (5, 5) に出る
         #expect(b[5, 5].red > 0.5 && b[55, 5].red < 0.05)
-        withKnownIssue("mokume#1472: 変換を戻すのがフレームの頭だけで、フレームの外の図形に前の変換が効く") {
-            #expect(a[5, 5].red > 0.5, "(5, 5) の赤 \(a[5, 5].red)")
-            #expect(a[55, 5].red < 0.05, "(55, 5) の赤 \(a[55, 5].red)")
-        }
+        #expect(a[5, 5].red > 0.5, "(5, 5) の赤 \(a[5, 5].red)")
+        #expect(a[55, 5].red < 0.05, "(55, 5) の赤 \(a[55, 5].red)")
     }
 }
 

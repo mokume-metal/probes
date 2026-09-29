@@ -55,6 +55,8 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、「既知の問題」として
 数えられる (`v0.12.0` では 34 本のテストで 31 件)。このうち 15 件は、起票に貼った再現 (`Tests/WeaveTests/Repros/`) を
 そのまま走らせる `ReprosTests` の分である (下の表で Weave が起票した 15 件・[docs/filing.md](../docs/filing.md))。
+`v0.14.0` では描き場所の 2 件 (#1654・#1655) が片付き、34 本のテストで 27 件になった。このうち 13 件が `ReprosTests` の分で、
+片付いた 2 件の再現は包みを外し、戻れば赤くなる見張りとして残した。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not recorded」で
 落ちる。そのときは包みを外し、下の表を書き換える。
@@ -64,6 +66,17 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 **19 件を突いて、16 件が約束を破っていた。** 15 件を mokume へ Bug として起票した。残る 1 件 (`clipFraction`) は、同じ版を
 先に突いた [Lattice](../Lattice/) の起票 (mokume#1641) と根が同じだったので、そちらへ観察を足した。陰性対照の 3 件は、
 1 画素も違わなかった。
+
+`v0.14.0` で描き場所の 2 件 (`graphicsSetOutside`・`effectsOffFrameSet`) が片付き、下の「崩れなかったもの」の表へ移した。
+どちらも mokume#1681 が閉じた。同じ PR が、持ち越しを約束する区間 (描き場所では `beginDraw()`〜`endDraw()`) の外で
+書いた画素を、警告して断ると決めたためである (mokume ADR-0021 決定 4 の追補、2026-09-27)。
+
+- **`graphicsSetOutside` は、直ったのではなく約束が決まった。** 起票のときの期待は「外で書いた画素も `image` に出る」だった。
+  mokume は「断る」ほうに決めたので、期待を「断られ、`get` と `image` がどちらも書いていない絵を見る」に替えた (probes#55)。
+  参照の経路も、囲んで書いた赤から、書かなかった絵に替えた。
+- **`effectsOffFrameSet` は直った。** フレームの外の書き戻しが断られるので、次のフレームの効果は 1 回ぶんになる。
+
+行は消さずに残す — 何を踏んで、どの版で塞がったかは記録である。
 
 ### 破れていたもの
 
@@ -80,8 +93,6 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 | 粒 | `particlesTwice` | 1 フレームに同じ群を 2 回 `particles` | 置き場所の写しが 1 つで、1 つ目の雲が消える (400 画素) | [#1651](https://github.com/mokume-metal/mokume/issues/1651) |
 | 断片 | `shaderSetGraphics` | 本体で作った断片 × 描き場所で `set` を挟む | 描き場所の列が閉じず、全部が最後の値で塗られる (12800 画素) | [#1652](https://github.com/mokume-metal/mokume/issues/1652) |
 | 断片 | `shaderSurfaceRedraw` | 断片の面の描き場所 × 置いた後の描き換え | 先に置いた図形が、描き換えた後の絵で塗られる (12800 画素) | [#1653](https://github.com/mokume-metal/mokume/issues/1653) |
-| 描き場所 | `graphicsSetOutside` | `beginDraw` の外の `set` × `image` | `get` は書いた値を返すのに、`image` には出ない (12800 画素) | [#1654](https://github.com/mokume-metal/mokume/issues/1654) |
-| 描き場所 | `effectsOffFrameSet` | 描き場所の効果 × フレームの外の `set` | 値を変えない 1 画素の書き戻しで、次のフレームに効果が 2 回掛かる (22400 画素) | [#1655](https://github.com/mokume-metal/mokume/issues/1655) |
 | 途中の描き切り | `midFrameShadow` | フレームの途中の `get` × 影 | 読む前に置いた立体の影が、後に置いた床に落ちない (262 画素) | [#1656](https://github.com/mokume-metal/mokume/issues/1656) |
 | 途中の描き切り | `loadPixelsSky` | 立体 → `loadPixels` → `background(.sky)` | 立体が空の上に残る (5929 画素)。`loadPixels` を抜くと空が置き換える | [#1657](https://github.com/mokume-metal/mokume/issues/1657) |
 | 周囲 | `addSky` | `blendMode(.add)` × `background(.sky)` | 背景が前のフレームに足され、2 枚目で 2 倍になる (25600 画素) | [#1658](https://github.com/mokume-metal/mokume/issues/1658) |
@@ -93,6 +104,10 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 | `blendFillStroke` | `blendMode(.blend)` × 塗りと輪郭を両方持つ図形 | 基本図形は塗りの上に線の順で混ぜる |
 | `clipAligned` | `clip` × 整数の座標 | `clip` の説明「描くものを、この矩形の中だけに収める」 |
 | `textureSky` | `texture` × `background(.sky)` | 周囲の背景の説明 (貼る絵を見ない) |
+| `graphicsSetOutside` | `beginDraw` の外の `set` × `image` | mokume ADR-0021 決定 4 の追補 (2026-09-27)。外で書いた画素は断られ、`get` も `image` も書いていない絵を見る。**`v0.12.0` では** `get` は書いた値を返すのに、`image` には出なかった (12800 画素)。[#1654](https://github.com/mokume-metal/mokume/issues/1654) (`v0.14.0` の [#1681](https://github.com/mokume-metal/mokume/pull/1681) で約束が決まった) |
+| `effectsOffFrameSet` | 描き場所の効果 × フレームの外の `set` | `effects` の説明「効果はどのフレームにも 1 回ぶんだけかかる」。**`v0.12.0` では**値を変えない 1 画素の書き戻しで、次のフレームに効果が 2 回掛かった (22400 画素)。[#1655](https://github.com/mokume-metal/mokume/issues/1655) (`v0.14.0` で直った) |
+
+表の最後の 2 行 (`graphicsSetOutside`・`effectsOffFrameSet`) は陰性対照ではない。`v0.14.0` で片付いて「破れていたもの」から移した行である。
 
 ### 落ちたもの
 
@@ -144,5 +159,6 @@ mokume `v0.12.0` のソースを 3 方面に分けて読んだ。方面は次の
 
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.12.0` = `bab3b4a`)。
 `from: "0.12.0"` は他の物差しと同じく記録であって、留め金ではない。
+`v0.14.0` (`34ba2d8`) へ上げて測り直し、描き場所の 2 件 (#1654・#1655) が片付いたことを確かめた。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。**

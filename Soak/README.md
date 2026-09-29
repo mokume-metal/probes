@@ -83,6 +83,14 @@ swift test        # 窓を出さずに回して、数で比べる (1 分ほど)
 として数えられる。`v0.11.1` では 19 本のテストで 22 件になる。このうち 7 件は、起票に貼った再現
 (`Tests/SoakTests/Repros/`) を子プロセスでそのまま走らせる `ReprosTests` の分である
 (mokume#1431・#1587・#1588・#1591〜#1594・[docs/filing.md](../docs/filing.md))。
+`v0.14.0` では 19 本のテストで 8 件になる。#1587・#1589〜#1592・#1594・#1604 が直って包みを外したためで、
+残る 8 件のうち 3 件が `ReprosTests` の分である (mokume#1431・#1588・#1593)。直った再現の 4 本は
+包みを外して残してあり、戻れば赤くなる。
+
+**#1593 と #1431 の 4 件は、`v0.14.0` では 6〜8 件の間で揺れる。** mokume はどちらも控えに上限を付けて
+閉じた (モデル 64 MiB・書体 64 件)。この検査は控えが埋まる途中の増え方を測っているので、閾値の上下で
+記録されたりされなかったりする。測り直すまでは `isIntermittent` で揺れを許してある
+([probes#58](https://github.com/mokume-metal/probes/issues/58))。直ったことを検査がまだ知らせていない。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not
 recorded」で落ちる。そのときは包みを外し、下の表を書き換える。
@@ -98,17 +106,13 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `unclosedShape` | `setup()` で開いた `beginShape()` に毎フレーム 1000 点足すと、約 170 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (毎フレーム閉じる参照は 0) | [#1591](https://github.com/mokume-metal/mokume/issues/1591) |
-| `offFrameGraphics` | `beginDraw()` を付けずに描き場所へ円を 1000 個置くと、約 130 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (挟む参照は 0) | [#1592](https://github.com/mokume-metal/mokume/issues/1592) |
 | `modelSequence` | 連番の OBJ (3721 頂点) を 1 枚ずつ `loadModel` すると、読んだモデルが控えに残り、1 枚ごとに約 1 MB 増える。画像の控え (64 MiB) と違って上限が無い。列 (160 枚・約 160 MB) は、mokume が決めた予算 64 MiB より大きくしてある — 予算に収まる列だと、直っても 1 巡の間は増え続けて知らせない | [#1593](https://github.com/mokume-metal/mokume/issues/1593) |
-| `headlessAdvance` (テストだけ) | main actor を譲らずに `advance()` を回すと、GPU の完了の後始末 (`Task { @MainActor in releaseFinished }`) が走れずに溜まる。何もしないスケッチで 1.45 KB/枚、毎フレーム `createGraphics` すると 5.8 KB/枚 (譲れば 0) | [#1594](https://github.com/mokume-metal/mokume/issues/1594) |
 
 #### 時間
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
 | `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。2000 頂点で、同じ形を扇で置く参照の約 41 倍かかる | [#1595](https://github.com/mokume-metal/mokume/issues/1595) |
-| `solidStroke` | 既定の線のままの `sphere()` 100 個で 465 ms/枚・GPU +183 MB (`noStroke()` なら 0.4 ms/枚)。稜線の帯と角 (既定の `.miter` では正方形) を、立体ごと・毎フレーム CPU で組み直す。個数には比例する。#1596 は視点を 1 度だけ読む手前の直し (時間が半分) で閉じ、この期待 (線なしの 10 倍 + 16 ms・GPU の山 32 MB 未満) は Design の [#1604](https://github.com/mokume-metal/mokume/issues/1604) へ移った | [#1604](https://github.com/mokume-metal/mokume/issues/1604) ([#1596](https://github.com/mokume-metal/mokume/issues/1596)) |
 
 #### 落ちる (テストだけ)
 
@@ -122,10 +126,23 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `hugeTextSize`・`textOutline` | 次の 3 通りが、Int への変換でトラップする。`textSize(400)` の対照は通る。<br>・`textSize(1e20); text("M", …)`<br>・`textOutline("o", .nan, 100)`<br>・`textSize(1e21); textOutline("o", 0, 0)` | [#1587](https://github.com/mokume-metal/mokume/issues/1587) |
 | `createShapeDiscard` | 図形を溜めた後に次のどちらかを書くと、`Range requires lowerBound <= upperBound` で落ちる。中で呼ばなければ通る。<br>・`createShape { background(255); … }`<br>・`createShape { get(5, 5); … }` | [#1588](https://github.com/mokume-metal/mokume/issues/1588) |
-| `makeNumbersHuge` | `try? makeNumbers(count: .max)` が投げずに、バイト数の掛け算のあふれで落ちる。`1 << 40` は上限の検査で投げる | [#1589](https://github.com/mokume-metal/mokume/issues/1589) |
-| `displayImageOutside` | `encodeForDisplay()` で得た `DisplayImage` を `[width, 0]` で読むと、precondition で落ちる。`PixelBuffer` は [#1436](https://github.com/mokume-metal/mokume/issues/1436) で透明を返すようになった | [#1590](https://github.com/mokume-metal/mokume/issues/1590) |
+
+### 約束どおりになったもの (`v0.14.0` で直った)
+
+上の「破れていたもの」から移した。**行は消さずに残す** — 何を踏んで、どの版で塞がったかは記録である。
+「何が起きたか」は `v0.11.1` での実測で、`v0.14.0` ではどれも期待どおりに通る。起票に貼った再現
+(`ReprosTests`) も包みを外し、戻れば赤くなる見張りとして残した。
+
+| 群 | 鍵 | 何が起きたか (`v0.11.1`) | mokume |
+| --- | --- | --- | --- |
+| メモリ | `unclosedShape` | `setup()` で開いた `beginShape()` に毎フレーム 1000 点足すと、約 170 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (毎フレーム閉じる参照は 0) | [#1591](https://github.com/mokume-metal/mokume/issues/1591) (`v0.14.0` で直った) |
+| メモリ | `offFrameGraphics` | `beginDraw()` を付けずに描き場所へ円を 1000 個置くと、約 130 KB/枚ずつ増え続ける。何も描かれず、警告も出ない (挟む参照は 0) | [#1592](https://github.com/mokume-metal/mokume/issues/1592) (`v0.14.0` で直った) |
+| メモリ | `headlessAdvance` (テストだけ) | main actor を譲らずに `advance()` を回すと、GPU の完了の後始末 (`Task { @MainActor in releaseFinished }`) が走れずに溜まる。何もしないスケッチで 1.45 KB/枚、毎フレーム `createGraphics` すると 5.8 KB/枚 (譲れば 0) | [#1594](https://github.com/mokume-metal/mokume/issues/1594) (`v0.14.0` で直った) |
+| 時間 | `solidStroke` | 既定の線のままの `sphere()` 100 個で 465 ms/枚・GPU +183 MB (`noStroke()` なら 0.4 ms/枚)。稜線の帯と角 (既定の `.miter` では正方形) を、立体ごと・毎フレーム CPU で組み直す。個数には比例する。#1596 は視点を 1 度だけ読む手前の直し (時間が半分) で閉じ、この期待 (線なしの 10 倍 + 16 ms・GPU の山 32 MB 未満) は Design の [#1604](https://github.com/mokume-metal/mokume/issues/1604) へ移った | [#1604](https://github.com/mokume-metal/mokume/issues/1604) ([#1596](https://github.com/mokume-metal/mokume/issues/1596)) (`v0.14.0` で直った) |
+| 落ちる | `hugeTextSize`・`textOutline` | 次の 3 通りが、Int への変換でトラップする。`textSize(400)` の対照は通る。<br>・`textSize(1e20); text("M", …)`<br>・`textOutline("o", .nan, 100)`<br>・`textSize(1e21); textOutline("o", 0, 0)` | [#1587](https://github.com/mokume-metal/mokume/issues/1587) (`v0.14.0` で直った) |
+| 落ちる | `makeNumbersHuge` | `try? makeNumbers(count: .max)` が投げずに、バイト数の掛け算のあふれで落ちる。`1 << 40` は上限の検査で投げる | [#1589](https://github.com/mokume-metal/mokume/issues/1589) (`v0.14.0` で直った) |
+| 落ちる | `displayImageOutside` | `encodeForDisplay()` で得た `DisplayImage` を `[width, 0]` で読むと、precondition で落ちる。`PixelBuffer` は [#1436](https://github.com/mokume-metal/mokume/issues/1436) で透明を返すようになった | [#1590](https://github.com/mokume-metal/mokume/issues/1590) (`v0.14.0` で直った) |
 
 ### 既知の問題へ足したもの
 
@@ -178,6 +195,9 @@ v0.11.1 と main のソースを 3 つの範囲に分けて読み、約 25 件�
 
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.11.1`)。
 `from: "0.11.1"` は他の物差しと同じく記録であって、留め金ではない。
+
+`v0.14.0` (`34ba2d8`) へ上げた (2026-09-29)。7 件 (#1587・#1589〜#1592・#1594・#1604) が直り、
+「約束どおりになったもの」の表へ移した。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。** 時間の検査は比で
 見ているので、機械を替えても同じ判定になるはずである。赤くなったら、まず版差を疑う。

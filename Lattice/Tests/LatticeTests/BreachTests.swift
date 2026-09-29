@@ -92,11 +92,6 @@ import mokume
 
     // MARK: - fps
 
-    /// `Float(1 / fps)` が 1 / fps より小さい fps。1 秒ぶんの刻みを足しても 1 に届かない。
-    nonisolated static func stepFallsShort(_ fps: Int) -> Bool {
-        Double(Float(1 / Double(fps))) * Double(fps) < 1
-    }
-
     @Test("毎秒 fps 個の粒は、fps 枚回すと fps 個出ている", arguments: [24, 25, 30, 50, 60, 100, 120])
     func emitPerSecond(fps: Int) throws {
         let row = try run(Cases.emitRow(fps: fps), frames: fps, name: "emit-\(fps)")
@@ -107,11 +102,8 @@ import mokume
             if on && !inside { count += 1 }
             inside = on
         }
-        withKnownIssue("mokume#1640: 刻みを Float(1/fps) で渡すので、fps 25・50・100 などで 1 個少ない") {
-            #expect(count == fps, "\(fps) 枚で \(count) 個")
-        } when: {
-            Self.stepFallsShort(fps)
-        }
+        // v0.12.0 では fps 25・50・100 で 1 個少なかった (刻みを Float(1/fps) で渡していた)
+        #expect(count == fps, "mokume#1640 (v0.14.0 で直った): \(fps) 枚で \(count) 個")
     }
 
     @Test("frameRate が 0・負のランタイムは組み立てで断る (pixelDensity と同じく)", arguments: [0, -30])
@@ -120,12 +112,11 @@ import mokume
         #expect(throws: RenderFailure.self) {
             _ = try SketchRuntime(sketch: Scene(SketchSettings(width: 10, height: 10, pixelDensity: 2)) { _ in }, gpu: gpu)
         }
-        withKnownIssue("mokume#1642: frameRate 0・負を黙って 1 fps にする") {
-            #expect(throws: (any Error).self) {
-                let runtime = try SketchRuntime(
-                    sketch: Scene(SketchSettings(width: 10, height: 10, frameRate: fps)) { _ in }, gpu: gpu)
-                runtime.closePlugins()
-            }
+        // v0.12.0 では黙って 1 fps で走った (mokume#1642、v0.14.0 で直った)
+        #expect(throws: (any Error).self, "mokume#1642 (v0.14.0 で直った): frameRate \(fps) を断らない") {
+            let runtime = try SketchRuntime(
+                sketch: Scene(SketchSettings(width: 10, height: 10, frameRate: fps)) { _ in }, gpu: gpu)
+            runtime.closePlugins()
         }
     }
 }

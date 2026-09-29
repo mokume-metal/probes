@@ -49,6 +49,7 @@ DRIFT_FRAMES=/tmp/frames swift test    # 窓と同じ並びを 120 枚 (4 秒) �
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、
 「既知の問題」として数えられる (`v0.11.0` では 7 本のテストで 9 件)。
+`v0.14.0` では 6 件とも直り、既知の問題は 0 件になった。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは
 「Known issue was not recorded」で落ちる。そのときは包みを外し、下の表を書き換える。
@@ -58,16 +59,24 @@ DRIFT_FRAMES=/tmp/frames swift test    # 窓と同じ並びを 120 枚 (4 秒) �
 **6 件を突いて、6 件とも約束を破っていた。** mokume の `origin/main` (`e44b730`、2026-09-23)
 でも全件同じ値が出たので、v0.11.0 の後に直ったものは無い。
 
-| 鍵 | 何が起きたか | mokume |
-| --- | --- | --- |
-| `graphicsTime` | 描き場所の面で `in.time` を読む断片が止まる。0.5 秒の赤が、本体の面では 1.0、描き場所では 0.5 (= 0 秒の値) | [#1467](https://github.com/mokume-metal/mokume/issues/1467) |
-| `sharedEmitter` | 1 つの `Particles` へ 2 か所から毎秒 15 個ずつ出すと、1 か所目から 1 個も出ず、2 か所目が倍を出す (橙 0 画素・青 1225 画素、噴き口ごとに分けると 759・747) | [#1468](https://github.com/mokume-metal/mokume/issues/1468) |
-| `effectsCarry` | 残像を残す面に毎フレーム `vignette` をかけると、効果が焼き込まれて縁が沈む。12 枚目の隅の赤が 0.00002 (毎フレーム描き直すと 0.344)。本体の面でも描き場所の面でも同じ | [#1469](https://github.com/mokume-metal/mokume/issues/1469) |
-| `numbersOnce` | 断片は残るのに、並びだけがフレームの頭で黙って外れる。1 度だけ渡すと 2 枚目から `in.numbers[0]` が 0 になる (16 枚目の赤 0.15、毎フレーム渡すと 0.95) | [#1470](https://github.com/mokume-metal/mokume/issues/1470) |
-| `dragLowRate` | 30 fps の `drag(70)` で、粒が止まらずに振れながら飛び去る。1 フレームごとに速さが `1 − a·Δt` = −1.33 倍になる。噴き口から 16 px より外に出る画素が、多いフレームで 64 (解を描いた点は常に 0) | [#1471](https://github.com/mokume-metal/mokume/issues/1471) |
-| `stoppedCallback` (テストだけ) | `noLoop()` 中の `mousePressed` で置いた `rect(0, 0, 10, 10)` が、直前の `draw()` の最後の `translate(50, 0)` を受けて (55, 5) に出る。説明は「フレームの外では変換は効かない」 | [#1472](https://github.com/mokume-metal/mokume/issues/1472) |
+**6 件とも `v0.14.0` で直った。** 行は下の「約束どおりになったもの (`v0.14.0` で直った)」へ移した。
 
 `stoppedCallback` は止めて押して 1 枚描くだけで動きが無いので、窓には並べていない。
+
+### 約束どおりになったもの (`v0.14.0` で直った)
+
+上の表から移した。**行は消さずに残す** — 何を踏んで、どの版で塞がったかは記録である。
+「何が起きたか」は `v0.11.0` での実測で、`v0.14.0` ではどれも期待どおりに通る。検査は包みを外し、
+`.bug` で Issue を名指ししたまま、戻れば赤くなる見張りとして残した。
+
+| 鍵 | 何が起きたか (`v0.11.0`) | mokume |
+| --- | --- | --- |
+| `graphicsTime` | 描き場所の面で `in.time` を読む断片が止まる。0.5 秒の赤が、本体の面では 1.0、描き場所では 0.5 (= 0 秒の値) | [#1467](https://github.com/mokume-metal/mokume/issues/1467) (`v0.14.0` で直った) |
+| `sharedEmitter` | 1 つの `Particles` へ 2 か所から毎秒 15 個ずつ出すと、1 か所目から 1 個も出ず、2 か所目が倍を出す (橙 0 画素・青 1225 画素、噴き口ごとに分けると 759・747) | [#1468](https://github.com/mokume-metal/mokume/issues/1468) (`v0.14.0` で直った) |
+| `effectsCarry` | 残像を残す面に毎フレーム `vignette` をかけると、効果が焼き込まれて縁が沈む。12 枚目の隅の赤が 0.00002 (毎フレーム描き直すと 0.344)。本体の面でも描き場所の面でも同じ | [#1469](https://github.com/mokume-metal/mokume/issues/1469) (`v0.14.0` で直った) |
+| `numbersOnce` | 断片は残るのに、並びだけがフレームの頭で黙って外れる。1 度だけ渡すと 2 枚目から `in.numbers[0]` が 0 になる (16 枚目の赤 0.15、毎フレーム渡すと 0.95) | [#1470](https://github.com/mokume-metal/mokume/issues/1470) (`v0.14.0` で直った) |
+| `dragLowRate` | 30 fps の `drag(70)` で、粒が止まらずに振れながら飛び去る。1 フレームごとに速さが `1 − a·Δt` = −1.33 倍になる。噴き口から 16 px より外に出る画素が、多いフレームで 64 (解を描いた点は常に 0) | [#1471](https://github.com/mokume-metal/mokume/issues/1471) (`v0.14.0` で直った) |
+| `stoppedCallback` (テストだけ) | `noLoop()` 中の `mousePressed` で置いた `rect(0, 0, 10, 10)` が、直前の `draw()` の最後の `translate(50, 0)` を受けて (55, 5) に出る。説明は「フレームの外では変換は効かない」 | [#1472](https://github.com/mokume-metal/mokume/issues/1472) (`v0.14.0` で直った) |
 
 ## どうやって当たりを付けたか
 
@@ -90,7 +99,7 @@ probes は mokume を外のパッケージとして引いているので、`@tes
 | 止めて再開すると、止めていた時間が fps とフレーム時間の平均に入る | 同上 (窓と観測の数字だけに効く) |
 | `SketchRuntime.start()` を先に呼ぶと、`setup()` の `noLoop()` で `draw()` が 1 度も呼ばれない | 組み込む側でしか踏まない |
 | `.wander` の揺れの強さが刻み Δt に比例する・粒ごとの種が衝突する | 粒の状態を読み戻すには `@testable` が要る |
-| 描き場所の面では `noiseSeed` が断片へ届かない | `graphicsTime` と同じ根 (描き場所に本体の値が渡らない) と見ている。[mokume#1467](https://github.com/mokume-metal/mokume/issues/1467) が直ったら、同じ形で突く |
+| 描き場所の面では `noiseSeed` が断片へ届かない | `graphicsTime` と同じ根 (描き場所に本体の値が渡らない) と見ている。[mokume#1467](https://github.com/mokume-metal/mokume/issues/1467) が直ったら、同じ形で突く。#1467 は `v0.14.0` で直ったが、こちらはまだ突いていない |
 | 自分自身を `image()` すると、読みながら同じ面へ描く | Metal の未定義動作で、確度が低い |
 | `setup()` で書いた効果と切り抜きが、警告なしに捨てられる | 動きの話ではない。確かめるには警告を読む口 (`@testable`) が要る |
 
@@ -98,5 +107,6 @@ probes は mokume を外のパッケージとして引いているので、`@tes
 
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.11.0` =
 `503082f`)。`from: "0.11.0"` は他の作品と同じく記録であって、留め金ではない。
+`v0.14.0` (`34ba2d8`) へ上げて測り直し、6 件とも直ったことを確かめた。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。**

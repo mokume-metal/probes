@@ -115,9 +115,7 @@ import mokume
         let control = try await readMovie(try record("control.mov", failing: false))
         #expect(control.numbers == Array(3..<43))
         let got = try await readMovie(try record("failing.mov", failing: true))
-        withKnownIssue("mokume#1626: save の失敗の印が消えず、3 フレーム後に撮る係ごと外れて動画が途切れる") {
-            #expect(got.numbers == Array(3..<43), "\(got.frames.count) 枚、最後は \(got.numbers.last ?? -1) 枚目")
-        }
+        #expect(got.numbers == Array(3..<43), "\(got.frames.count) 枚、最後は \(got.numbers.last ?? -1) 枚目")
     }
 
     /// 同じ名前へ撮り直したら、ファイルはその録りの中身だけになる。
@@ -153,11 +151,9 @@ import mokume
             try produce(Ticker { s in s.save(file.path) }, frames: 30)
             last.append(try readPNG(file).number)
         }
-        // 1 回では稀にしか崩れない (1 プロセスずつで 600 試行に 1 回)。反復・同時実行で回すと
-        // 出やすい (scripts/stress.py、ADR-0007)
-        withKnownIssue("mokume#1627: 書く仕事の順序が保たれず、前のフレームの絵が後から上書きする", isIntermittent: true) {
-            #expect(last.allSatisfy { $0 == 30 }, "残った絵の番号: \(last)")
-        }
+        // 1 回では稀にしか崩れなかった (1 プロセスずつで 600 試行に 1 回)。反復・同時実行で回すと
+        // 出やすい (scripts/stress.py、ADR-0007)。v0.14.0 で直った
+        #expect(last.allSatisfy { $0 == 30 }, "mokume#1627 (v0.14.0 で直った): 残った絵の番号: \(last)")
     }
 
     // MARK: - 色

@@ -12,7 +12,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・So
 (cd Routine && swift test)            # 同じく Routine/README.md と
 (cd Soak && swift test)               # 同じく Soak/README.md と (メモリ・時間・落ちるか。1 分ほど)
 (cd Aftermath && swift test)          # 同じく Aftermath/README.md と
-(cd Imprint && swift test)            # 同じく Imprint/README.md と (mokume#1627 が出た回は 1 件多い)
+(cd Imprint && swift test)            # 同じく Imprint/README.md と
 (cd Lattice && swift test)            # 同じく Lattice/README.md と
 (cd Weave && swift test)              # 同じく Weave/README.md と
 (cd Tumble && swift test)             # 同じく Tumble/README.md と (破れを探すのは tumble.py run)

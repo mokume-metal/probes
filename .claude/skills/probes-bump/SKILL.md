@@ -40,7 +40,7 @@ python3 scripts/verify.py --check  # 台帳の版がずれていないか (台�
 (cd Routine && swift test)
 (cd Soak && swift test)            # 時間の検査は比で見るので、機械を替えても判定は変わらない
 (cd Aftermath && swift test)
-(cd Imprint && swift test)         # mokume#1627 は稀にしか出ない。直ったかは stress.py の件数のゆれで見る
+(cd Imprint && swift test)         # 稀にしか出ない既知の問題 (isIntermittent) は、直ったかを stress.py の件数のゆれで見る
 (cd Lattice && swift test)
 (cd Weave && swift test)
 (cd Tumble && swift test)
