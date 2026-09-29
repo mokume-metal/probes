@@ -542,13 +542,13 @@ final class PmouseStroke: Sketch {
         let input = runtime.input
         switch frame {
         case 1: input.enqueue(.mouseMoved(x: 20, y: 40))  // 押す前に指を置く
-        case 2: input.enqueue(.mouseDown(x: 20, y: 40, button: 0))
+        case 2: input.enqueue(.mouseDown(x: 20, y: 40, button: .left))
         case 3...10: input.enqueue(.mouseMoved(x: 20 + Float(frame - 2) * 10, y: 40))
-        case 11: input.enqueue(.mouseUp(x: 100, y: 40, button: 0))
+        case 11: input.enqueue(.mouseUp(x: 100, y: 40, button: .left))
         case 12...15: input.enqueue(.mouseMoved(x: 100, y: 40 + Float(frame - 11) * 20))
-        case 16: input.enqueue(.mouseDown(x: 100, y: 120, button: 0))
+        case 16: input.enqueue(.mouseDown(x: 100, y: 120, button: .left))
         case 17...20: input.enqueue(.mouseMoved(x: 100 + Float(frame - 16) * 10, y: 120))
-        case 21: input.enqueue(.mouseUp(x: 140, y: 120, button: 0))
+        case 21: input.enqueue(.mouseUp(x: 140, y: 120, button: .left))
         default: break
         }
     }
@@ -590,15 +590,15 @@ final class DragDelta: Sketch {
     static let script: @MainActor (Int, SketchRuntime) -> Void = { frame, runtime in
         let input = runtime.input
         switch frame {
-        case 2: input.enqueue(.mouseDown(x: 20, y: 80, button: 0))
+        case 2: input.enqueue(.mouseDown(x: 20, y: 80, button: .left))
         case 3...10:
             for k in 1...3 { input.enqueue(.mouseMoved(x: 20 + Float((frame - 3) * 3 + k) * 6, y: 80)) }
-        case 11: input.enqueue(.mouseUp(x: 164, y: 80, button: 0))
+        case 11: input.enqueue(.mouseUp(x: 164, y: 80, button: .left))
         case 12: input.enqueue(.mouseMoved(x: 150, y: 30))
-        case 14: input.enqueue(.mouseDown(x: 150, y: 30, button: 0))
+        case 14: input.enqueue(.mouseDown(x: 150, y: 30, button: .left))
         case 15...20:
             for k in 1...3 { input.enqueue(.mouseMoved(x: 150 - Float((frame - 15) * 3 + k) * 4, y: 30)) }
-        case 21: input.enqueue(.mouseUp(x: 78, y: 30, button: 0))
+        case 21: input.enqueue(.mouseUp(x: 78, y: 30, button: .left))
         default: break
         }
     }
