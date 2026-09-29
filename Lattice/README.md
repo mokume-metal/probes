@@ -51,6 +51,8 @@ LATTICE_DUMP=/tmp/lattice swift test  # 比べた絵を PNG で書き出す
 「既知の問題」として数えられる (`v0.12.0` では 20 本のテストで 22 件)。このうち 6 件は、起票に貼った再現
 (`Tests/LatticeTests/Repros/`) をそのまま走らせる `ReprosTests` の分である (mokume#1637〜#1642・
 [docs/filing.md](../docs/filing.md))。
+`v0.14.0` では #1640・#1642 の 2 件が直り、20 本のテストで 15 件になった。このうち 4 件が `ReprosTests` の分で、
+直った 2 件の再現は包みを外し、戻れば赤くなる見張りとして残した。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは
 「Known issue was not recorded」で落ちる。そのときは包みを外し、下の表を書き換える。
@@ -58,7 +60,8 @@ LATTICE_DUMP=/tmp/lattice swift test  # 比べた絵を PNG で書き出す
 ## 結果 — mokume `v0.12.0`
 
 **14 通りの関係を突き、6 通りが約束を破っていた。** どれも 160²・細かさ 1・30 fps の 1 点では
-出ない。mokume へ 6 件を起票した。
+出ない。mokume へ 6 件を起票した。`v0.14.0` で fps の 2 件 (`emitPerSecond`・`badFrameRate`) が直り、
+下の「約束どおりだったもの」の表へ移した。行は消さずに残す — 何を踏んで、どの版で塞がったかは記録である。
 
 ### 破れていたもの
 
@@ -67,9 +70,7 @@ LATTICE_DUMP=/tmp/lattice swift test  # 比べた絵を PNG で書き出す
 | `thinOutline` | 細かさ 0.5 | 三角形の経路 (`triangle`・`quad`・`beginShape`) の太さ 1 の輪郭が、置いた座標の偶奇で**消えるか倍の濃さ**になる。軸に沿った `quad` は偶数の y で光の量 0、奇数で 351 (細かさ 1 は 280)。距離関数の経路は一定 | [#1637](https://github.com/mokume-metal/mokume/issues/1637) |
 | `upscaleKeepsPremultiplied` | 細かさ 0.5・0.75 | 拡大段 (Catmull-Rom) の行き過ぎを締めず、透明の下地で不透明度が最大 1.146、色 > 不透明度が 29 画素。負の側だけ締めるので光の量も増える (塗り +1%、細い線 +6〜8%) | [#1638](https://github.com/mokume-metal/mokume/issues/1638) |
 | `effectPositionIsOutputPixels` | 細かさ 0.5 | 利用者の効果の `Pixel.position` / `size` が描く画素で渡り、8 画素の市松が 16 画素になる (説明は「効果の画素は出す画素」) | [#1639](https://github.com/mokume-metal/mokume/issues/1639) |
-| `emitPerSecond` | fps 25・50・100 | 毎秒 fps 個の粒を fps 枚回すと 1 個少ない (24・49・99)。1 枚目に出ない。刻みを `Float(1/fps)` で渡すため。24・30・60・120 はちょうど | [#1640](https://github.com/mokume-metal/mokume/issues/1640) |
 | `clipStaysInside` | 小数の座標・細かさ 0.5 | `clip` を細かさ 1 では切り捨て (`clip(10.9, …)` で重心が 0.9 画素寄る)、細かさ 1 未満では外向きに丸める (幅 20 が 22)。矩形の外の画素を満濃度で描く | [#1641](https://github.com/mokume-metal/mokume/issues/1641) |
-| `badFrameRate` | fps 0・負 | 組み立てで断らず、黙って 1 fps で走る (`pixelDensity` の範囲外は断る) | [#1642](https://github.com/mokume-metal/mokume/issues/1642) |
 
 ### 約束どおりだったもの (陰性対照)
 
@@ -83,6 +84,8 @@ LATTICE_DUMP=/tmp/lattice swift test  # 比べた絵を PNG で書き出す
 | `solidRotation` | 160²・161² | 立体 (箱と球・視線に沿った光) の `rotateZ(90°)` が絵の回転と一致する |
 | `blendCommutes` | add・multiply・screen・exclusion・darkest × 下地 2 | 重ねる順を入れ替えても同じ絵 |
 | `effectsMirror` | 効果 6 × 面 3 × 細かさ 2 | blur (小・大)・bloom・vignette・fringe・adjust が鏡映と入れ替えられる |
+| `emitPerSecond` | fps 24・25・30・50・60・100・120 | 毎秒 fps 個の粒を fps 枚回すと fps 個出る。**`v0.12.0` では** fps 25・50・100 で 1 個少なかった (24・49・99)。1 枚目に出ず、刻みを `Float(1/fps)` で渡していたため。[#1640](https://github.com/mokume-metal/mokume/issues/1640) (`v0.14.0` で直った) |
+| `badFrameRate` | fps 0・負 | 組み立てで断る (範囲外の `pixelDensity` と同じ)。**`v0.12.0` では**断らず、黙って 1 fps で走った。[#1642](https://github.com/mokume-metal/mokume/issues/1642) (`v0.14.0` で直った) |
 
 `thinOutline` と `clipStaysInside` は、同じ検査の中に破れない条件 (距離関数の経路・整数の
 矩形) を包まずに置き、対照にしている。
@@ -106,5 +109,6 @@ mokume `v0.12.0` のソースを、細かさ・面の大きさに依る所と、
 
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.12.0` =
 `bab3b4a`)。`from: "0.12.0"` は他の物差しと同じく記録であって、留め金ではない。
+`v0.14.0` (`34ba2d8`) へ上げて測り直し、fps の 2 件 (#1640・#1642) が直ったことを確かめた。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。**

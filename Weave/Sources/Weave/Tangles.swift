@@ -306,18 +306,23 @@ enum Tangles {
             k.resetShader()
             k.image(k.layer, 80, 0, 80, 160)
         },
-        // `beginDraw()` の外で描き場所へ書いた画素 = `beginDraw()` / `endDraw()` で囲んで
-        // 書いた画素。`get` は書いた値を返すのに、`image` には出ない (写しを面へ戻すのが
-        // 自分の flush だけ)
+        // `beginDraw()` の外で描き場所へ書いた画素は断られ、書かなかった絵と同じになる
+        // (mokume ADR-0021 決定 4 の追補 (2026-09-27)・mokume#1681)。囲んで書いた右半分の青は
+        // どちらの経路にも出る。`v0.12.0` では外の赤を `get` だけが返し、`image` には出なかった
+        // (mokume#1654。当時の参照は「囲んで書いた赤」で、約束が決まって「書かない」に替えた)
         TangleCase(
             .graphicsSetOutside, "描き場所の外の set × image",
             prepare: { k in
                 k.layer = try! k.createGraphics(Tangles.side, Tangles.side)
-                if !k.suspect { k.layer.beginDraw() }
+                k.layer.beginDraw()
+                for y in 0..<Tangles.side {
+                    for x in (Tangles.side / 2)..<Tangles.side { k.layer.set(x, y, Tangles.blue) }
+                }
+                k.layer.endDraw()
+                guard k.suspect else { return }
                 for y in 0..<Tangles.side {
                     for x in 0..<(Tangles.side / 2) { k.layer.set(x, y, Tangles.red) }
                 }
-                if !k.suspect { k.layer.endDraw() }
             }
         ) { k in
             k.background(0)
@@ -400,6 +405,7 @@ enum Tangles {
 
     static let red = color(255, 0, 0)
     static let white = color(255, 255, 255)
+    static let blue = color(0, 0, 255)
 
     /// 青い塗りと赤い輪郭 (太さ 12) の矩形と円。`fill` / `stroke` で片方だけにできる。
     @MainActor static func fillAndStroke(_ k: Knot, fill: Bool, stroke: Bool) {

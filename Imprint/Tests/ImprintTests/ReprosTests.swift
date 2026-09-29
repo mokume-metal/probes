@@ -6,14 +6,15 @@ import Testing
 /// 同じく「既知の問題が起きなかった」で赤くなって知らせる。再現が投げたとき (書き出せない) は
 /// 既知の問題に数えず、そのまま落とす。動画を書く再現は、ProRes 4444 を書けない機械では
 /// 本来の検査と同じく飛ばす。
+///
+/// **直った再現は包みを外して残す。** 戻れば赤くなって知らせる。起票の番号は `"mokume#N` の字面で
+/// 名指しする (`filing.py check` が、`Repros/` の再現ごとに検査が名指ししているかを見る)。
 @MainActor
 @Suite(.serialized) struct ReprosTests {
     @Test("再現: 録画中に書けない先へ 1 度 save しても、動画は 1 枚も欠けない", .enabled(if: proResAvailable))
     func saveFailureKeepsMovie() throws {
         let broken = try SaveFailureMovie.reproduce()
-        withKnownIssue("mokume#1626: save の失敗の印が消えず、3 フレーム後に撮る係ごと外れて動画が途切れる") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1626 で直った: \(broken ?? "")")
     }
 
     /// 空いた機械では稀にしか崩れないので、再現の中で機械を混ませて 20 試行を繰り返す (数秒)。
@@ -21,9 +22,7 @@ import Testing
     @Test("再現: 同じ名前へ毎フレーム save すると、残るのは最後のフレームの絵")
     func sameNameSave() throws {
         let broken = try SameNameSave.reproduce()
-        withKnownIssue("mokume#1627: 書く仕事の順序が保たれず、前のフレームの絵が後から上書きする", isIntermittent: true) {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1627 で直った: \(broken ?? "")")
     }
 
     @Test("再現: 同じ入力から 2 回書き出した .mov は、バイトまで一致する", .enabled(if: proResAvailable))

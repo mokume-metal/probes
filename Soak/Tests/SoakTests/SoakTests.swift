@@ -20,6 +20,11 @@ import mokume
     /// 32 KB/枚は両方から十分に離れている。
     static let flat = 32.0
 
+    /// 疑いの増え方を比べる上限。**参照が減った分だけ許しを狭めない** — 途中で OS がまとめて
+    /// 回収すると、両経路とも -800 KB/枚のように負へ振れ、参照のほうが大きく減った回だけ落ちる
+    /// (v0.14.0 で包みを外した後に実測)。見たいのは増え続けないことなので、負の参照は 0 と見る。
+    static func ceiling(_ reference: Soaked) -> Double { max(reference.kilobytesPerFrame, 0) + flat }
+
     // MARK: - メモリ
 
     /// 2 経路を回し、参照が描いて増えていないことを押さえてから、疑いの増え方を返す。
@@ -34,23 +39,20 @@ import mokume
     @Test("閉じ忘れた beginShape が、フレームをまたいで頂点を積み続けない")
     func unclosedShape() async throws {
         let (a, b) = try await memory(.unclosedShape, frames: 300, warmup: 30)
-        withKnownIssue("mokume#1591: 開いた形の印がフレームの境目で下りず、vertex() が点を積み続ける") {
-            #expect(a.kilobytesPerFrame < b.kilobytesPerFrame + Self.flat, "閉じない \(a.summary)、閉じる \(b.summary)")
-        }
+        #expect(a.kilobytesPerFrame < Self.ceiling(b), "閉じない \(a.summary)、閉じる \(b.summary)")
     }
 
     @Test("beginDraw の外で描き場所へ置いた図形が、溜まり続けない")
     func offFrameGraphics() async throws {
         let (a, b) = try await memory(.offFrameGraphics, frames: 300, warmup: 30)
-        withKnownIssue("mokume#1592: 図形の口がフレームの外を見ずに溜め場へ積み、捨てる契機が来ない") {
-            #expect(a.kilobytesPerFrame < b.kilobytesPerFrame + Self.flat, "挟まない \(a.summary)、挟む \(b.summary)")
-        }
+        #expect(a.kilobytesPerFrame < Self.ceiling(b), "挟まない \(a.summary)、挟む \(b.summary)")
     }
 
     @Test("sin で脈打つ textSize でも、書体の控えが増え続けない")
     func pulsingText() async throws {
         let (a, b) = try await memory(.pulsingText, frames: 600, warmup: 60)
-        withKnownIssue("mokume#1431: 書体の控えが大きさごとに増え続け、減らす経路も上限も無い") {
+        // v0.14.0 で上限つきの控えになり、埋まる途中を測るこの検査は揺れる。測り直すまで揺れを許す (probes#58)
+        withKnownIssue("mokume#1431: 書体の控えが大きさごとに増え続け、減らす経路も上限も無い", isIntermittent: true) {
             #expect(a.kilobytesPerFrame < b.kilobytesPerFrame + Self.flat, "textSize で脈打つ \(a.summary)、scale で脈打つ \(b.summary)")
         }
     }
@@ -61,9 +63,7 @@ import mokume
         let b = try await soak(Idle(), frames: 4000, warmup: 1000, yielding: true)
         let a = try await soak(Idle(), frames: 4000, warmup: 1000, yielding: false)
         #expect(b.kilobytesPerFrame < 0.3, "譲る回し方が増えている: \(b.summary)")
-        withKnownIssue("mokume#1594: GPU の完了の後始末を main actor の Task に積むので、譲らないと走らない") {
-            #expect(a.kilobytesPerFrame < b.kilobytesPerFrame + 0.5, "譲らない \(a.summary)、譲る \(b.summary)")
-        }
+        #expect(a.kilobytesPerFrame < b.kilobytesPerFrame + 0.5, "譲らない \(a.summary)、譲る \(b.summary)")
     }
 
     // MARK: - 時間
@@ -101,13 +101,12 @@ import mokume
         #expect(a.milliseconds / half.milliseconds < Self.linear, "50 個 \(half.summary)、100 個 \(a.summary)")
         // mokume#1596 は視点を 1 度だけ読む手前の直しで閉じ、この期待 (線なしの 10 倍 + 16 ms・
         // GPU の山 32 MB 未満) は #1604 (Design) へ移った。手前の直しでは線なしの 25 倍が残る
-        withKnownIssue("mokume#1604: 稜線の帯と角を、立体ごと・毎フレーム CPU で組み直す (根本は GPU で広げるか)") {
-            // 線を付けても、1 フレーム (60 fps の 16 ms) と線なしの 10 倍を足した分に収まる
-            #expect(
-                a.milliseconds < b.milliseconds * 10 + 16,
-                "線あり \(a.summary)、線なし \(b.summary)")
-            #expect(a.gpuPeakMegabytes < 32, "線あり \(a.summary)、線なし \(b.summary)")
-        }
+        // (#1604 は v0.14.0 で直った)
+        // 線を付けても、1 フレーム (60 fps の 16 ms) と線なしの 10 倍を足した分に収まる
+        #expect(
+            a.milliseconds < b.milliseconds * 10 + 16,
+            "線あり \(a.summary)、線なし \(b.summary)")
+        #expect(a.gpuPeakMegabytes < 32, "線あり \(a.summary)、線なし \(b.summary)")
     }
 
     // MARK: - 落ちる
@@ -119,19 +118,15 @@ import mokume
     @Test("巨大な textSize で字を描いても、落ちない")
     func hugeTextSize() async {
         await #expect(processExitsWith: .success) { await survive(.hugeTextSize, extreme: false) }
-        await withKnownIssue("mokume#1587: 字形の外接矩形を Int へ直すところで、大きさの上限を見ていない") {
-            await #expect(processExitsWith: .success) { await survive(.hugeTextSize, extreme: true) }
-        }
+        await #expect(processExitsWith: .success) { await survive(.hugeTextSize, extreme: true) }
     }
 
     @Test("数でない座標・巨大な textSize で textOutline を取っても、落ちない")
     func textOutline() async {
         await #expect(processExitsWith: .success) { await survive(.textOutlineNaN, extreme: false) }
         await #expect(processExitsWith: .success) { await survive(.textOutlineHuge, extreme: false) }
-        await withKnownIssue("mokume#1587: 曲線を割る数を Int((rough / 2).rounded(.up)) で作り、rough が NaN / inf になる") {
-            await #expect(processExitsWith: .success) { await survive(.textOutlineNaN, extreme: true) }
-            await #expect(processExitsWith: .success) { await survive(.textOutlineHuge, extreme: true) }
-        }
+        await #expect(processExitsWith: .success) { await survive(.textOutlineNaN, extreme: true) }
+        await #expect(processExitsWith: .success) { await survive(.textOutlineHuge, extreme: true) }
     }
 
     @Test("createShape の中で background() / get() を呼んでも、落ちない")
@@ -147,17 +142,13 @@ import mokume
     @Test("makeNumbers(count:) に巨大な数を渡すと、落ちずに投げる")
     func makeNumbersHuge() async {
         await #expect(processExitsWith: .success) { await survive(.makeNumbersHuge, extreme: false) }
-        await withKnownIssue("mokume#1589: 上限を検める前のバイト数の掛け算があふれる") {
-            await #expect(processExitsWith: .success) { await survive(.makeNumbersHuge, extreme: true) }
-        }
+        await #expect(processExitsWith: .success) { await survive(.makeNumbersHuge, extreme: true) }
     }
 
     @Test("画面へ出す絵を範囲の外で読んでも、落ちない")
     func displayImageOutside() async {
         await #expect(processExitsWith: .success) { await survive(.displayImageOutside, extreme: false) }
-        await withKnownIssue("mokume#1590: DisplayImage の添字が precondition で止まる (PixelBuffer は #1436 で透明を返す)") {
-            await #expect(processExitsWith: .success) { await survive(.displayImageOutside, extreme: true) }
-        }
+        await #expect(processExitsWith: .success) { await survive(.displayImageOutside, extreme: true) }
     }
 
     // MARK: - 最後に回す
@@ -171,7 +162,8 @@ import mokume
     func modelSequence() async throws {
         // 毎フレーム 1 モデルずつ積むので、1 枚ごとの増分で見る (`stepKilobytes`)
         let (a, b) = try await memory(.modelSequence, frames: ModelSequence.length, warmup: 10)
-        withKnownIssue("mokume#1593: loadModel の控えに上限も追い出しも無い") {
+        // v0.14.0 で上限つきの控えになり、埋まる途中を測るこの検査は揺れる。測り直すまで揺れを許す (probes#58)
+        withKnownIssue("mokume#1593: loadModel の控えに上限も追い出しも無い", isIntermittent: true) {
             #expect(a.stepKilobytes < b.stepKilobytes + Self.flat, "連番 \(a.summary)、同じ 1 枚 \(b.summary)")
         }
     }

@@ -145,13 +145,20 @@ import mokume
         try compareKnown(.shaderSurfaceRedraw, "mokume#1653: 面を渡した描き場所を置いたと記録するのが列を閉じたときだけ")
     }
 
-    @Test("beginDraw の外で描き場所へ書いた画素も、image で出る")
+    @Test("beginDraw の外で描き場所へ書いた画素は断られ、get も image も書いていない絵を見る")
     func graphicsSetOutside() throws {
-        // 書いた値は get では読める (読む口どうしで食い違う)
+        // mokume#1654 は「断る」ほうに約束を決めて閉じた (mokume#1681・ADR-0021 決定 4 の追補)。
+        // `v0.12.0` では get だけが外で書いた赤を返し、image には出なかった (読む口どうしの食い違い)
         let knot = Tangles.named(.graphicsSetOutside).make(.suspect)
+        let untouched = Tangles.named(.graphicsSetOutside).make(.reference)
         _ = try run(knot, frames: 1)
-        #expect(gap(knot.layer.get(40, 80), Tangles.red) < Self.exact, "get が書いた値を返さない")
-        try compareKnown(.graphicsSetOutside, "mokume#1654: 写しを面へ戻すのが描き場所自身の flush だけで、置く側は戻さない")
+        _ = try run(untouched, frames: 1)
+        // (40, 80) は外で赤を書いた左半分、(120, 80) は囲んで青を書いた右半分 (対照)
+        #expect(
+            gap(knot.layer.get(40, 80), untouched.layer.get(40, 80)) < Self.exact,
+            "mokume#1654 で決まった約束: 外で書いた画素を get が返す \(knot.layer.get(40, 80))")
+        #expect(gap(knot.layer.get(120, 80), Tangles.blue) < Self.exact, "囲んで書いた画素を get が返さない")
+        try compare(.graphicsSetOutside)
     }
 
     @Test("効果を掛けた描き場所にフレームの外で書き戻しても、次のフレームの効果は 1 回ぶん")
@@ -165,9 +172,8 @@ import mokume
             if frame == 1 {
                 #expect(n == 0, "1 枚目: \(n) 画素が違う")
             } else {
-                withKnownIssue("mokume#1655: 次のフレームの最初の描き切りが、効果を通した写しを書き戻す") {
-                    #expect(n == 0, "2 枚目: \(n) 画素が違う")
-                }
+                // v0.12.0 では効果が 2 回掛かった。v0.14.0 は外の書き戻しを断るので 1 回ぶん (mokume#1681)
+                #expect(n == 0, "mokume#1655 (v0.14.0 で直った): 2 枚目: \(n) 画素が違う")
             }
         }
     }

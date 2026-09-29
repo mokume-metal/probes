@@ -5,6 +5,9 @@ import Testing
 /// **本文に貼ったコードが、いまも破れを出すこと**を押さえる。mokume が直ると、本来の検査と
 /// 同じく「既知の問題が起きなかった」で赤くなって知らせる。再現が投げたとき (描けない) は
 /// 既知の問題に数えず、そのまま落とす。
+///
+/// **直った再現は包みを外して残す。** 戻れば赤くなって知らせる。起票の番号は `"mokume#N` の字面で
+/// 名指しする (`filing.py check` が、`Repros/` の再現ごとに検査が名指ししているかを見る)。
 @MainActor
 @Suite struct ReprosTests {
     // MARK: - 混ぜ方・線の形
@@ -95,20 +98,16 @@ import Testing
         }
     }
 
-    @Test("再現: beginDraw の外で描き場所へ書いた画素も、image で出る")
+    @Test("再現: beginDraw の外で描き場所へ書いた画素は断られ、get も image も書いていない絵を見る")
     func graphicsSetOutside() throws {
         let broken = try GraphicsSetOutside.reproduce()
-        withKnownIssue("mokume#1654: 写しを面へ戻すのが描き場所自身の flush だけで、置く側は戻さない") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1654 で約束が決まった (mokume#1681 が断るほうに決めた): \(broken ?? "")")
     }
 
     @Test("再現: 効果を掛けた描き場所にフレームの外で書き戻しても、次のフレームの効果は 1 回ぶん")
     func effectsOffFrameSet() throws {
         let broken = try EffectsOffFrameSet.reproduce()
-        withKnownIssue("mokume#1655: 次のフレームの最初の描き切りが、効果を通した写しを書き戻す") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1655 で直った: \(broken ?? "")")
     }
 
     // MARK: - フレームの途中の描き切り・周囲の背景
