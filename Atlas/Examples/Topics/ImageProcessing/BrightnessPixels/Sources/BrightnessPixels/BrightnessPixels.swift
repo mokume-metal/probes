@@ -5,7 +5,7 @@ import Support
 ///
 /// **台帳は `blocked` と言った。半分だけ — 絵は出る。**`updatePixels()` が無いのと、
 /// **面の `pixels` が 2 次元の添字を取る**こと (原典は `pixels[y*width + x]`)。
-/// `dist()` / `constrain()` も無いので面の外に書く。`frameRate(30)` は settings へ。
+/// `dist()` も無いので面の外に書く (`constrain()` は `v0.14.0` で面に入った)。`frameRate(30)` は settings へ。
 final class BrightnessPixels: Sketch {
     var settings = SketchSettings(width: 640, height: 360, frameRate: 30, title: "Brightness")
 

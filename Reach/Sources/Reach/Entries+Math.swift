@@ -45,7 +45,8 @@ extension Entries {
                       }
                   }
               }),
-        Entry(section: .math, reference: "sq() / norm()", verdict: .write, mokume: "sq / norm (Support)",
+        Entry(section: .math, reference: "sq() / norm()", verdict: .write, mokume: "sq (Support) / norm",
+              note: "norm は v0.14.0 で入った (smoothstep も)。sq は無い",
               tile: .value { _ in "\(Int(sq(7))) \(norm(5, 0, 10))" }),
         Entry(section: .math, reference: "abs() / floor() / pow() / sqrt()", verdict: .host, mokume: "Swift の abs / floor / pow / squareRoot",
               note: "floor / pow は Foundation を import する",

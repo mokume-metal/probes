@@ -1,5 +1,4 @@
 import mokume
-import Support
 
 /// Processing の [Brightness](https://processing.org/examples/brightness/) を 1 行ずつ移したもの。
 /// 原典は Rusty Robison 作。

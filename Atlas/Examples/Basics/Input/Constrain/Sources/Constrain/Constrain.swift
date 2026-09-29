@@ -1,10 +1,10 @@
 import Foundation
 import mokume
-import Support
 
 /// Processing の [Constrain](https://processing.org/examples/constrain/) を 1 行ずつ移したもの。
 ///
-/// **台帳は `write-only` と言った。当たっている** — `constrain()` が無いので面の外に書く。
+/// **台帳は `write-only` と言った。当たっていた。`v0.14.0` で埋まった** — 面の外に書いていた
+/// `constrain()` が、同名・同じ引数の形で面に入った。
 /// `ellipseMode(RADIUS)` / `rectMode(CORNERS)` は `ShapeMode` へ名前が変わるだけで届く。
 final class Constrain: Sketch {
     var settings = SketchSettings(width: 640, height: 360, title: "Constrain")

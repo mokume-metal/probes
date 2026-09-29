@@ -1,5 +1,4 @@
 import mokume
-import Support
 
 /// Processing の [Saturation](https://processing.org/examples/saturation/) を 1 行ずつ移したもの。
 ///

@@ -1,5 +1,4 @@
 import mokume
-import Support
 
 /// Processing の [Game of Life](https://processing.org/examples/gameoflife/) を 1 行ずつ移したもの。
 ///

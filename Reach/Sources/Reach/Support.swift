@@ -69,31 +69,6 @@ func curvePoint(_ a: Float, _ b: Float, _ c: Float, _ d: Float, _ t: Float) -> F
     return 0.5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3)
 }
 
-// MARK: - 色
-
-/// 手本の `lerpColor(a, b, t)`。**混ぜる空間が違う** — mokume の色は線形の値なので、
-/// 手本 (表示値のまま混ぜる) とは中間の色が変わる (mokume ADR-0033 決定 7)。
-///
-/// **`LinearRGBA` の成分は乗算済み**なので、乗算済みのまま混ぜて乗算済みの口で戻す
-/// (`straightRed:` へ渡すと不透明度をもう一度掛け、半透明の色が暗く出る。probes#14)。
-func lerpColor(_ from: LinearRGBA, _ to: LinearRGBA, _ amount: Float) -> LinearRGBA {
-    LinearRGBA(
-        premultipliedRed: from.red + (to.red - from.red) * amount,
-        green: from.green + (to.green - from.green) * amount,
-        blue: from.blue + (to.blue - from.blue) * amount,
-        alpha: from.alpha + (to.alpha - from.alpha) * amount)
-}
-
-extension Canvas {
-    /// 手本 (Processing) の `fill(rgb, alpha)` — 色の値 1 つに不透明度 (0–255) を添える。
-    /// 手本と同じく、色が元から持つ不透明度に `alpha / 255` を**掛ける** (Processing 4 の
-    /// `PGraphics.colorCalcARGB`)。成分は乗算済みなので、4 成分を同じ率で縮めれば済む。
-    func fill(_ color: LinearRGBA, _ alpha: Float) {
-        let k = min(max(alpha / 255, 0), 1)
-        fill(LinearRGBA(premultipliedRed: color.red * k, green: color.green * k, blue: color.blue * k, alpha: color.alpha * k))
-    }
-}
-
 // MARK: - 画像
 
 /// 手本の `filter(THRESHOLD, level)`。効果 (`Effect`) に閾値が無いので、画素を 1 つずつ書く。
@@ -141,9 +116,6 @@ func mag(_ x: Float, _ y: Float) -> Float { (x * x + y * y).squareRoot() }
 
 /// 手本の `sq(n)`。
 func sq(_ n: Float) -> Float { n * n }
-
-/// 手本の `norm(value, start, stop)` — `map` の 0〜1 版。
-func norm(_ value: Float, _ start: Float, _ stop: Float) -> Float { (value - start) / (stop - start) }
 
 /// 手本の `PVector` のメソッドのうち、よく使うもの。**型は `SIMD2<Float>` で当たるが、
 /// メソッドが 1 つも無い** (`simd_normalize` などは `import simd` を要し、アンブレラは通さない)。

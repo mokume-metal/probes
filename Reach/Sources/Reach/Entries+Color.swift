@@ -26,8 +26,8 @@ extension Entries {
                   c.fill(color(40, 200, 160))
                   c.rect(48, 12, 36, 72)
               }),
-        Entry(section: .color, reference: "fill(rgb, alpha)", verdict: .write, mokume: "fill(color, alpha) (Support)",
-              note: "Processing の、色の値 1 つに不透明度を添える形が無い (手本は色の不透明度に alpha / 255 を掛ける)。works の 2 作品が色を薄める口を手で書いている", issue: "mokume#1553",
+        Entry(section: .color, reference: "fill(rgb, alpha)", verdict: .same, mokume: "fill(color, alpha)",
+              note: "v0.14.0 で入った。手本と同じく、色が元から持つ不透明度に alpha / 255 を掛ける", issue: "mokume#1553",
               tile: .picture { c, _ in
                   c.noStroke()
                   let ink = color(235, 120, 60)
@@ -50,8 +50,8 @@ extension Entries {
                       c.rect(Float(i) * 12, 0, 12, s)
                   }
               }),
-        Entry(section: .color, reference: "lerpColor()", verdict: .write, mokume: "lerpColor (Support)",
-              note: "面に無い。混ぜる空間が違うので、書いても中間色は手本と変わる。works の 2 作品が手で書いている (mokume#745 は実需待ちで閉じていた)", issue: "mokume#1552",
+        Entry(section: .color, reference: "lerpColor()", verdict: .same, mokume: "lerpColor",
+              note: "v0.14.0 で入った。線形の光の量で混ぜるので、中間の色は手本より明るい (名前と引数の順だけを揃え、同じ中間色は約束しない)", issue: "mokume#1552",
               tile: .picture { c, _ in
                   c.noStroke()
                   let (a, b) = (color(230, 60, 40), color(40, 110, 230))
