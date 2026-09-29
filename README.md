@@ -152,5 +152,6 @@ python3 scripts/upstream.py    # 戻した Issue がどうなったか
 新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
 手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
 
-**Atlas は mokume `v0.9.0`、Probe と Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0`、Tumble は `v0.12.1` を引いている**
-(後の 10 本は、測る版で始めた)。
+**全 11 本が mokume `v0.14.0` を引いている。** Probe・Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、
+Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0`、Tumble は `v0.12.1` で始め (測る版で始めた)、
+Atlas とあわせて `v0.14.0` へ揃えて上げた。

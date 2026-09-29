@@ -154,8 +154,8 @@ import mokume
         func press(_ sketch: Stopped) throws -> Picture {
             try run(sketch, frames: 2, dump: "stoppedCallback-\(sketch.inCallback)") { frame, runtime in
                 if frame == 2 {
-                    runtime.input.enqueue(.mouseDown(x: 100, y: 30, button: 0))
-                    runtime.input.enqueue(.mouseUp(x: 100, y: 30, button: 0))
+                    runtime.input.enqueue(.mouseDown(x: 100, y: 30, button: .left))
+                    runtime.input.enqueue(.mouseUp(x: 100, y: 30, button: .left))
                 }
             }[2]!
         }
