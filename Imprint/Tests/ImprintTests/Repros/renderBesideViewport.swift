@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#2025
 //
 // `mokume watch` が走っている場所 (`.mokume/viewport` が在る場所) で書き出しを起こすと、標準入力が
 // 閉じている (/dev/null・CI・エージェント) だけで「道具が居なくなった」と読み、1 枚も書かずに

@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#2026
 //
 // `mokume watch A` が走っている場所で、道具に起こされていないスケッチ B を走らせる (`swift run`・
 // 別の実行ファイル・2 本目の道具)。B は自分の窓を開かず、watch の目録 `.mokume/viewport/surface.json`

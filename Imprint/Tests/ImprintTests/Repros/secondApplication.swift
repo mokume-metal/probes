@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#2027
 //
 // 1 プロセスで 2 つ目の `SketchApplication.run()` を呼ぶと (Processing の `runSketch` で第 2 窓を
 // 出す書き方)、2 つ目は 1 枚も描かず窓も出ない。それだけでなく、**1 つ目が `beginRecord` していた

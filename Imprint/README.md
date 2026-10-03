@@ -107,12 +107,12 @@ exit test で子プロセスに閉じ込め、**終了コード 0 = 期待どお
 
 | 鍵 | 何が起きたか | 陰性対照 | mokume |
 | --- | --- | --- | --- |
-| `viewportTakeover` | `mokume watch A` が走る場所で、道具に起こされていないスケッチ B を走らせる。B は自分の窓を開かず、watch の目録 `surface.json` を自分の面で上書きする。watch の 2 枚の窓は B の絵を映し、B が終わっても B の最後の 1 枚で止まる。A を保存し直すまで戻らない | 区画が無い場所なら、B は自分の窓を開き、目録に触らない | 未起票 |
-| `renderBesideViewport` | `.mokume/viewport` が在る場所で書き出しを起こすと、標準入力が閉じている (/dev/null) だけで「道具が居なくなった」と読む。**0 / 30 枚**で終了コード 1 になる | 区画が無ければ 30 / 30 枚で 0 | 未起票 |
-| `stdinLeftNonBlocking` | `.mokume/viewport` が在る場所で `SketchRuntime` を作ると、標準入力に `O_NONBLOCK` を立てて戻さない。端末から回すと、終わった後に同じ端末で標準入力を読むプログラムが `EAGAIN` (Errno 35) で落ちる | 区画が無ければ立たない | 未起票 |
-| `secondApplication` | 1 プロセスで、`draw()` から 2 つ目の `SketchApplication.run()` を呼ぶ (第 2 窓の書き方)。2 つ目は 1 枚も描かない。**1 つ目が録っていた `.mov` に目次 (`moov`) が無く、開けない** | 2 つ目を作るだけで `run()` しなければ、`.mov` は開ける | 未起票 |
+| `viewportTakeover` | `mokume watch A` が走る場所で、道具に起こされていないスケッチ B を走らせる。B は自分の窓を開かず、watch の目録 `surface.json` を自分の面で上書きする。watch の 2 枚の窓は B の絵を映し、B が終わっても B の最後の 1 枚で止まる。A を保存し直すまで戻らない | 区画が無い場所なら、B は自分の窓を開き、目録に触らない | [#2026](https://github.com/mokume-metal/mokume/issues/2026) |
+| `renderBesideViewport` | `.mokume/viewport` が在る場所で書き出しを起こすと、標準入力が閉じている (/dev/null) だけで「道具が居なくなった」と読む。**0 / 30 枚**で終了コード 1 になる | 区画が無ければ 30 / 30 枚で 0 | [#2025](https://github.com/mokume-metal/mokume/issues/2025) |
+| `stdinLeftNonBlocking` | `.mokume/viewport` が在る場所で `SketchRuntime` を作ると、標準入力に `O_NONBLOCK` を立てて戻さない。端末から回すと、終わった後に同じ端末で標準入力を読むプログラムが `EAGAIN` (Errno 35) で落ちる | 区画が無ければ立たない | [#2024](https://github.com/mokume-metal/mokume/issues/2024) |
+| `secondApplication` | 1 プロセスで、`draw()` から 2 つ目の `SketchApplication.run()` を呼ぶ (第 2 窓の書き方)。2 つ目は 1 枚も描かない。**1 つ目が録っていた `.mov` に目次 (`moov`) が無く、開けない** | 2 つ目を作るだけで `run()` しなければ、`.mov` は開ける | [#2027](https://github.com/mokume-metal/mokume/issues/2027) |
 
-上の 3 件は同じ根に見える。「`.mokume/viewport` が在る = 道具に起こされた」と読み、起こした道具を確かめていない
+上の 3 件は同じ根に見えるので、根の Issue [#2028](https://github.com/mokume-metal/mokume/issues/2028) で束ねた。「`.mokume/viewport` が在る = 道具に起こされた」と読み、起こした道具を確かめていない
 (`SharedFrameSurface.isEnabled()`・`StandardInputEvents.makeIfDriven`)。
 
 ### 約束どおりだったもの

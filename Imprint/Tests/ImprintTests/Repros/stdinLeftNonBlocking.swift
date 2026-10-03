@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#2024
 //
 // `.mokume/viewport` が在る場所 (`mokume watch` が走っている場所) で `SketchRuntime` を作ると、
 // 道具に起こされたと読んで標準入力に `O_NONBLOCK` を立て、戻さない。標準入力が端末なら、この
