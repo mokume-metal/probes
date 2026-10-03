@@ -1,6 +1,6 @@
 {
-  "mokume": "0.14.0",
-  "revision": "34ba2d8ab9b7f0c95b1d38502365c0812674f0a0",
+  "mokume": "0.16.2",
+  "revision": "18283daf496bdf69ebd33bafab2124d807d89bc0",
   "prepare": [
     "python3 scripts/examples.py --check"
   ],

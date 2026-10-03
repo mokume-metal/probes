@@ -15,7 +15,7 @@ let package = Package(
     platforms: [.macOS("26.0")],
     products: [.executable(name: "Reflection1", targets: ["Reflection1"])],
     dependencies: [
-        .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.14.0"),
+        .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.16.2"),
         .package(path: "../../../.."),
     ],
     targets: [

@@ -11,7 +11,7 @@ let package = Package(
     dependencies: [
         // **どの版で測ったかは Package.resolved が持つ。** 版を上げると、`none` と判定した口が
         // 増えていないかを README の手順で見直す (`scripts/api-diff.py`)
-        .package(url: "https://github.com/mokume-metal/mokume.git", from: "0.14.0")
+        .package(url: "https://github.com/mokume-metal/mokume.git", from: "0.16.2")
     ],
     targets: [
         .executableTarget(

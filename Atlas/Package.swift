@@ -28,7 +28,7 @@ let package = Package(
         // **`from` で宣言する。** 例の側は `exact` で釘を打つが、そちらの値は
         // `Package.resolved` から流し込まれる。こちらまで `exact` にすると、
         // 食い違った日に解決できなくなる
-        .package(url: "https://github.com/mokume-metal/mokume.git", from: "0.14.0")
+        .package(url: "https://github.com/mokume-metal/mokume.git", from: "0.16.2")
     ],
     targets: [
         .target(
