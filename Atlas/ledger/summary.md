@@ -1,8 +1,8 @@
 | 区分 | 例数 | |
 | --- | ---: | --- |
-| `clean` | 105 | そのまま届く |
-| `write-only` | 5 | 書けば届く |
-| `bend` | 54 | 書けるが歪む |
+| `clean` | 108 | そのまま届く |
+| `write-only` | 6 | 書けば届く |
+| `bend` | 50 | 書けるが歪む |
 | `blocked` | 39 | 口が無くて止まる |
 | `out-of-scope` | 51 | 測らないと決めた |
 | **合計** | **254** | |
@@ -25,7 +25,6 @@
 | 12 | `colorMode` | `bend` | color(hue:saturation:brightness:) |
 | 10 | `dist` | `write` | — |
 | 10 | `updatePixels` | `none` | — |
-| 8 | `QUADS` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
 | 7 | `mag` | `write` | — |
 | 6 | `QUAD_STRIP` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
 | 6 | `createFont` | `none` | — |
@@ -40,3 +39,4 @@
 | 3 | `fromAngle` | `write` | — |
 | 3 | `getVertex` | `none` | — |
 | 3 | `setMag` | `write` | — |
+| 3 | `setStroke` | `none` | — |

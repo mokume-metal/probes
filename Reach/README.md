@@ -1,4 +1,4 @@
-# Reach — Processing / p5.js のよく使う口に mokume v0.14.0 が届くか
+# Reach — Processing / p5.js のよく使う口に mokume v0.16.2 が届くか
 
 **作品ではなく物差しである。** Atlas が Processing の *Examples* を全数で当てて「どの欠けが何本の例を止めるか」を数えるのに対し、Reach は *リファレンス* の側から**作品を作るときにまず使う口**を百余り並べ、1 口 1 タイルで実際に mokume で書いてみる。
 
@@ -26,24 +26,26 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 
 **`swift test` が見ているのは「届くと判定した口が、描いて何かを置くか」まで。** 手本と同じ画素が出るかは見ない (mokume は手本の名前と引数の順序までを採り、画素は約束しない — mokume ADR-0020 決定 1 の改訂)。約束の破れを突くのは Probe・Drift の仕事である。
 
-## 結果 — mokume `v0.14.0`
+## 結果 — mokume `v0.16.2`
 
 <!-- reach:summary -->
 | 判定 | 件数 | |
 | --- | ---: | --- |
 | `same` | 57 | 同名・同じ引数の形がある |
-| `renamed` | 25 | 口はあるが別名・別の形 |
+| `renamed` | 26 | 口はあるが別名・別の形 |
 | `host` | 7 | Swift・Foundation の語彙で当たる |
 | `drop` | 2 | mokume では要らない |
 | `write` | 13 | 面の外に書けば済む (`Support.swift`) |
 | `bend` | 8 | 書けるが歪む |
 | `none` | 14 | 口が無い |
-| **合計** | **126** | |
+| **合計** | **127** | |
 <!-- /reach:summary -->
 
 件数は一覧から起こしている (上の表は手で書かない)。
 
 **`v0.11.1` で測り始めたときは `same` 55・`write` 15 だった。** `v0.14.0` で `fill(rgb, alpha)` と `lerpColor()` が同じ形で入って `write` から `same` へ移り、`norm` も入った (`sq` が残るので行は `write` のまま)。`Support.swift` からは、その 3 つの書き足しを消した。
+
+**`v0.16.0` で `beginShape(QUADS)` が `.quads` で入った** (mokume#1551)。`QUADS / QUAD_STRIP` で 1 行だった `bend` を 2 行に割り、`QUADS` は `renamed`、`QUAD_STRIP` は `bend` のままにした (四角の帯は無い。三角形の帯が同じ面を覆う)。`Support.swift` には消す書き足しが無かった (QUADS は一覧のタイルで三角形 2 枚に割って書いていた)。`v0.14.0` → `v0.16.2` の公開 API は、消えた口 0・通らなくなった口 0・増えた口 7 で、増えたのは `textBounds` (`Canvas`・`Sketch`)・`TextBounds`・`VertexKind.quads` だけである。`textBounds` は手本の `textWidth` / `textAscent` / `textDescent` の行 (`same`) とは別の口で、行は増やしていない。
 
 ### 分かったこと
 
@@ -72,6 +74,8 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | [#1283](https://github.com/mokume-metal/mokume/issues/1283#issuecomment-5815642122) (コメント) | — | `norm` / `smoothstep` | 既存の 2 作品に加え、Grain・Quarry・Apex も手で書いていた |
 
 **`v0.14.0` で閉じたもの:** #1552 (`lerpColor`)・#1553 (`fill` / `stroke` の `(color, alpha)`)・#1555 (`mouseButton` が `MouseButton?` に)・#1283 の `norm` / `smoothstep` は、同じ名前で入った。#1554 は `millis()` を足さず、区間を測って観測へ出す `measure(_:_:)` で閉じた (描く値に実時間を混ぜないため、`millis()` の行は `bend` のまま)。#1551・#1572・#1556 は開いたままである。
+
+**`v0.16.0` で閉じたもの:** #1551 (`beginShape(QUADS)`) は `VertexKind.quads` で入った。#1572・#1556 は開いたままである。
 
 ### 起票しなかったもの
 
@@ -127,7 +131,8 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `bezierPoint() / curvePoint()` | `write` | bezierPoint (Support) | 曲線の上の点・接線を返す口が無い |
 | `beginShape() / vertex()` | `same` | beginShape / vertex / endShape(.close) |  |
 | `beginShape(TRIANGLE_STRIP)` | `renamed` | beginShape(.triangleStrip) | POINTS / LINES / TRIANGLES / TRIANGLE_FAN も同じ形 |
-| `beginShape(QUADS / QUAD_STRIP)` | `bend` | beginShape(.triangles) | 四角の並べ方が無い。2 枚の三角形に割って並べ直す。works の 5 作品が同じ割り方を手で書いている (mokume#902 は実需待ちで閉じていた) — [mokume#1551](https://github.com/mokume-metal/mokume/issues/1551) |
+| `beginShape(QUADS)` | `renamed` | beginShape(.quads) | v0.16.0 で入った (mokume#1551)。4 点ずつ独立した四角として読み、塗りは三角形 2 枚に割る。線は 4 辺の輪郭だけで、対角線は引かない — [mokume#1551](https://github.com/mokume-metal/mokume/issues/1551) |
+| `beginShape(QUAD_STRIP)` | `bend` | beginShape(.triangleStrip) | 四角の帯は無い (QUADS は v0.16.0 で入った)。三角形の帯が同じ面を覆う |
 | `beginContour()` | `same` | beginContour / endContour |  |
 | `bezierVertex() / quadraticVertex()` | `same` | bezierVertex / quadraticVertex |  |
 | `curveVertex()` | `same` | curveVertex |  |
