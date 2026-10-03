@@ -8,14 +8,14 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 
 ## 台帳
 
-| 区分 | 例数 | `v0.9.0` のとき | `v0.6.0` のとき | `v0.5.0` のとき | |
-| --- | ---: | ---: | ---: | ---: | --- |
-| `clean` | **105** | 100 | 90 | 64 | そのまま届く |
-| `write-only` | **5** | 10 | 8 | 23 | 書けば届く |
-| `bend` | **54** | 54 | 54 | 63 | 書けるが歪む |
-| `blocked` | **39** | 39 | 51 | 53 | 口が無くて止まる |
-| `out-of-scope` | 51 | 51 | 51 | 51 | 測らないと決めた |
-| **合計** | **254** | **254** | **254** | **254** | |
+| 区分 | 例数 | `v0.14.0` のとき | `v0.9.0` のとき | `v0.6.0` のとき | `v0.5.0` のとき | |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `clean` | **108** | 105 | 100 | 90 | 64 | そのまま届く |
+| `write-only` | **6** | 5 | 10 | 8 | 23 | 書けば届く |
+| `bend` | **50** | 54 | 54 | 54 | 63 | 書けるが歪む |
+| `blocked` | **39** | 39 | 39 | 51 | 53 | 口が無くて止まる |
+| `out-of-scope` | 51 | 51 | 51 | 51 | 51 | 測らないと決めた |
+| **合計** | **254** | **254** | **254** | **254** | **254** | |
 
 **`v0.6.0` で 26 本が `clean` へ移った。** works が戻した Issue が 3 本まとめて閉じたためで、
 これは**台帳が予測した重みの答え合わせ**にあたる — 下の表で `map` (33 例) と `radians`
@@ -32,6 +32,13 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 `none` の例数は `v0.9.0` と変わらない。**ここでも `write` の中でいちばん重い 2 つのうち
 1 つが先に埋まった** — `constrain` は 9 例を止めていて、`dist` (10 例) の次だった。
 
+**`v0.16.0` で 4 本が `bend` から出た。** 四角の並べ方 `QUADS` が `VertexKind.quads` で入り
+([mokume#1551](https://github.com/mokume-metal/mokume/issues/1551))、1 行が `bend` から `renamed` になった
+([下の見直し](#語彙の台帳を-v0162-で見直した))。`MeshTweening`・`SpaceJunk`・`TextureCube` が `clean` へ、
+`Yellowtail` が `write-only` へ移った (`mag` が残る)。`QUADS` は 8 例を止めていたが、残る 4 例は別の穴でも止まっている
+— `RotatingArcs` と `TextureCylinder` は `QUAD_STRIP`、`RGBCube` は `colorMode`、`CubesWithinCube` は `PVector`。
+**ここでも台帳が「重い」と数えた穴が先に埋まった** — `QUADS` は上位の `bend` の 1 つだった。
+
 `out-of-scope` は GLSL を書く例 (`Topics/Shaders` ほか)・性能測定と処理系の試験 (`Demos/Performance` / `Demos/Tests`)・ファイル入出力とネットワークが主題の例。**台帳から消さずに理由を持たせて残している** — 消すと「測っていない」と「測ったが届かない」の区別が付かなくなる。
 
 ### 何本の例を止めるか
@@ -43,11 +50,11 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 | 12 | `colorMode` | `bend` | color(hue:saturation:brightness:) — **目盛りは張り替えられない** |
 | 10 | `dist` | `write` | — |
 | 10 | `updatePixels` | `none` | — |
-| 8 | `QUADS` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
 | 7 | `mag` | `write` | — |
 | 6 | `QUAD_STRIP` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
 | 6 | `createFont` | `none` | — |
 | 6 | `getChild` | `none` | — |
+| 6 | `loadShape` | `none` | — |
 
 全 20 行は [`ledger/summary.md`](ledger/summary.md)。
 
@@ -71,6 +78,12 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 | 語彙 | `v0.9.0` の判定 | 止めていた例数 | `v0.14.0` |
 | --- | --- | ---: | --- |
 | `constrain` | `write` | 9 | `same` — 同名・同じ引数の並び。`lerp` / `norm` / `lerpColor` も一緒に入った |
+
+**`v0.16.0` でもう 1 つ消えた。**
+
+| 語彙 | `v0.14.0` の判定 | 止めていた例数 | `v0.16.0` |
+| --- | --- | ---: | --- |
+| `QUADS` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)・[#1551](https://github.com/mokume-metal/mokume/issues/1551)) | 8 | `renamed` — `VertexKind.quads`。4 点ずつ独立した四角として読む。**8 例のうち 4 本が `bend` から出た** |
 
 **台帳がいちばん重いと数えたものから順に埋まった。** 1 本ずつの移植では出なかった重みが、
 実際に直す順番と一致していたことになる。
@@ -317,7 +330,7 @@ python3 scripts/ledger.py    # ledger/ を組み直す
 | | |
 | --- | --- |
 | probes | この物差しのコミット (`Package.resolved` が同じツリーにある) |
-| mokume | `v0.14.0` / `34ba2d8ab9b7f0c95b1d38502365c0812674f0a0` (`Package.resolved` が固定している) |
+| mokume | `v0.16.2` / `18283daf496bdf69ebd33bafab2124d807d89bc0` (`Package.resolved` が固定している) |
 | 原典 | `processing/processing-examples` @ `b10c9e9a05a0d6c20d233ca7f30d315b5047720e` ([`ledger/sources.json`](ledger/sources.json) が刻む) |
 <!-- verify:end -->
 
@@ -475,6 +488,44 @@ git diff --stat ledger/    # 差分が出なければ、同じ版から同じ台
 `frameRate` は [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) が開いたままで `bend` のまま、
 `colorMode` / `specular` / `lightSpecular` / `QUADS` / `QUAD_STRIP` も口が増えておらず据え置いた。
 
+## 版を上げたときに動いたもの — `v0.14.0` → `v0.16.2`
+
+**`v0.14.0` → `v0.16.2` の公開 API は、消えた口 0・通らなくなった口 0・増えた口 7 だった。** 増えたのは `textBounds`
+(`Canvas`・`Sketch`)・`TextBounds` の `x` / `y` / `width` / `height`・`VertexKind.quads` で、`v0.14.0` の
+`lerp` のように**面の口と `Support` の書き足しが同名で重なる**形ではない。
+
+**例 157 本は、版だけ上げた時点で 1 行も直さずに建った。** `v0.14.0` では `Atlas` 本体と `verify.py --check`
+しか見ず、例が 11 本建たなくなっていたのを再判定で初めて見つけた。今回は版上げの段で、157 本を 1 本ずつ
+`swift build` した。
+
+```
+建った 157 / 157  失敗 0
+```
+
+**絵はほぼ動かないはずである。** `v0.16.2` の破壊的変更は、`pixelDensity` を下げたときの断片の `in.position` /
+`in.size` / `in.resolution`・小数の `clip()`・描く画素で 1 画素より細い三角形の経路の線の 3 つで、**細かさ 1 の断片・
+整数の `clip()`・1 画素以上の線は変わらない**と書いてある。Atlas の例は `pixelDensity` も `clip()` も自作の断片
+(`makeShader` / `makeEffect`) も使っていない (grep で確かめた)。太さ 1 未満の線を引く例も無い — `strokeWeight` の引数は
+リテラルがすべて 1 以上で、変数で渡す `Reach2`・`Reach3` も `(i + 1) * 2` で 2 以上である。**絵は測っていない**
+(「測るのをやめたもの」)。
+
+### 語彙の台帳を `v0.16.2` で見直した
+
+213 行が全部 `checked: "0.14.0"` のままだったので、`v0.14.0` のときと同じく見直した。`api-diff.py` の「消えた」は 0 件で、
+**届いている行の指し先は全部残っていた** (退行ゼロ)。増えた 7 つのうち、台帳の行が指しているのは `quads` だけで、
+`textBounds` / `TextBounds` は原典 (Processing) の語彙に無い。
+
+**動いたのは 1 行。**
+
+| 行 | | |
+| --- | --- | --- |
+| `QUADS` | `bend` → `renamed` | `VertexKind.quads`。[mokume#1551](https://github.com/mokume-metal/mokume/issues/1551) が閉じて `v0.16.0` で入った。4 点ずつ独立した四角として読み、塗りは三角形 2 枚に割る。**線は 4 辺の輪郭だけ**で、対角線は引かない |
+
+**`QUAD_STRIP` は `bend` のまま。** 四角の帯は入っていない。三角形の帯 `VertexKind.triangleStrip` が同じ面を覆うので、`note` だけ直した。
+6 例を止めている。
+
+区分は `clean` 105 → 108・`write-only` 5 → 6・`bend` 54 → 50 になった (上の「台帳」)。
+
 ## mokume へ戻したもの
 
 台帳が出した重みは、既に立っている実需の**順位**の材料になる。新しく起票するのは、実測で 1 本以上踏んだものに限る — 机上の数字だけで起票すると「一般にそういう API があるから」に落ちる (ADR-0022 決定 6 が禁じている)。
@@ -484,7 +535,7 @@ git diff --stat ledger/    # 差分が出なければ、同じ版から同じ台
 | 踏んだもの | | いま |
 | --- | --- | --- |
 | `map` / `radians` が無い — 台帳では **33 例 / 23 例**を止める。`Basics/Math/Map` を移して踏んだ | [mokume#883](https://github.com/mokume-metal/mokume/issues/883) | **閉じた** (`v0.6.0`) |
-| 帯・扇・四角の並べ方が無い — `QUADS` 8 例・`QUAD_STRIP` 6 例 | [mokume#882](https://github.com/mokume-metal/mokume/issues/882) | **閉じた** (`v0.6.0`)。ただし入ったのは**帯と扇だけ**で、四角の 14 例は止まったまま |
+| 帯・扇・四角の並べ方が無い — `QUADS` 8 例・`QUAD_STRIP` 6 例 | [mokume#882](https://github.com/mokume-metal/mokume/issues/882) | **閉じた** (`v0.6.0`)。ただし入ったのは**帯と扇だけ**で、四角の 14 例は止まったまま `QUADS` の 8 例は [#1551](https://github.com/mokume-metal/mokume/issues/1551) で `v0.16.0` に入った。`QUAD_STRIP` の 6 例は止まったまま |
 | 入力が出来事として届かない — `mousePressed` 18 例・`keyPressed` 11 例・`mouseDragged` 6 例 | [mokume#723](https://github.com/mokume-metal/mokume/issues/723) | **閉じた** (`v0.6.0`)。27 本が動くようになった |
 | 色空間を切り替える口が無い — `colorMode` 12 例 | [mokume#778](https://github.com/mokume-metal/mokume/issues/778) | **入った** (`v0.6.0`)。ただし**目盛りは張り替えられない**ので `colorMode` は `bend` のまま |
 | **`SketchApplication` が投げる失敗を、外から人に見せられない** — `RenderFailure.message` が internal なので、`Sketch.main()` と同じ文面が書けない | [mokume#899](https://github.com/mokume-metal/mokume/issues/899) | **閉じた** (09-08 → `v0.8.0`) |
