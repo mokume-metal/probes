@@ -56,6 +56,17 @@ enum Cases {
     nonisolated enum OutlinePath: String, CaseIterable, Sendable {
         case triangle, quad, shape, rect, line
         var triangles: Bool { self == .triangle || self == .quad || self == .shape }
+
+        /// 太さ 1 の輪郭の面積 (周囲長 × 1)。`line` は丸い端の半円 2 つぶんを足す。
+        /// 細かさ 1 の三角形の経路は縁が硬く、斜めの辺を画素の中心で数えるので、実測は
+        /// 三角形で 200 (周囲長 224.3 の 89%) になる。基準は実測ではなく、この面積に置く。
+        var area: Float {
+            switch self {
+            case .triangle, .shape: 80 + 2 * (Float(40 * 40 + 60 * 60)).squareRoot()
+            case .quad, .rect: 280
+            case .line: 80 + .pi / 4
+            }
+        }
     }
 
     /// 白い円・赤と黒の四角。`clear` なら下地を塗らない (透明のまま)。

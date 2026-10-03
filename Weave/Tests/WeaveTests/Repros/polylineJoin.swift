@@ -1,8 +1,12 @@
 // repro: mokume#1644
 //
-// 一直線に並べた 3 点の太い折れ線は、同じ 2 点を結ぶ `line()` と同じ形になるはず
+// 一直線に並べた 3 点の太い折れ線は、同じ 2 点を結ぶ 2 点の折れ線と同じ形になるはず
 // (mokume ADR-0039 決定 1: 経路の違う同じ図形は、位置・大きさ・向きが一致する)。
 // 縁の濃さは経路で違ってよいので、縁を 50% の被覆で白黒にした形で比べる。
+//
+// **起票したときは `line()` と比べた** (v0.12.0 で 38 画素違った)。直った後の v0.16.2 でも
+// `line()` とは両端の 8 画素が違い、どれも端の円板の多角形の近似から来る (折れ目の所には
+// 違いが残らない)。折れ目だけを見るために、参照を 2 点の折れ線へ替えた。
 //
 // **このファイルは mokume だけで閉じる** (docs/filing.md)。起票の本文にはこれをそのまま
 // 貼り、probes の検査 (ReprosTests) も同じものを走らせる。
@@ -19,17 +23,22 @@ enum PolylineJoin {
             s.vertex(140, 140)
             s.endShape()
         }
-        let line = try render { s in s.line(20, 20, 140, 140) }
+        let reference = try render { s in
+            s.beginShape()
+            s.vertex(20, 20)
+            s.vertex(140, 140)
+            s.endShape()
+        }
         var differing = 0
-        for y in 0..<line.height {
-            for x in 0..<line.width where (polyline[x, y].red >= 0.5) != (line[x, y].red >= 0.5) {
+        for y in 0..<reference.height {
+            for x in 0..<reference.width where (polyline[x, y].red >= 0.5) != (reference[x, y].red >= 0.5) {
                 differing += 1
             }
         }
         guard differing > 0 else { return nil }
         // (88, 72) は直線から 11.3 離れ、太さ 20 の帯 (半分 10) の外
         return "縁を 50% で白黒にした形が \(differing) 画素違う"
-            + " ((88, 72) の赤: 折れ線 \(polyline[88, 72].red) / line \(line[88, 72].red))"
+            + " ((88, 72) の赤: 3 点 \(polyline[88, 72].red) / 2 点 \(reference[88, 72].red))"
     }
 
     /// 窓を出さずに 1 枚描いて、画素を読む。

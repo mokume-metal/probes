@@ -82,13 +82,11 @@ import mokume
         let suspect = (try await ms(.suspect, 1000), try await ms(.suspect, 2000))
         #expect(reference.1 / reference.0 < Self.linear, "扇: 1000 頂点 \(reference.0) ms、2000 頂点 \(reference.1) ms")
         // **倍の比ではなく、同じ機械の扇との比で見る。** mokume#1595 が採った直し方 (earcut 系)
-        // でも debug の倍の比は 3.0 までしか下がらない (試作)。扇との比は、いま 2000 頂点で約 41 倍、
-        // 直った後の試作で約 5 倍なので、10 倍で分かれる
-        withKnownIssue("mokume#1595: 耳を探すたびに頭から走査し、耳の判定で全頂点を見る (頂点数の二乗)") {
-            #expect(
-                suspect.1 < reference.1 * 10,
-                "多角形: 1000 頂点 \(suspect.0) ms、2000 頂点 \(suspect.1) ms (扇は \(reference.0)・\(reference.1) ms)")
-        }
+        // でも debug の倍の比は 3.0 までしか下がらない (試作)。扇との比は、v0.11.1 の 2000 頂点で約 41 倍
+        // (耳を探すたびに頭から走査する二乗、v0.15.0 で直った)、直った後の試作で約 5 倍なので、10 倍で分かれる
+        #expect(
+            suspect.1 < reference.1 * 10,
+            "mokume#1595 で直った: 多角形: 1000 頂点 \(suspect.0) ms、2000 頂点 \(suspect.1) ms (扇は \(reference.0)・\(reference.1) ms)")
     }
 
     @Test("立体の既定の線が、立体を置く費用に見合う")
@@ -133,10 +131,9 @@ import mokume
     func createShapeDiscard() async {
         await #expect(processExitsWith: .success) { await survive(.createShapeBackground, extreme: false) }
         await #expect(processExitsWith: .success) { await survive(.createShapeGet, extreme: false) }
-        await withKnownIssue("mokume#1588: 溜め場を空にした後で、入口で覚えた開始位置から切り出す") {
-            await #expect(processExitsWith: .success) { await survive(.createShapeBackground, extreme: true) }
-            await #expect(processExitsWith: .success) { await survive(.createShapeGet, extreme: true) }
-        }
+        // v0.11.1 では、図形を溜めた後だと落ちた (mokume#1588、v0.15.0 で直った)
+        await #expect(processExitsWith: .success, "mokume#1588 で直った") { await survive(.createShapeBackground, extreme: true) }
+        await #expect(processExitsWith: .success, "mokume#1588 で直った") { await survive(.createShapeGet, extreme: true) }
     }
 
     @Test("makeNumbers(count:) に巨大な数を渡すと、落ちずに投げる")

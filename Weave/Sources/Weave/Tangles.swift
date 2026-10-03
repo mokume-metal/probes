@@ -125,22 +125,20 @@ enum Tangles {
                 Tangles.fillAndStroke(k, fill: false, stroke: true)
             }
         },
-        // 一直線に並べた 3 点の折れ線 = 同じ 2 点を結ぶ `line()`。折れ目は、形自身の
-        // 座標軸に沿った正方形で埋められる (Canvas+Outline.swift の appendSquare)
+        // 一直線に並べた 3 点の折れ線 = 同じ 2 点を結ぶ 2 点の折れ線。折れ目は、v0.12.0 では
+        // 形自身の座標軸に沿った正方形で埋められた (Canvas+Outline.swift の appendSquare)。
+        // 参照は `line()` ではなく 2 点の `beginShape` — `line()` とは端の円板の近似が違い、
+        // 折れ目と関わりのない 8 画素が両端に出る
         TangleCase(.polylineJoin, "斜めの折れ線 × 太い線の折れ目") { k in
             k.background(0)
             k.noFill()
             k.stroke(255)
             k.strokeWeight(20)
-            if k.suspect {
-                k.beginShape()
-                k.vertex(20, 20)
-                k.vertex(80, 80)
-                k.vertex(140, 140)
-                k.endShape()
-            } else {
-                k.line(20, 20, 140, 140)
-            }
+            k.beginShape()
+            k.vertex(20, 20)
+            if k.suspect { k.vertex(80, 80) }
+            k.vertex(140, 140)
+            k.endShape()
         },
         // 拡大した折れ線の丸い端 = 同じ拡大の `line()`。円板の分割数を、形自身の座標の
         // 半径 (0.5) で決めている (Canvas+Folding.swift の segmentCount)

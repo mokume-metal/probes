@@ -13,25 +13,19 @@ import Testing
     @Test("再現: 細かさ 0.5 の quad の太さ 1 の輪郭 = 細かさ 1 と同じ光の量 (上辺 y = 10・11)")
     func thinOutline() throws {
         let broken = try ThinOutline.reproduce()
-        withKnownIssue("mokume#1637: 三角形の経路の細い線が、細かさ 0.5 で位置の偶奇により消える・倍になる") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1637 で直った: \(broken ?? "")")
     }
 
     @Test("再現: 細かさ 0.5 の拡大を通しても、透明の下地で α ≤ 1・色 ≤ α")
     func upscaleKeepsPremultiplied() throws {
         let broken = try UpscaleKeepsPremultiplied.reproduce()
-        withKnownIssue("mokume#1638: 拡大段 (Catmull-Rom) の行き過ぎが α > 1・色 > α になる") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1638 で直った: \(broken ?? "")")
     }
 
     @Test("再現: 利用者の効果の in.position で刻んだ市松が、細かさ 1 と 0.5 で同じ")
     func effectPositionIsOutputPixels() throws {
         let broken = try EffectPositionIsOutputPixels.reproduce()
-        withKnownIssue("mokume#1639: 利用者の効果の Pixel.position / size が描く画素で、細かさ 0.5 で模様が倍になる") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1639 で直った: \(broken ?? "")")
     }
 
     @Test("再現: fps 50 で毎秒 50 個の粒は、1 枚目に 1 個・50 枚で 50 個")
@@ -43,9 +37,7 @@ import Testing
     @Test("再現: clip(10.9, 0, 10, 40) で切り抜いた塗り = 同じ矩形の rect")
     func clipStaysInside() throws {
         let broken = try ClipStaysInside.reproduce()
-        withKnownIssue("mokume#1641: clip の小数を切り捨て / 外向きに丸め、矩形の外を最大 1 画素描く") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        #expect(broken == nil, "mokume#1641 で直った: \(broken ?? "")")
     }
 
     @Test("再現: frameRate 0 のランタイムは組み立てで断る")

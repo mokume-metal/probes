@@ -57,6 +57,8 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 そのまま走らせる `ReprosTests` の分である (下の表で Weave が起票した 15 件・[docs/filing.md](../docs/filing.md))。
 `v0.14.0` では描き場所の 2 件 (#1654・#1655) が片付き、34 本のテストで 27 件になった。このうち 13 件が `ReprosTests` の分で、
 片付いた 2 件の再現は包みを外し、戻れば赤くなる見張りとして残した。
+`v0.16.2` では 13 件 (#1641・#1643・#1644・#1646・#1648〜#1653・#1656〜#1658) が直り、34 本のテストで 2 件になった。
+残るのは #1645 (`roundCapScale`) の本体と再現だけである。直った 13 件の包みを外し、再現は見張りとして残した。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not recorded」で
 落ちる。そのときは包みを外し、下の表を書き換える。
@@ -78,24 +80,14 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 
 行は消さずに残す — 何を踏んで、どの版で塞がったかは記録である。
 
+`v0.15.0`〜`v0.16.2` で、残る 14 件のうち 13 件が直り、下の「直ったもの」の表へ移した。残るのは `roundCapScale` (#1645) だけで、
+mokume 側もまだ開いている。
+
 ### 破れていたもの
 
 | 群 | 鍵 | 組み合わせ | 何が起きたか | mokume |
 | --- | --- | --- | --- | --- |
-| 混ぜ方・線 | `addFillStroke` | `blendMode(.add)` × 塗りと輪郭を両方持つ `rect` / `circle` | 不透明な輪郭の帯の内側半分で、塗りが足されない (2050 画素)。輪郭の不透明度 254 では足されるので、255 との間で絵が不連続に変わる | [#1643](https://github.com/mokume-metal/mokume/issues/1643) |
-| 混ぜ方・線 | `polylineJoin` | 斜めの折れ線 × 太い線 | 一直線の 3 点の中点で、形の座標軸に沿った正方形が帯の外へはみ出す (白黒の形で 38 画素)。`rotate` して描くのと、回した座標で描くのとでも、形が違う | [#1644](https://github.com/mokume-metal/mokume/issues/1644) |
 | 混ぜ方・線 | `roundCapScale` | `scale(20)` × 折れ線の丸い端 | 円板の分割数を拡大前の半径で決めるので、端が三角形になる (白黒の形で 116 画素) | [#1645](https://github.com/mokume-metal/mokume/issues/1645) |
-| 状態 | `shapeCurveDetail` | `createShape` × `curveDetail` | 組み立ての中で変えた細かさが外へ漏れ、後の曲線が折れ線になる (1627 画素) | [#1646](https://github.com/mokume-metal/mokume/issues/1646) |
-| 切り抜き | `clipFraction` | `clip` × 小数の座標 | 右端・下端を切り捨てて、切り抜きの内側の半分覆われた列と行を削る (81 画素) | [#1641](https://github.com/mokume-metal/mokume/issues/1641) (Lattice の起票へ足した) |
-| 切り抜き | `clipBackground` | `clip` × `background` | 切り抜きを無視して面全体を塗り、先に置いた図形も捨てる (12800 画素)。Processing と p5 は内側だけを塗る | [#1648](https://github.com/mokume-metal/mokume/issues/1648) |
-| 粒 | `particlesTexture` | `particles` × `texture` | 白い粒が、貼った絵の赤に染まる (400 画素)。CPU の経路は記録した面を張り直すが、既定の GPU の経路は張り直さない | [#1649](https://github.com/mokume-metal/mokume/issues/1649) |
-| 粒 | `particlesShader` | `particles` × `shader` | 粒が利用者の断片で塗られる (400 画素)。同じく GPU の経路だけが、記録した塗りを当て直さない | [#1650](https://github.com/mokume-metal/mokume/issues/1650) |
-| 粒 | `particlesTwice` | 1 フレームに同じ群を 2 回 `particles` | 置き場所の写しが 1 つで、1 つ目の雲が消える (400 画素) | [#1651](https://github.com/mokume-metal/mokume/issues/1651) |
-| 断片 | `shaderSetGraphics` | 本体で作った断片 × 描き場所で `set` を挟む | 描き場所の列が閉じず、全部が最後の値で塗られる (12800 画素) | [#1652](https://github.com/mokume-metal/mokume/issues/1652) |
-| 断片 | `shaderSurfaceRedraw` | 断片の面の描き場所 × 置いた後の描き換え | 先に置いた図形が、描き換えた後の絵で塗られる (12800 画素) | [#1653](https://github.com/mokume-metal/mokume/issues/1653) |
-| 途中の描き切り | `midFrameShadow` | フレームの途中の `get` × 影 | 読む前に置いた立体の影が、後に置いた床に落ちない (262 画素) | [#1656](https://github.com/mokume-metal/mokume/issues/1656) |
-| 途中の描き切り | `loadPixelsSky` | 立体 → `loadPixels` → `background(.sky)` | 立体が空の上に残る (5929 画素)。`loadPixels` を抜くと空が置き換える | [#1657](https://github.com/mokume-metal/mokume/issues/1657) |
-| 周囲 | `addSky` | `blendMode(.add)` × `background(.sky)` | 背景が前のフレームに足され、2 枚目で 2 倍になる (25600 画素) | [#1658](https://github.com/mokume-metal/mokume/issues/1658) |
 
 ### 崩れなかったもの (陰性対照)
 
@@ -108,6 +100,27 @@ WEAVE_DUMP=/tmp/weave swift test      # 比べた最後の絵を PNG で書き�
 | `effectsOffFrameSet` | 描き場所の効果 × フレームの外の `set` | `effects` の説明「効果はどのフレームにも 1 回ぶんだけかかる」。**`v0.12.0` では**値を変えない 1 画素の書き戻しで、次のフレームに効果が 2 回掛かった (22400 画素)。[#1655](https://github.com/mokume-metal/mokume/issues/1655) (`v0.14.0` で直った) |
 
 表の最後の 2 行 (`graphicsSetOutside`・`effectsOffFrameSet`) は陰性対照ではない。`v0.14.0` で片付いて「破れていたもの」から移した行である。
+
+### 直ったもの (`v0.15.0`〜`v0.16.2` で片付いた)
+
+上の「破れていたもの」から移した。**行は消さずに残す** — 「何が起きたか」は `v0.12.0` での実測で、
+どの版で塞がったかは右の列に書いた。起票に貼った再現 (`ReprosTests`) も包みを外し、戻れば赤くなる見張りとして残した。
+
+| 群 | 鍵 | 組み合わせ | 何が起きたか (`v0.12.0`) | mokume |
+| --- | --- | --- | --- | --- |
+| 混ぜ方・線 | `addFillStroke` | `blendMode(.add)` × 塗りと輪郭を両方持つ `rect` / `circle` | 不透明な輪郭の帯の内側半分で、塗りが足されない (2050 画素)。輪郭の不透明度 254 では足されるので、255 との間で絵が不連続に変わる | [#1643](https://github.com/mokume-metal/mokume/issues/1643) (`v0.15.0` で直った) |
+| 混ぜ方・線 | `polylineJoin` | 斜めの折れ線 × 太い線 | 一直線の 3 点の中点で、形の座標軸に沿った正方形が帯の外へはみ出す (白黒の形で 38 画素)。`rotate` して描くのと、回した座標で描くのとでも、形が違う。**参照を `line()` から 2 点の折れ線へ替えた** — `line()` とは `v0.16.2` でも両端の 8 画素が違い、端の円板の多角形の近似から来る (折れ目の所には違いが残らない。mokume の修正 PR [#1896](https://github.com/mokume-metal/mokume/pull/1896) も同じ 8 画素を挙げている) | [#1644](https://github.com/mokume-metal/mokume/issues/1644) (`v0.16.0` で直った) |
+| 状態 | `shapeCurveDetail` | `createShape` × `curveDetail` | 組み立ての中で変えた細かさが外へ漏れ、後の曲線が折れ線になる (1627 画素) | [#1646](https://github.com/mokume-metal/mokume/issues/1646) (`v0.16.2` で直った) |
+| 切り抜き | `clipFraction` | `clip` × 小数の座標 | 右端・下端を切り捨てて、切り抜きの内側の半分覆われた列と行を削る (81 画素) | [#1641](https://github.com/mokume-metal/mokume/issues/1641) (Lattice の起票へ足した) (`v0.16.2` で直った) |
+| 切り抜き | `clipBackground` | `clip` × `background` | 切り抜きを無視して面全体を塗り、先に置いた図形も捨てる (12800 画素)。Processing と p5 は内側だけを塗る | [#1648](https://github.com/mokume-metal/mokume/issues/1648) (`v0.16.2` で直った) |
+| 粒 | `particlesTexture` | `particles` × `texture` | 白い粒が、貼った絵の赤に染まる (400 画素)。CPU の経路は記録した面を張り直すが、既定の GPU の経路は張り直さない | [#1649](https://github.com/mokume-metal/mokume/issues/1649) (`v0.15.0` で直った) |
+| 粒 | `particlesShader` | `particles` × `shader` | 粒が利用者の断片で塗られる (400 画素)。同じく GPU の経路だけが、記録した塗りを当て直さない | [#1650](https://github.com/mokume-metal/mokume/issues/1650) (`v0.15.0` で直った) |
+| 粒 | `particlesTwice` | 1 フレームに同じ群を 2 回 `particles` | 置き場所の写しが 1 つで、1 つ目の雲が消える (400 画素) | [#1651](https://github.com/mokume-metal/mokume/issues/1651) (`v0.15.0` で直った) |
+| 断片 | `shaderSetGraphics` | 本体で作った断片 × 描き場所で `set` を挟む | 描き場所の列が閉じず、全部が最後の値で塗られる (12800 画素) | [#1652](https://github.com/mokume-metal/mokume/issues/1652) (`v0.15.0` で直った) |
+| 断片 | `shaderSurfaceRedraw` | 断片の面の描き場所 × 置いた後の描き換え | 先に置いた図形が、描き換えた後の絵で塗られる (12800 画素) | [#1653](https://github.com/mokume-metal/mokume/issues/1653) (`v0.15.0` で直った) |
+| 途中の描き切り | `midFrameShadow` | フレームの途中の `get` × 影 | 読む前に置いた立体の影が、後に置いた床に落ちない (262 画素) | [#1656](https://github.com/mokume-metal/mokume/issues/1656) (`v0.16.2` で直った) |
+| 途中の描き切り | `loadPixelsSky` | 立体 → `loadPixels` → `background(.sky)` | 立体が空の上に残る (5929 画素)。`loadPixels` を抜くと空が置き換える | [#1657](https://github.com/mokume-metal/mokume/issues/1657) (`v0.16.2` で直った) |
+| 周囲 | `addSky` | `blendMode(.add)` × `background(.sky)` | 背景が前のフレームに足され、2 枚目で 2 倍になる (25600 画素) | [#1658](https://github.com/mokume-metal/mokume/issues/1658) (`v0.16.2` で直った) |
 
 ### 落ちたもの
 
@@ -160,5 +173,6 @@ mokume `v0.12.0` のソースを 3 方面に分けて読んだ。方面は次の
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.12.0` = `bab3b4a`)。
 `from: "0.12.0"` は他の物差しと同じく記録であって、留め金ではない。
 `v0.14.0` (`34ba2d8`) へ上げて測り直し、描き場所の 2 件 (#1654・#1655) が片付いたことを確かめた。
+`v0.16.2` (`18283da`) へ上げて測り直し、13 件が直ったことを確かめた (2026-10-04)。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。**

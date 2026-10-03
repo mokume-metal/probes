@@ -63,9 +63,8 @@ import mokume
     func backgroundOverflow() throws {
         let outcome = try examine(try finding("backgroundOverflow"), name: "backgroundOverflow")
         #expect(outcome.hashes.count == 2, "番兵まで回っていない: \(outcome)")
-        withKnownIssue("mokume#1691: background が色を締めずに Float16 の面へ置き、面が +inf を持つ") {
-            #expect(!outcome.breaks.contains("nonfinite"), "数でない画素 \(outcome.nonfinitePixels)")
-        }
+        // v0.12.1 では面が +inf を持った (mokume#1691、v0.15.0 で直った)
+        #expect(!outcome.breaks.contains("nonfinite"), "mokume#1691 で直った: 数でない画素 \(outcome.nonfinitePixels)")
         // 番兵は background(24) で塗り直すので、汚れは次のフレームへ持ち越さない
         #expect(!outcome.breaks.contains("sentinel"))
     }
