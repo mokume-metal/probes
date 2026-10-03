@@ -18,21 +18,24 @@ import mokume
 
     @Test("細かさ 0.5 でも、太さ 1 の輪郭は置く位置によらずその太さぶんの濃さで出る", arguments: Cases.OutlinePath.allCases)
     func thinOutline(path: Cases.OutlinePath) throws {
+        // v0.12.0 では、三角形の経路の細い線が置く位置の偶奇で消えたり倍になったりした
+        // (mokume#1637、v0.16.2 で直った)。基準は細かさ 1 の実測ではなく、面積 (周囲長 × 太さ)
+        let expected = path.area
         let reference = try outlineLight(path, y: 10, density: 1)
-        #expect(reference > 50)
+        #expect(abs(reference - expected) < expected * 0.2, "細かさ 1 の総光量 \(reference) (面積 \(expected))")
         #expect(abs(try outlineLight(path, y: 11, density: 1) - reference) < 1, "細かさ 1 で位置により揺れる")
-        let check = {
-            for y: Float in [10, 11] {
-                let light = try outlineLight(path, y: y, density: 0.5)
-                // 拡大段は総光量を少し増やす (upscaleRange) ので、許容は ±20%
-                #expect(abs(light - reference) < reference * 0.2, "上辺 y = \(y) で総光量 \(light) (細かさ 1 は \(reference))")
-            }
+        var lights: [Float] = []
+        for y: Float in [10, 11] {
+            let light = try outlineLight(path, y: y, density: 0.5)
+            lights.append(light)
+            // 拡大段は総光量を少し増やす (upscaleRange) ので、許容は ±20%
+            #expect(
+                abs(light - expected) < expected * 0.2,
+                "mokume#1637 で直った: 上辺 y = \(y) で総光量 \(light) (面積 \(expected))")
         }
-        if path.triangles {
-            try withKnownIssue("mokume#1637: 三角形の経路の細い線が、細かさ 0.5 で位置の偶奇により消える・倍になる") { try check() }
-        } else {
-            try check()
-        }
+        #expect(
+            abs(lights[0] - lights[1]) < expected * 0.02,
+            "mokume#1637 で直った: 上辺 y = 10 と 11 で総光量が違う \(lights)")
     }
 
     @Test("細かさ < 1 の拡大を通しても、乗算済みの決まり (α ≤ 1・色 ≤ α) を保つ")
@@ -45,12 +48,11 @@ import mokume
         }
         let full = try broken(1)
         #expect(full.alpha == 0 && full.color == 0, "細かさ 1 で \(full)")
-        try withKnownIssue("mokume#1638: 拡大段 (Catmull-Rom) の行き過ぎが α > 1・色 > α になる") {
-            for density: Float in [0.5, 0.75] {
-                let low = try broken(density)
-                #expect(low.alpha == 0, "細かさ \(density): α > 1 が \(low.alpha) 画素")
-                #expect(low.color == 0, "細かさ \(density): 色 > α が \(low.color) 画素")
-            }
+        // v0.12.0 では拡大段 (Catmull-Rom) の行き過ぎが α > 1・色 > α になった (mokume#1638、v0.15.0 で直った)
+        for density: Float in [0.5, 0.75] {
+            let low = try broken(density)
+            #expect(low.alpha == 0, "mokume#1638 で直った: 細かさ \(density): α > 1 が \(low.alpha) 画素")
+            #expect(low.color == 0, "mokume#1638 で直った: 細かさ \(density): 色 > α が \(low.color) 画素")
         }
     }
 
@@ -61,33 +63,29 @@ import mokume
         let low = try run(Cases.mosaic(density: 0.5), name: "mosaic-0.5")
         // 升の縁は拡大で滲むので、50% で白黒にして比べる
         let mismatch = zip(full.values, low.values).count { ($0.x > 0.5) != ($1.x > 0.5) }
-        withKnownIssue("mokume#1639: 利用者の効果の Pixel.position / size が描く画素で、細かさ 0.5 で模様が倍になる") {
-            #expect(mismatch == 0, "\(mismatch) 画素で白黒が違う")
-        }
+        // v0.12.0 では Pixel.position / size が描く画素で届き、細かさ 0.5 で模様が倍になった (mokume#1639、v0.16.2 で直った)
+        #expect(mismatch == 0, "mokume#1639 で直った: \(mismatch) 画素で白黒が違う")
     }
 
     // MARK: - 切り抜き
 
-    @Test("clip は矩形の外を描かない (小数の座標・細かさ 0.5)", arguments: [
-        (Float(20), Float(30), Float(1), false), (20, 30, 0.5, false),
-        (10.9, 10, 1, true), (51, 20, 0.5, true),
+    /// 切り抜きは画素の中心が矩形の内 (縁の上を含む) にある画素を通す (mokume#1641、v0.16.2 で直った)。
+    /// 細かさ 1 未満では**描く画素の格子**で同じ規則を使うので、縁は描く画素の半分までずれうる。
+    /// mokume の `clip` の説明の例 — 細かさ 0.5 の `clip(51, 0, 20, 40)` は、奇数の縁が描く画素の
+    /// 中心に乗って外へ倒れ、出す画素で 50…72 を通す — は、同じ矩形の `rect` より 1 行あたり 2 画素多い。
+    @Test("clip は、画素の中心が矩形の内にある画素を通す (小数の座標・細かさ 0.5)", arguments: [
+        (Float(20), Float(30), Float(1), Float(0)), (20, 30, 0.5, 0),
+        (10.9, 10, 1, 0), (51, 20, 0.5, 2),
     ])
-    func clipStaysInside(x: Float, width w: Float, density: Float, broken: Bool) throws {
+    func clipStaysInside(x: Float, width w: Float, density: Float, extra: Float) throws {
         let clip = try run(Cases.clipped(x: x, width: w, density: density), name: "clip-\(x)-\(w)-\(density)")
         let rect = try run(Cases.filled(x: x, width: w, density: density), name: "rect-\(x)-\(w)-\(density)")
         #expect(rect.lit > 100)
         // 同じ矩形を塗った絵と、面積 (1 行あたり) と重心で比べる
         let area = (clip.light - rect.light) / Float(clip.height)
         let shift = clip.centroid.x - rect.centroid.x
-        let check = {
-            #expect(abs(area) < 0.25, "1 行あたり \(area) 画素ぶん多い")
-            #expect(abs(shift) < 0.25, "重心が \(shift) 画素ずれた")
-        }
-        if broken {
-            withKnownIssue("mokume#1641: clip の小数を切り捨て / 外向きに丸め、矩形の外を最大 1 画素描く") { check() }
-        } else {
-            check()
-        }
+        #expect(abs(area - extra) < 0.25, "mokume#1641 で直った: 1 行あたり \(area) 画素ぶん多い (期待 \(extra))")
+        #expect(abs(shift) < 0.25, "mokume#1641 で直った: 重心が \(shift) 画素ずれた")
     }
 
     // MARK: - fps

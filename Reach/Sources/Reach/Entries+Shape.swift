@@ -69,13 +69,23 @@ extension Entries {
                   }
                   c.endShape()
               }),
-        Entry(section: .shape, reference: "beginShape(QUADS / QUAD_STRIP)", verdict: .bend, mokume: "beginShape(.triangles)",
-              note: "四角の並べ方が無い。2 枚の三角形に割って並べ直す。works の 5 作品が同じ割り方を手で書いている (mokume#902 は実需待ちで閉じていた)", issue: "mokume#1551",
+        Entry(section: .shape, reference: "beginShape(QUADS)", verdict: .renamed, mokume: "beginShape(.quads)",
+              note: "v0.16.0 で入った (mokume#1551)。4 点ずつ独立した四角として読み、塗りは三角形 2 枚に割る。線は 4 辺の輪郭だけで、対角線は引かない",
+              issue: "mokume#1551",
               tile: .picture { c, _ in
-                  c.beginShape(.triangles)
+                  c.beginShape(.quads)
                   for (x, y, w, h): (Float, Float, Float, Float) in [(12, 12, 30, 30), (54, 54, 30, 30)] {
-                      c.vertex(x, y); c.vertex(x + w, y); c.vertex(x + w, y + h)
-                      c.vertex(x, y); c.vertex(x + w, y + h); c.vertex(x, y + h)
+                      c.vertex(x, y); c.vertex(x + w, y); c.vertex(x + w, y + h); c.vertex(x, y + h)
+                  }
+                  c.endShape()
+              }),
+        Entry(section: .shape, reference: "beginShape(QUAD_STRIP)", verdict: .bend, mokume: "beginShape(.triangleStrip)",
+              note: "四角の帯は無い (QUADS は v0.16.0 で入った)。三角形の帯が同じ面を覆う",
+              tile: .picture { c, _ in
+                  c.beginShape(.triangleStrip)
+                  for i in 0..<4 {
+                      let x = 12 + Float(i) * 20
+                      c.vertex(x, 24); c.vertex(x, 72)
                   }
                   c.endShape()
               }),
