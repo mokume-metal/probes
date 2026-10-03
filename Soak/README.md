@@ -86,6 +86,8 @@ swift test        # 窓を出さずに回して、数で比べる (1 分ほど)
 `v0.14.0` では 19 本のテストで 8 件になる。#1587・#1589〜#1592・#1594・#1604 が直って包みを外したためで、
 残る 8 件のうち 3 件が `ReprosTests` の分である (mokume#1431・#1588・#1593)。直った再現の 4 本は
 包みを外して残してあり、戻れば赤くなる。
+`v0.16.2` では、`v0.15.0` で #1588 と #1595 が直って包みを外した。残る包みは #1431 と #1593 の 4 か所だけで、
+どちらも `isIntermittent` なので、19 本のテストで 0〜4 件の間で揺れうる (下の段落)。手元では 3 回回して毎回 2 件だった。
 
 **#1593 と #1431 の 4 件は、`v0.14.0` では 6〜8 件の間で揺れる。** mokume はどちらも控えに上限を付けて
 閉じた (モデル 64 MiB・書体 64 件)。この検査は控えが埋まる途中の増え方を測っているので、閾値の上下で
@@ -110,9 +112,7 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 
 #### 時間
 
-| 鍵 | 何が起きたか | mokume |
-| --- | --- | --- |
-| `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。2000 頂点で、同じ形を扇で置く参照の約 41 倍かかる | [#1595](https://github.com/mokume-metal/mokume/issues/1595) |
+`polygonFill` は `v0.15.0` で直った (mokume#1595)。「約束どおりになったもの (`v0.15.0` で直った)」へ移した。
 
 #### 落ちる (テストだけ)
 
@@ -124,9 +124,7 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 
 次の件は、どれにも当たらずプロセスごと止まる。
 
-| 鍵 | 何が起きたか | mokume |
-| --- | --- | --- |
-| `createShapeDiscard` | 図形を溜めた後に次のどちらかを書くと、`Range requires lowerBound <= upperBound` で落ちる。中で呼ばなければ通る。<br>・`createShape { background(255); … }`<br>・`createShape { get(5, 5); … }` | [#1588](https://github.com/mokume-metal/mokume/issues/1588) |
+`createShapeDiscard` は `v0.15.0` で直った (mokume#1588)。「約束どおりになったもの (`v0.15.0` で直った)」へ移した。
 
 ### 約束どおりになったもの (`v0.14.0` で直った)
 
@@ -143,6 +141,16 @@ recorded」で落ちる。そのときは包みを外し、下の表を書き換
 | 落ちる | `hugeTextSize`・`textOutline` | 次の 3 通りが、Int への変換でトラップする。`textSize(400)` の対照は通る。<br>・`textSize(1e20); text("M", …)`<br>・`textOutline("o", .nan, 100)`<br>・`textSize(1e21); textOutline("o", 0, 0)` | [#1587](https://github.com/mokume-metal/mokume/issues/1587) (`v0.14.0` で直った) |
 | 落ちる | `makeNumbersHuge` | `try? makeNumbers(count: .max)` が投げずに、バイト数の掛け算のあふれで落ちる。`1 << 40` は上限の検査で投げる | [#1589](https://github.com/mokume-metal/mokume/issues/1589) (`v0.14.0` で直った) |
 | 落ちる | `displayImageOutside` | `encodeForDisplay()` で得た `DisplayImage` を `[width, 0]` で読むと、precondition で落ちる。`PixelBuffer` は [#1436](https://github.com/mokume-metal/mokume/issues/1436) で透明を返すようになった | [#1590](https://github.com/mokume-metal/mokume/issues/1590) (`v0.14.0` で直った) |
+
+### 約束どおりになったもの (`v0.15.0` で直った)
+
+上の「破れていたもの」から移した。行は消さず、「何が起きたか」は `v0.11.1` での実測である。
+起票に貼った再現 (`ReprosTests`) も包みを外し、戻れば赤くなる見張りとして残した。
+
+| 群 | 鍵 | 何が起きたか (`v0.11.1`) | mokume |
+| --- | --- | --- | --- |
+| 時間 | `polygonFill` | 多角形の塗りの三角形分割が頂点数の二乗。1000 → 2000 頂点で時間が 3.7〜4.0 倍 (500・1000・2000 頂点で 13・49・188 ms/枚)。2000 頂点で、同じ形を扇で置く参照の約 41 倍かかる | [#1595](https://github.com/mokume-metal/mokume/issues/1595) (`v0.15.0` で直った) |
+| 落ちる | `createShapeDiscard` | 図形を溜めた後に次のどちらかを書くと、`Range requires lowerBound <= upperBound` で落ちる。中で呼ばなければ通る。<br>・`createShape { background(255); … }`<br>・`createShape { get(5, 5); … }` | [#1588](https://github.com/mokume-metal/mokume/issues/1588) (`v0.15.0` で直った) |
 
 ### 既知の問題へ足したもの
 
@@ -198,6 +206,9 @@ v0.11.1 と main のソースを 3 つの範囲に分けて読み、約 25 件�
 
 `v0.14.0` (`34ba2d8`) へ上げた (2026-09-29)。7 件 (#1587・#1589〜#1592・#1594・#1604) が直り、
 「約束どおりになったもの」の表へ移した。
+
+`v0.16.2` (`18283da`) へ上げた (2026-10-04)。2 件 (#1588・#1595) が `v0.15.0` で直り、
+「約束どおりになったもの (`v0.15.0` で直った)」の表へ移した。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。** 時間の検査は比で
 見ているので、機械を替えても同じ判定になるはずである。赤くなったら、まず版差を疑う。

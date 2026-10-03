@@ -63,6 +63,10 @@ swift test                                              # 陰性対照・固定�
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、「既知の問題」として数えられる
 (`v0.12.1` では 13 本のテストで 3 件)。うち 2 件は、起票に貼った再現 (`Tests/TumbleTests/Repros/`) をそのまま走らせる
 `ReprosTests` の分、1 件は縮めた列 (`Findings/`) の分である。
+`v0.15.0` で mokume#1691、`v0.16.1` で mokume#1692 が直り、`v0.16.2` では 13 本のテストで 0 件になる
+(包みを外した。再現は消さず、戻れば赤くなる見張りとして残した)。生成の避け (`Catalog.avoidKnown`) の
+`curveDetail` (1000 まで) はまだ外していない — 直った後の範囲を探索が突くのは
+[probes#65](https://github.com/mokume-metal/probes/issues/65) で扱う。
 
 **mokume 側で直ると赤くなる。** そのときは包みを外し、下の表を書き換える。起票済みの破れを踏む引数は、生成で
 避けている (`Catalog.avoidKnown`)。直ったらそこからも外して、見張りに戻す。
@@ -98,8 +102,8 @@ swift test                                              # 陰性対照・固定�
 
 | 鍵 | 縮めた列 | 何が起きたか | mokume |
 | --- | --- | --- | --- |
-| `backgroundOverflow` | `background(1e9, α)` (1 口) | 白を越える明るさの `background` が、色を締めずに Float16 の面へ置き、面が +inf を持つ。その上に不透明な図形を描くと、図形の中が NaN になり表示では黒く抜ける。`fill` + `rect` の経路は 65504 で止まる | [#1691](https://github.com/mokume-metal/mokume/issues/1691) |
-| `curveDetailUnbounded` | `curveDetail(Int.max)` → `bezierVertex` (2 口) | `curveDetail` が下限しか締めず、渡した数だけ曲線の点を作る。フレームが戻らず、130 秒で 21 GB を確保した。立体の分け方は 128 へ丸める | [#1692](https://github.com/mokume-metal/mokume/issues/1692) |
+| `backgroundOverflow` | `background(1e9, α)` (1 口) | 白を越える明るさの `background` が、色を締めずに Float16 の面へ置き、面が +inf を持つ。その上に不透明な図形を描くと、図形の中が NaN になり表示では黒く抜ける。`fill` + `rect` の経路は 65504 で止まる | [#1691](https://github.com/mokume-metal/mokume/issues/1691)。`v0.15.0` で直った |
+| `curveDetailUnbounded` | `curveDetail(Int.max)` → `bezierVertex` (2 口) | `curveDetail` が下限しか締めず、渡した数だけ曲線の点を作る。フレームが戻らず、130 秒で 21 GB を確保した。立体の分け方は 128 へ丸める | [#1692](https://github.com/mokume-metal/mokume/issues/1692)。`v0.16.1` で直った |
 
 ### 既知の Issue へ足したもの
 

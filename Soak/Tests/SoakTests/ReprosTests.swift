@@ -70,8 +70,9 @@ extension SoakTests {
 
     @Test("再現: createShape の中で background() を呼んでも、落ちない")
     func createShapeDiscardRepro() async {
-        await withKnownIssue("mokume#1588: 溜め場を空にした後で、入口で覚えた開始位置から切り出す") {
-            await #expect(processExitsWith: .success) { _ = try? await CreateShapeDiscardRepro.reproduce() }
+        // v0.11.1 では落ちた (mokume#1588、v0.15.0 で直った)
+        await #expect(processExitsWith: .success, "mokume#1588 で直った") {
+            _ = try? await CreateShapeDiscardRepro.reproduce()
         }
     }
 

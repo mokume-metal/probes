@@ -35,17 +35,19 @@ import mokume
 
     /// 全部のフレームで、2 つの経路が同じ絵であること。
     func expectSame(
-        _ pair: (suspect: [Int: Picture], reference: [Int: Picture]), sourceLocation: SourceLocation = #_sourceLocation
+        _ pair: (suspect: [Int: Picture], reference: [Int: Picture]), note: String = "",
+        sourceLocation: SourceLocation = #_sourceLocation
     ) {
         for frame in pair.suspect.keys.sorted() {
             let n = differing(pair.suspect[frame]!, pair.reference[frame]!, threshold: Self.exact)
-            #expect(n == 0, "\(frame) 枚目: \(n) 画素が違う", sourceLocation: sourceLocation)
+            #expect(n == 0, "\(note)\(frame) 枚目: \(n) 画素が違う", sourceLocation: sourceLocation)
         }
     }
 
-    /// 参照が描けていることを押さえてから、全部のフレームを比べる (陰性対照)。
-    func compare(_ key: TangleKey, sourceLocation: SourceLocation = #_sourceLocation) throws {
-        expectSame(try render(key, sourceLocation: sourceLocation), sourceLocation: sourceLocation)
+    /// 参照が描けていることを押さえてから、全部のフレームを比べる (陰性対照・直った約束)。
+    /// 直った約束は `note` に `"mokume#N で直った: "` を渡し、戻れば赤くなって番号を言う。
+    func compare(_ key: TangleKey, note: String = "", sourceLocation: SourceLocation = #_sourceLocation) throws {
+        expectSame(try render(key, sourceLocation: sourceLocation), note: note, sourceLocation: sourceLocation)
     }
 
     /// 参照が描けていることを押さえてから、破れを `issue` で名指しして比べる。
@@ -57,13 +59,23 @@ import mokume
     /// **形 (位置・大きさ・向き) が同じこと。** 経路の違う同じ図形は縁の濃さが違ってよく、
     /// 縁を 50% の被覆で白黒にした形が一致する (mokume ADR-0039 決定 1)。白い線を黒地に
     /// 描く候補に使う。
-    func compareShape(_ key: TangleKey, _ issue: Comment, sourceLocation: SourceLocation = #_sourceLocation) throws {
+    ///
+    /// 破れているなら `known` で名指しして包み、直った約束なら `note` に `"mokume#N で直った: "` を渡す。
+    func compareShape(
+        _ key: TangleKey, known issue: Comment? = nil, note: String = "",
+        sourceLocation: SourceLocation = #_sourceLocation
+    ) throws {
         let a = try run(key, .suspect)[1]!
         let b = try run(key, .reference)[1]!
         #expect(Self.lit(b) > 100, "参照が描けていない", sourceLocation: sourceLocation)
         let n = a.count { c, x, y in (c.red >= 0.5) != (b[x, y].red >= 0.5) }
-        withKnownIssue(issue) {
-            #expect(n == 0, "50% で白黒にした形が \(n) 画素違う", sourceLocation: sourceLocation)
+        let check = {
+            #expect(n == 0, "\(note)50% で白黒にした形が \(n) 画素違う", sourceLocation: sourceLocation)
+        }
+        if let issue {
+            withKnownIssue(issue) { check() }
+        } else {
+            check()
         }
     }
 
@@ -74,18 +86,23 @@ import mokume
         // 帯の内側半分 (矩形の左辺の内側・円の輪郭の内側) で、塗りの青が足されているか
         let b = try run(.addFillStroke, .reference)[1]!
         #expect(b[26, 52].blue > 0.3 && b[26, 52].red > 0.2, "参照の帯の内側 \(b[26, 52])")
-        try compareKnown(.addFillStroke, "mokume#1643: 塗りの被覆を「輪郭 over 塗り」の前提で割り戻し、不透明な輪郭の内側で塗りが消える")
+        // v0.12.0 では: 塗りの被覆を「輪郭 over 塗り」の前提で割り戻し、不透明な輪郭の内側で塗りが消える (mokume#1643、v0.15.0 で直った)
+        try compare(.addFillStroke, note: "mokume#1643 で直った: ")
     }
 
     @Test("陰性対照: blendMode(.blend) なら、塗りと輪郭を持つ図形 = 重ねたもの")
     func blendFillStroke() throws { try compare(.blendFillStroke) }
 
-    @Test("一直線に並べた 3 点の太い折れ線 = 同じ 2 点を結ぶ line")
+    @Test("一直線に並べた 3 点の太い折れ線 = 同じ 2 点を結ぶ 2 点の折れ線")
     func polylineJoin() throws {
         // (88, 72) は直線から 11.3 離れ、太さ 20 の帯 (半分 10) の外。参照では下地のまま
         let b = try run(.polylineJoin, .reference)[1]!
         #expect(b[88, 72].red < 0.1, "参照の帯の外 \(b[88, 72])")
-        try compareShape(.polylineJoin, "mokume#1644: 任意多角形の折れ目を、形自身の座標軸に沿った正方形で埋める")
+        // v0.12.0 では、折れ目が形自身の座標軸に沿った正方形で埋まり、帯の外へはみ出した
+        // (mokume#1644、v0.16.0 で直った)。参照を `line()` から 2 点の折れ線へ替えた — `line()` と
+        // 比べると v0.16.2 でも両端の 8 画素が違い、どれも端の円板の多角形の近似から来る
+        // (mokume の修正 PR #1896 も同じ 8 画素を挙げている)。折れ目の所には違いが残らない
+        try compareShape(.polylineJoin, note: "mokume#1644 で直った: ")
     }
 
     @Test("scale(20) した折れ線の丸い端 = 同じ拡大の line の丸い端")
@@ -93,19 +110,21 @@ import mokume
         // (33, 33) の中心は端の円の中心 (40, 40) から 9.2 で、半径 10 の内側
         let b = try run(.roundCapScale, .reference)[1]!
         #expect(b[33, 33].red > 0.5, "参照の丸い端 \(b[33, 33])")
-        try compareShape(.roundCapScale, "mokume#1645: 円板の分割数を形自身の座標の半径で決め、拡大すると端が三角形になる")
+        try compareShape(.roundCapScale, known: "mokume#1645: 円板の分割数を形自身の座標の半径で決め、拡大すると端が三角形になる")
     }
 
     // MARK: - 状態の保存と切り抜き
 
     @Test("createShape の中で変えた curveDetail は、外の曲線に効かない")
     func shapeCurveDetail() throws {
-        try compareKnown(.shapeCurveDetail, "mokume#1646: curveDetail / curveTightness が createShape の写し取って戻す一式の外にある")
+        // v0.12.0 では: curveDetail / curveTightness が createShape の写し取って戻す一式の外にある (mokume#1646、v0.16.2 で直った)
+        try compare(.shapeCurveDetail, note: "mokume#1646 で直った: ")
     }
 
     @Test("小数の座標でも、描く矩形と同じ切り抜きは何も削らない")
     func clipFraction() throws {
-        try compareKnown(.clipFraction, "mokume#1641: 切り抜きの右端・下端を Int へ切り捨て、半分覆われた列と行を落とす")
+        // v0.12.0 では: 切り抜きの右端・下端を Int へ切り捨て、半分覆われた列と行を落とす (mokume#1641、v0.16.2 で直った)
+        try compare(.clipFraction, note: "mokume#1641 で直った: ")
     }
 
     @Test("陰性対照: 整数の座標なら、描く矩形と同じ切り抜きは何も削らない")
@@ -113,36 +132,42 @@ import mokume
 
     @Test("切り抜きの中の background = 切り抜きの中を同じ色で塗る (Processing・p5)")
     func clipBackground() throws {
-        try compareKnown(.clipBackground, "mokume#1648: background が切り抜きを見ず、溜めた図形を捨てて面全体を塗る")
+        // v0.12.0 では: background が切り抜きを見ず、溜めた図形を捨てて面全体を塗る (mokume#1648、v0.16.2 で直った)
+        try compare(.clipBackground, note: "mokume#1648 で直った: ")
     }
 
     // MARK: - 粒
 
     @Test("texture を貼ったままでも、粒は白い板で出る")
     func particlesTexture() throws {
-        try compareKnown(.particlesTexture, "mokume#1649: GPU の経路の粒が記録した面を張り直さず、利用者の texture を読む")
+        // v0.12.0 では: GPU の経路の粒が記録した面を張り直さず、利用者の texture を読む (mokume#1649、v0.15.0 で直った)
+        try compare(.particlesTexture, note: "mokume#1649 で直った: ")
     }
 
     @Test("shader を当てたままでも、粒は記録した塗りで出る")
     func particlesShader() throws {
-        try compareKnown(.particlesShader, "mokume#1650: GPU の経路の粒が記録した塗りを当て直さず、利用者の断片で塗る")
+        // v0.12.0 では: GPU の経路の粒が記録した塗りを当て直さず、利用者の断片で塗る (mokume#1650、v0.15.0 で直った)
+        try compare(.particlesShader, note: "mokume#1650 で直った: ")
     }
 
     @Test("1 フレームに同じ群を 2 か所へ置く = 同じ放出の別の群を 1 か所ずつ置く")
     func particlesTwice() throws {
-        try compareKnown(.particlesTwice, "mokume#1651: 置き場所の写しが 1 つで、2 回目の particles が 1 回目を上書きする")
+        // v0.12.0 では: 置き場所の写しが 1 つで、2 回目の particles が 1 回目を上書きする (mokume#1651、v0.15.0 で直った)
+        try compare(.particlesTwice, note: "mokume#1651 で直った: ")
     }
 
     // MARK: - 断片と描き場所
 
     @Test("本体で作った断片でも、描き場所で set を挟めば描き分けられる")
     func shaderSetGraphics() throws {
-        try compareKnown(.shaderSetGraphics, "mokume#1652: 断片が作った面に縛られ、値の変更で閉じる列が描き場所に届かない")
+        // v0.12.0 では: 断片が作った面に縛られ、値の変更で閉じる列が描き場所に届かない (mokume#1652、v0.15.0 で直った)
+        try compare(.shaderSetGraphics, note: "mokume#1652 で直った: ")
     }
 
     @Test("断片の面の描き場所を置いた後で描き換えても、先に置いた形は置いた時点の絵で塗られる")
     func shaderSurfaceRedraw() throws {
-        try compareKnown(.shaderSurfaceRedraw, "mokume#1653: 面を渡した描き場所を置いたと記録するのが列を閉じたときだけ")
+        // v0.12.0 では: 面を渡した描き場所を置いたと記録するのが列を閉じたときだけ (mokume#1653、v0.15.0 で直った)
+        try compare(.shaderSurfaceRedraw, note: "mokume#1653 で直った: ")
     }
 
     @Test("beginDraw の外で描き場所へ書いた画素は断られ、get も image も書いていない絵を見る")
@@ -182,17 +207,20 @@ import mokume
 
     @Test("フレームの途中で get を読んでも、影は同じ")
     func midFrameShadow() throws {
-        try compareKnown(.midFrameShadow, "mokume#1656: 影の焼き付けが描き切りごとに走り、その回に溜めた立体しか見ない")
+        // v0.12.0 では: 影の焼き付けが描き切りごとに走り、その回に溜めた立体しか見ない (mokume#1656、v0.16.2 で直った)
+        try compare(.midFrameShadow, note: "mokume#1656 で直った: ")
     }
 
     @Test("立体の後の background(.sky) は、loadPixels を挟んでも立体を消す")
     func loadPixelsSky() throws {
-        try compareKnown(.loadPixelsSky, "mokume#1657: 周囲の背景が描き切りの後の奥行きと色を読み込んで、その上に描く")
+        // v0.12.0 では: 周囲の背景が描き切りの後の奥行きと色を読み込んで、その上に描く (mokume#1657、v0.16.2 で直った)
+        try compare(.loadPixelsSky, note: "mokume#1657 で直った: ")
     }
 
     @Test("blendMode(.add) のままでも、background(.sky) は下地を置き換える")
     func addSky() throws {
-        try compareKnown(.addSky, "mokume#1658: 周囲の背景がそのときの混ぜ方で描かれ、前のフレームに足される")
+        // v0.12.0 では: 周囲の背景がそのときの混ぜ方で描かれ、前のフレームに足される (mokume#1658、v0.16.2 で直った)
+        try compare(.addSky, note: "mokume#1658 で直った: ")
     }
 
     @Test("陰性対照: texture を貼ったままでも、background(.sky) は同じ")
