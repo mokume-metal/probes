@@ -68,6 +68,14 @@ PROBES_SHOTS=/tmp/shots swift test    # 読んだ絵を全部 /tmp/shots/Churn/<
 - 2 件は、起票に貼った再現 (`Tests/ChurnTests/Repros/`) をそのまま走らせる `ReprosTests` の分である
   ([docs/filing.md](../docs/filing.md))。
 
+**`scripts/stress.py Churn --repeat 3 --workers 3` (`v0.22.0`) は、15 回とも通過し、既知の問題は毎回 5 件で揺れなかった。**
+指紋は、影を落とす 3D の場面 (`history3DShadows`・`fresh3D`・`localityShadow`) で、検証レイヤの 3 回だけが多数派と違った。
+
+- 切り分けると、`MTL_SHADER_VALIDATION=1` だけで出て、`MTL_DEBUG_LAYER=1` だけでは出ない。
+- 違いは 1 枚に 1〜3 画素、成分の差は最大 0.0007 (表示の 1 段未満)。
+- 断片の計装でシェーダが組み直され、浮動小数の丸めが変わったものと読み、mokume の破れには数えていない
+  (ADR-0007 の「同じ機械」は、同じ組み立てのシェーダを前提にしている)。
+
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not recorded」で
 落ちる。そのときは包みを外し、下の表を書き換える。
 
