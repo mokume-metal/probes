@@ -13,7 +13,7 @@ import Testing
     @Test("再現: 2 領域の形を shape(at:) で重なる 2 か所へまとめて置く = 1 か所ずつ置く")
     func shapeAtRegions() throws {
         let broken = try ShapeAtRegions.reproduce()
-        withKnownIssue("mokume#未起票: shape(_:at:) が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる") {
+        withKnownIssue("mokume#2305: shape(_:at:) が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }
@@ -21,7 +21,7 @@ import Testing
     @Test("再現: 捨てた描き場所の ObjectIdentifier を引き継いだ描き場所も、置いた時点の絵が出る")
     func graphicsReuse() throws {
         let broken = try GraphicsReuse.reproduce()
-        withKnownIssue("mokume#未起票: 捨てた描き場所の ObjectIdentifier を引き継ぐと、置いた時点の絵が保たれない") {
+        withKnownIssue("mokume#2306: 捨てた描き場所の ObjectIdentifier を引き継ぐと、置いた時点の絵が保たれない") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }

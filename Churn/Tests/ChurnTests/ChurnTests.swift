@@ -125,13 +125,13 @@ import mokume
     @Test("2 領域の形を shape(at:) でまとめて置く = 1 つずつ置く")
     func shapeAtRegions() throws {
         try compareKnown(
-            .shapeAtRegions, "mokume#未起票: shape(_:at:) が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる")
+            .shapeAtRegions, "mokume#2305: shape(_:at:) が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる")
     }
 
     @Test("置き場所の色を半透明にして、まとめて置く = 1 つずつ置く")
     func shapeAtTranslucent() throws {
         try compareKnown(
-            .shapeAtTranslucent, "mokume#未起票: shape(_:at:) が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる")
+            .shapeAtTranslucent, "mokume#2305: shape(_:at:) が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる")
     }
 
     @Test("陰性対照: 1 領域の形・3D の立体は、まとめて置いても 1 つずつと同じ", arguments: [ChurnKey.shapeAtSingleRegion, .shapeAt3D])
@@ -144,7 +144,7 @@ import mokume
         let pair = try render(.graphicsReuse)
         // 引き継ぎが起きていなければ、破れの条件が立っていない (アドレスの使い回しに頼るため)
         #expect(pair.sketch.reused > 0, "ObjectIdentifier の引き継ぎが 1 度も起きなかった")
-        withKnownIssue("mokume#未起票: 捨てた描き場所の ObjectIdentifier を引き継ぐと、置いた時点の絵が保たれない") {
+        withKnownIssue("mokume#2306: 捨てた描き場所の ObjectIdentifier を引き継ぐと、置いた時点の絵が保たれない") {
             expectSame(.graphicsReuse, pair)
         }
     }
