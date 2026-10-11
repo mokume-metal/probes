@@ -5,7 +5,8 @@ import mokume
 
 /// 面が 1 つの、形の整った文字の STL でも、ファイルが 128 バイトに満たないと
 /// `loadModel` が `.unreadable` を投げる (Model I/O が "File is too small to be valid STL" で断る)。
-@MainActor enum StlSmallAscii {
+@MainActor
+enum StlSmallAscii {
     @MainActor final class Probe: Sketch {
         nonisolated(unsafe) static var paths: [String] = []
         nonisolated(unsafe) static var results: [String: Result<Int, ModelFailure>] = [:]

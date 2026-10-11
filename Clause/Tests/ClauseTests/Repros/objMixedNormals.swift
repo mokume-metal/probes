@@ -5,7 +5,8 @@ import mokume
 
 /// OBJ で `vn` を持つ面と持たない面が混ざると、持たない面の向きが形から求められず
 /// 既定の (0, 0, 1) になる。同じ面に正しい `vn` を書いた絵とも、全面 `vn` 無しの絵とも食い違う。
-@MainActor enum ObjMixedNormals {
+@MainActor
+enum ObjMixedNormals {
     @MainActor final class Probe: Sketch {
         nonisolated(unsafe) static var path = ""
         nonisolated(unsafe) static var model: Model?

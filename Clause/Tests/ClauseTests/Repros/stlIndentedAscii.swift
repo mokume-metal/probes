@@ -5,7 +5,8 @@ import mokume
 
 /// 前に空白のある文字の STL は「読めない」と投げる約束 (DocC) だが、83 バイト目が改行・タブ
 /// などの制御文字だと、バイナリとして読まれ、でたらめな三角形 (座標 1e34 級) が返る。
-@MainActor enum StlIndentedAscii {
+@MainActor
+enum StlIndentedAscii {
     @MainActor final class Probe: Sketch {
         nonisolated(unsafe) static var paths: [String] = []
         nonisolated(unsafe) static var results: [String: Result<Model, ModelFailure>] = [:]

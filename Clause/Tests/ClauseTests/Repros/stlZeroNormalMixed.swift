@@ -5,7 +5,8 @@ import mokume
 
 /// STL で `facet normal 0 0 0` の面は「巻き方から求め、両面として扱う」約束だが、
 /// 同じファイルに向きを書いた面が 1 つでもあると片面になり、巻き方が見る側と逆の面が真っ黒になる。
-@MainActor enum StlZeroNormalMixed {
+@MainActor
+enum StlZeroNormalMixed {
     @MainActor final class Probe: Sketch {
         nonisolated(unsafe) static var path = ""
         nonisolated(unsafe) static var model: Model?

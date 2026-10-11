@@ -5,7 +5,8 @@ import mokume
 
 /// OBJ の面の角に読めない番号 (範囲外・0・数でない) が混ざると、その角だけを黙って落として
 /// 残りで面を作る。行は読み飛ばしに数えられず (`skippedLines == 0`)、四角が三角になったことが分からない。
-@MainActor enum ObjBadCorners {
+@MainActor
+enum ObjBadCorners {
     @MainActor final class Probe: Sketch {
         nonisolated(unsafe) static var paths: [String] = []
         nonisolated(unsafe) static var models: [String: Model] = [:]
