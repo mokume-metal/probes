@@ -42,6 +42,14 @@ import Testing
         }
     }
 
+    @Test("再現: 置き場の名前に # があっても、連番の番号はファイル名の # に入る")
+    func hashInDirectory() throws {
+        let broken = try HashInDirectory.reproduce()
+        withKnownIssue("mokume#未起票: パス全体の最初の # の並びを番号の場所に読み、置き場のディレクトリ名に番号を入れる") {
+            #expect(broken == nil, "\(broken ?? "")")
+        }
+    }
+
     // MARK: - 出口の取り合い (子プロセス)
 
     // 4 本とも標準入力・作業ディレクトリ・`NSApp`・プロセスの終わり方に触るので、exit test で子に
