@@ -7,7 +7,7 @@ import mokume
 /// 止まる。作者の時計 (その枚の本来の時刻) へ戻らない。
 ///
 /// 期待: Sources/MokumeCore/Sketch/Clock.swift:157-158「観測の指定秒はずれに触れない — 撮った後は
-/// 作者の時計へ戻る」・Sources/MokumeCore/Observation/ObservationRequest.swift:14「次は元の時計へ戻る」。
+/// 作者の時計へ戻る」・Sources/MokumeCore/Observation/ObservationRequest.swift:15「次は元の時計へ戻る」。
 /// `pauseTime()` の止めた秒は「呼んだフレームの値」(Sketch+Time.swift:51) だが、観測の枚の `time` は
 /// 作者の時計の値ではない。
 ///
