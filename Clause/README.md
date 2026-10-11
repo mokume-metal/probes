@@ -46,30 +46,30 @@ python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokum
 ## 結果 — mokume `v0.22.1`
 
 **7 領域を突き、18 件が約束を破っていた。** 18 件とも mokume の `main` (`e7af450`) でも単独で出たので、Bug として起票した。
-面の向きの 2 件 (`objMixedNormals`・`stlZeroNormalMixed`) は同じ根に見えるので、根の Issue で束ねた。
+面の向きの 2 件 (`objMixedNormals`・`stlZeroNormalMixed`) は同じ根に見えるので、根の Issue [mokume#2342](https://github.com/mokume-metal/mokume/issues/2342) で束ねた。
 
 ### 破れていたもの
 
 | 領域 | 鍵 | 約束 | 何が起きたか | mokume |
 | --- | --- | --- | --- | --- |
-| 通信 | `udpEmptyDatagram` | 1 つの datagram が 1 つのメッセージになる (`UDPPort`)・落とさない列 (mokume ADR-0028) | 同じ送り元から `"a"`・`""`・`"b"`・`"c"` を続けて送ると `["a"]` だけが届く。空の datagram で繋ぎを閉じ、続けて届いた分を数えずに捨てる。OSC も 6 通中 1 通 | 未起票 |
-| 通信 | `udpLargeDatagram` | 同上 | 9217・20000・65507 B の datagram が、どれも 9216 B に切れた文字列として届く (素の socket は全長を受ける)。OSC の 12000 B の blob は捨てられる | 未起票 |
-| 通信 | `sendRefusedWarns` | 受け手のいない宛先への `send` は 1 度だけ診断に出す (`OSCPort`・`UDPPort` の `send`) | 10 回送って、どちらも 5 回知らせる | 未起票 |
-| 時刻 | `jumpTimeNonFinite` | フレームごとに呼ぶ口は値を検め、安全な既定へ倒す (mokume ADR-0020 決定 5)・兄弟の `Movie.jump` は数でない値を断る | `jumpTime(.nan)`・`(.infinity)`・`(-.infinity)` の後、`time` がずっと非有限。止めて再開しても戻らず、知らせも無い | 未起票 |
-| 時刻 | `pauseTimeObserved` | 観測の指定秒はずれに触れない。撮った後は作者の時計へ戻る (`Clock.swift`) | 時刻を指定した観測の枚で `pauseTime()` を呼ぶと、観測の秒 5.0 で止まる (期待 0.05) | 未起票 |
-| JSON | `jsonNegativeOverflow` | `1e400` のように `Double` に収まらない数は読めない (`loadJSONObject`) | `1e400` は投げるが、`-1e400`・`-1.8e308` は投げずに -inf で読める | 未起票 |
-| JSON・XML・表 | `floatText` | 数でない文字は NaN にし、キーごとに 1 度知らせる。前後の空白は落とす (`getFloat`) | `"nan"` は知らせずに NaN、`"inf"`・`"0x10"` は inf・16 として読む (3 種とも)。表のセル `"3\n"` は NaN (Processing は 3) | 未起票 |
-| XML | `xmlCarriageReturn` | 壊れた行を添えて投げる。行は LF・CRLF・CR のどれで数えてもよい (`XMLFile`) | 4 行目で壊れた XML が、LF と CRLF なら line 4、CR だけなら line 1 | 未起票 |
-| XML | `xmlEncodingDecl` | 文字は UTF-8 (`loadXML`) | UTF-8 として正しく読めたファイルを、宣言の `encoding="Shift_JIS"`・`"ISO-8859-1"` で解き直して投げる | 未起票 |
-| SVG | `svgWidthOnly` | `width` / `height` と `viewBox` が書いてあれば、その大きさへ写す (`loadShape`) | 根に `width` だけ (または `height` だけ) を書くと、欠けた側が viewBox の大きさになり、等倍のままずれる (5000 画素のはずが 200) | 未起票 |
-| SVG | `svgUniversalSelector` | 優先の順は CSS のとおり (`SVGFile`) | `rect{fill:red} *{fill:blue}` で矩形が青になる。`*` を要素名と同じ詳細度で、書いた順に上書きする | 未起票 |
-| 立体 | `stlSmallAscii` | 文字の STL も読む。読めないとするのは 84 B に満たないファイルなど (`ModelFile+STL`) | 面が 1 つの文字の STL が、127 B なら投げ、末尾に空白を 1 つ足した 128 B なら読める (Model I/O が 128 B 未満を断る) | 未起票 |
-| 立体 | `stlIndentedAscii` | `solid` で始まらない文字の STL (前に空白) は読めないとして返す (同上) | 前に空白 2 つの文字の STL がバイナリとして読まれ、三角形 5 枚・大きさ 1.86e34 のでたらめな形が返る | 未起票 |
-| 立体 | `objMixedNormals` | 面の向きが書かれていなければ形から求める (`ModelFile`) | `vn` のある面と無い面が混ざると、無い面の向きが (0,0,1) になる (明るさ 0.707、期待 1.0) | 未起票 |
-| 立体 | `stlZeroNormalMixed` | `0 0 0` の面は巻き方から求め、両面として扱う (`ModelFile+STL`) | 同じファイルに向きを書いた面があると片面になり、見る側と逆に巻いた面が真っ黒になる | 未起票 |
-| 立体 | `objBadCorners` | 読み飛ばした行は `skippedLines` に数える | 5 角の面の 1 角だけが読めない (範囲外・0・数でない) と、その角を黙って落として四角形で読み、読み飛ばしは 0 | 未起票 |
-| 表 | `saveTableBom` | 書いたファイルを `loadTable` で読み直すと、同じ表に戻る (`saveTable`) | 頭のセルが U+FEFF で始まると、読み直しで BOM として落ちる。1 列の表では行が 1 つ消える | 未起票 |
-| 文字 | `textFileDirectory` | `.unreadable` は「見つかったが UTF-8 の文字として読めない」(`DataFailure`) | ディレクトリや読む権利の無いファイルも `.unreadable` になり、「UTF-8 で保存されているか確かめよ」と的外れに勧める | 未起票 |
+| 通信 | `udpEmptyDatagram` | 1 つの datagram が 1 つのメッセージになる (`UDPPort`)・落とさない列 (mokume ADR-0028) | 同じ送り元から `"a"`・`""`・`"b"`・`"c"` を続けて送ると `["a"]` だけが届く。空の datagram で繋ぎを閉じ、続けて届いた分を数えずに捨てる。OSC も 6 通中 1 通 | [#2324](https://github.com/mokume-metal/mokume/issues/2324) |
+| 通信 | `udpLargeDatagram` | 同上 | 9217・20000・65507 B の datagram が、どれも 9216 B に切れた文字列として届く (素の socket は全長を受ける)。OSC の 12000 B の blob は捨てられる | [#2325](https://github.com/mokume-metal/mokume/issues/2325) |
+| 通信 | `sendRefusedWarns` | 受け手のいない宛先への `send` は 1 度だけ診断に出す (`OSCPort`・`UDPPort` の `send`) | 10 回送って、どちらも 5 回知らせる | [#2326](https://github.com/mokume-metal/mokume/issues/2326) |
+| 時刻 | `jumpTimeNonFinite` | フレームごとに呼ぶ口は値を検め、安全な既定へ倒す (mokume ADR-0020 決定 5)・兄弟の `Movie.jump` は数でない値を断る | `jumpTime(.nan)`・`(.infinity)`・`(-.infinity)` の後、`time` がずっと非有限。止めて再開しても戻らず、知らせも無い | [#2327](https://github.com/mokume-metal/mokume/issues/2327) |
+| 時刻 | `pauseTimeObserved` | 観測の指定秒はずれに触れない。撮った後は作者の時計へ戻る (`Clock.swift`) | 時刻を指定した観測の枚で `pauseTime()` を呼ぶと、観測の秒 5.0 で止まる (期待 0.05) | [#2328](https://github.com/mokume-metal/mokume/issues/2328) |
+| JSON | `jsonNegativeOverflow` | `1e400` のように `Double` に収まらない数は読めない (`loadJSONObject`) | `1e400` は投げるが、`-1e400`・`-1.8e308` は投げずに -inf で読める | [#2329](https://github.com/mokume-metal/mokume/issues/2329) |
+| JSON・XML・表 | `floatText` | 数でない文字は NaN にし、キーごとに 1 度知らせる。前後の空白は落とす (`getFloat`) | `"nan"` は知らせずに NaN、`"inf"`・`"0x10"` は inf・16 として読む (3 種とも)。表のセル `"3\n"` は NaN (Processing は 3) | [#2330](https://github.com/mokume-metal/mokume/issues/2330) |
+| XML | `xmlCarriageReturn` | 壊れた行を添えて投げる。行は LF・CRLF・CR のどれで数えてもよい (`XMLFile`) | 4 行目で壊れた XML が、LF と CRLF なら line 4、CR だけなら line 1 | [#2331](https://github.com/mokume-metal/mokume/issues/2331) |
+| XML | `xmlEncodingDecl` | 文字は UTF-8 (`loadXML`) | UTF-8 として正しく読めたファイルを、宣言の `encoding="Shift_JIS"`・`"ISO-8859-1"` で解き直して投げる | [#2332](https://github.com/mokume-metal/mokume/issues/2332) |
+| SVG | `svgWidthOnly` | `width` / `height` と `viewBox` が書いてあれば、その大きさへ写す (`loadShape`) | 根に `width` だけ (または `height` だけ) を書くと、欠けた側が viewBox の大きさになり、等倍のままずれる (5000 画素のはずが 200) | [#2333](https://github.com/mokume-metal/mokume/issues/2333) |
+| SVG | `svgUniversalSelector` | 優先の順は CSS のとおり (`SVGFile`) | `rect{fill:red} *{fill:blue}` で矩形が青になる。`*` を要素名と同じ詳細度で、書いた順に上書きする | [#2334](https://github.com/mokume-metal/mokume/issues/2334) |
+| 立体 | `stlSmallAscii` | 文字の STL も読む。読めないとするのは 84 B に満たないファイルなど (`ModelFile+STL`) | 面が 1 つの文字の STL が、127 B なら投げ、末尾に空白を 1 つ足した 128 B なら読める (Model I/O が 128 B 未満を断る) | [#2335](https://github.com/mokume-metal/mokume/issues/2335) |
+| 立体 | `stlIndentedAscii` | `solid` で始まらない文字の STL (前に空白) は読めないとして返す (同上) | 前に空白 2 つの文字の STL がバイナリとして読まれ、三角形 5 枚・大きさ 1.86e34 のでたらめな形が返る | [#2336](https://github.com/mokume-metal/mokume/issues/2336) |
+| 立体 | `objMixedNormals` | 面の向きが書かれていなければ形から求める (`ModelFile`) | `vn` のある面と無い面が混ざると、無い面の向きが (0,0,1) になる (明るさ 0.707、期待 1.0) | [#2337](https://github.com/mokume-metal/mokume/issues/2337) |
+| 立体 | `stlZeroNormalMixed` | `0 0 0` の面は巻き方から求め、両面として扱う (`ModelFile+STL`) | 同じファイルに向きを書いた面があると片面になり、見る側と逆に巻いた面が真っ黒になる | [#2338](https://github.com/mokume-metal/mokume/issues/2338) |
+| 立体 | `objBadCorners` | 読み飛ばした行は `skippedLines` に数える | 5 角の面の 1 角だけが読めない (範囲外・0・数でない) と、その角を黙って落として四角形で読み、読み飛ばしは 0 | [#2339](https://github.com/mokume-metal/mokume/issues/2339) |
+| 表 | `saveTableBom` | 書いたファイルを `loadTable` で読み直すと、同じ表に戻る (`saveTable`) | 頭のセルが U+FEFF で始まると、読み直しで BOM として落ちる。1 列の表では行が 1 つ消える | [#2340](https://github.com/mokume-metal/mokume/issues/2340) |
+| 文字 | `textFileDirectory` | `.unreadable` は「見つかったが UTF-8 の文字として読めない」(`DataFailure`) | ディレクトリや読む権利の無いファイルも `.unreadable` になり、「UTF-8 で保存されているか確かめよ」と的外れに勧める | [#2341](https://github.com/mokume-metal/mokume/issues/2341) |
 
 ### 起票しなかったもの
 
