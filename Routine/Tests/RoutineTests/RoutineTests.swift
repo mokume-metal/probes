@@ -396,6 +396,54 @@ import mokume
         }
     }
 
+    /// 枠の線 (橙) の画素の範囲と、字の墨 (地より明るい画素) の範囲。
+    static func frameAndInk(_ suspect: Picture, _ reference: Picture) -> (frame: (Range<Int>, Range<Int>)?, ink: (Range<Int>, Range<Int>)?) {
+        func span(_ p: Picture, _ test: (LinearRGBA) -> Bool) -> (Range<Int>, Range<Int>)? {
+            var (x0, x1, y0, y1) = (Int.max, -1, Int.max, -1)
+            for y in 0..<p.height {
+                for x in 0..<p.width where test(p[x, y]) {
+                    (x0, x1, y0, y1) = (min(x0, x), max(x1, x), min(y0, y), max(y1, y))
+                }
+            }
+            return x1 < 0 ? nil : (x0..<x1 + 1, y0..<y1 + 1)
+        }
+        let frame = span(suspect) { $0.red > 0.6 && $0.green > 0.1 && $0.green < 0.4 && $0.blue < 0.05 }
+        let ink = span(reference) { max($0.red, $0.green, $0.blue) > 0.05 }
+        return (frame, ink)
+    }
+
+    /// 枠 (線の中心が範囲の縁、太さ 1) が墨を囲むか。線は縁から 1 画素の内側まで掛かってよい。
+    static func encloses(_ frame: (Range<Int>, Range<Int>), _ ink: (Range<Int>, Range<Int>)) -> Bool {
+        frame.0.lowerBound <= ink.0.lowerBound + 1 && frame.0.upperBound >= ink.0.upperBound - 1
+            && frame.1.lowerBound <= ink.1.lowerBound + 1 && frame.1.upperBound >= ink.1.upperBound - 1
+    }
+
+    @Test("絵文字の無いラベルの textBounds の枠は、描いた墨を囲む (陰性対照)")
+    func labelBoundsPlain() throws {
+        let label = "木目 AB"
+        let a = try run(LabelBounds(route: .suspect, label: label), frames: 1, dump: "labelBoundsPlain-suspect")[1]!
+        let b = try run(LabelBounds(route: .reference, label: label), frames: 1, dump: "labelBoundsPlain-reference")[1]!
+        let (frame, ink) = Self.frameAndInk(a, b)
+        let inkSpan = try #require(ink)
+        let frameSpan = try #require(frame, "枠が描かれていない (textBounds が nil)")
+        #expect(Self.encloses(frameSpan, inkSpan), "枠 \(frameSpan)、墨 \(inkSpan)")
+    }
+
+    @Test("絵文字の入ったラベルの textBounds の枠も、描いた墨を囲む")
+    func labelBounds() throws {
+        let a = try run(.labelBounds, .suspect, frames: 1)[1]!
+        let b = try run(.labelBounds, .reference, frames: 1)[1]!
+        let (frame, ink) = Self.frameAndInk(a, b)
+        // 参照: 絵文字は色を持って描かれ、墨は漢字 2 字より右まで出る
+        let inkSpan = try #require(ink)
+        #expect(b.count(columns: inkSpan.0, rows: inkSpan.1) { c, _, _ in c.green > c.red + 0.1 } > 50)
+        #expect(inkSpan.0.upperBound > 100, "墨の右端 \(inkSpan.0.upperBound)")
+        withKnownIssue("mokume#2308: textBounds が色を持つ字形 (絵文字) の墨を囲まない") {
+            let frameSpan = try #require(frame, "枠が描かれていない (textBounds が nil)")
+            #expect(Self.encloses(frameSpan, inkSpan), "枠 \(frameSpan)、墨 \(inkSpan)")
+        }
+    }
+
     // MARK: - 立体
 
     @Test("背景を塗らない 3D でも、奥行きはフレームごとに消え、新しい箱が前の絵の上に出る")

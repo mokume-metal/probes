@@ -17,7 +17,7 @@ nonisolated enum HabitKey: String, CaseIterable, Sendable {
     case pulseScale, negativeSize, spinnerArc, nanShape, growingCount, glyphChurn
     case pmouseStroke, dragDelta, keyHeld, pauseToggle, seedPerFrame, blendCarry
     case shapeReuse, polylineTrail, setupLayer, pixelFeedback, textCenter, tintFade
-    case depthNoBackground
+    case depthNoBackground, labelBounds
 }
 
 /// 候補 1 件。**1 経路 = 1 本のスケッチ**で、経路ごとに別の `SketchRuntime` で回す。
@@ -75,6 +75,7 @@ enum Habits {
         HabitCase(key: .textCenter, title: "中央揃えの数字", frames: 60) { TextCenter(route: $0) },
         HabitCase(key: .tintFade, title: "tint の不透明度で溶け込む絵", frames: 60) { TintFade(route: $0) },
         HabitCase(key: .depthNoBackground, title: "背景を塗らない 3D", frames: 30) { DepthNoBackground(route: $0) },
+        HabitCase(key: .labelBounds, title: "絵文字入りのラベルを textBounds で囲む", frames: 30) { LabelBounds(route: $0) },
     ]
 
     static func named(_ key: HabitKey) -> HabitCase {
@@ -918,6 +919,39 @@ final class PixelFeedback: Sketch {
             background(0)
             seed(at: Float(frameCount - 1))
         }
+    }
+}
+
+/// 絵文字の入ったラベルを描き、`textBounds` の枠で囲む (ボタン・吹き出し・札)。
+///
+/// **枠は `text` を描いたときの墨を囲むはず** (`textBounds` の説明: 「同じ引数で `text` を
+/// 描いたときの墨を囲む」「墨が無いときは `nil`」)。疑いは字と橙の枠を描き、参照は字だけを
+/// 描く。検査は参照の墨の範囲を、疑いの枠が囲むかで見る。絵文字のような色を持つ字形も、
+/// 描けば墨である。
+final class LabelBounds: Sketch {
+    var settings = Habits.settings
+    let route: Route
+    let label: String
+
+    static let label = "木目 🌲"
+    static let origin: (x: Float, y: Float) = (20, 90)
+
+    init(route: Route, label: String = LabelBounds.label) {
+        self.route = route
+        self.label = label
+    }
+    convenience init() { self.init(route: .reference) }
+
+    func draw() {
+        background(20)
+        fill(255)
+        textSize(28)
+        text(label, Self.origin.x, Self.origin.y)
+        guard route == .suspect, let bounds = textBounds(label, Self.origin.x, Self.origin.y) else { return }
+        noFill()
+        stroke(255, 128, 0)
+        strokeWeight(1)
+        rect(bounds.x, bounds.y, bounds.width, bounds.height)
     }
 }
 
