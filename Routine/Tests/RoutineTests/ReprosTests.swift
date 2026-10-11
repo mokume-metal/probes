@@ -13,7 +13,7 @@ import Testing
     @Test("再現: textBounds は色を持つ字形 (絵文字) の墨も囲む")
     func textBoundsColorGlyph() throws {
         let broken = try TextBoundsColorGlyph.reproduce()
-        withKnownIssue("mokume#未起票: textBounds が色を持つ字形 (絵文字) の墨を囲まない") {
+        withKnownIssue("mokume#2308: textBounds が色を持つ字形 (絵文字) の墨を囲まない") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }

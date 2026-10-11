@@ -438,7 +438,7 @@ import mokume
         let inkSpan = try #require(ink)
         #expect(b.count(columns: inkSpan.0, rows: inkSpan.1) { c, _, _ in c.green > c.red + 0.1 } > 50)
         #expect(inkSpan.0.upperBound > 100, "墨の右端 \(inkSpan.0.upperBound)")
-        withKnownIssue("mokume#未起票: textBounds が色を持つ字形 (絵文字) の墨を囲まない") {
+        withKnownIssue("mokume#2308: textBounds が色を持つ字形 (絵文字) の墨を囲まない") {
             let frameSpan = try #require(frame, "枠が描かれていない (textBounds が nil)")
             #expect(Self.encloses(frameSpan, inkSpan), "枠 \(frameSpan)、墨 \(inkSpan)")
         }
