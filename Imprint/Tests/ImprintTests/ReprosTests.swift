@@ -34,6 +34,14 @@ import Testing
         }
     }
 
+    @Test("再現: 48 fps で撮った .mov は、1 枚の長さがどれも 1/48 秒", .enabled(if: proResAvailable))
+    func movieTimescale() throws {
+        let broken = try MovieTimescale.reproduce()
+        withKnownIssue("mokume#未起票: 動画の刻みが 1/600 秒で、割り切れない fps の時刻が丸められる") {
+            #expect(broken == nil, "\(broken ?? "")")
+        }
+    }
+
     // MARK: - 出口の取り合い (子プロセス)
 
     // 4 本とも標準入力・作業ディレクトリ・`NSApp`・プロセスの終わり方に触るので、exit test で子に
