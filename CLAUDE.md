@@ -1,6 +1,6 @@
 # probes
 
-mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・Soak・Aftermath・Imprint・Lattice・Weave・Tumble) を置く。何を置くか・並べ方・走らせ方は
+mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・Soak・Aftermath・Imprint・Lattice・Weave・Tumble・Churn) を置く。何を置くか・並べ方・走らせ方は
 [README.md](README.md) が正本で、ここでは繰り返さない。ここに置くのは、作業するときに
 踏みやすいことだけである。
 
@@ -16,6 +16,7 @@ mokume を外から測る物差し (Atlas・Probe・Drift・Routine・Reach・So
 (cd Lattice && swift test)            # 同じく Lattice/README.md と
 (cd Weave && swift test)              # 同じく Weave/README.md と
 (cd Tumble && swift test)             # 同じく Tumble/README.md と (破れを探すのは tumble.py run)
+(cd Churn && swift test)              # 同じく Churn/README.md と
 (cd Reach && swift test)              # 届くと判定した口が描けること・README の表が一覧と揃っていること
 python3 scripts/verify.py --check     # Atlas の台帳の版と Package.resolved が揃っていること
 python3 -m unittest discover -s scripts -p 'test_*.py'   # scripts の読み取りと判定 (GPU 不要)
@@ -27,7 +28,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
 ## 踏みやすいこと
 
 - **`swift test` は CI では回らない。** 画素を読むので Metal が要り、GitHub の Linux の
-  runner には無い。CI (`pr-policy`) が見るのは PR タイトルと起票の骨格 (`filing.py check`) だけなので、Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave・Tumble を
+  runner には無い。CI (`pr-policy`) が見るのは PR タイトルと起票の骨格 (`filing.py check`) だけなので、Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave・Tumble・Churn を
   触った PR は手元で回した結果 (既知の問題の件数) を本文に書く。
 - **赤くなった `withKnownIssue` は、直った約束である。** 壊したのではない。版上げの後なら
   `.claude/skills/probes-bump/` の手順で包みを外す。版を上げていないのに赤いなら、検査の
@@ -36,7 +37,7 @@ python3 Atlas/scripts/examples.py --check   # 例 157 本の Package.swift が�
   - Atlas の例 157 本の `Package.swift` は `python3 Atlas/scripts/examples.py` が書く。
   - `Atlas/README.md` の `<!-- verify:… -->` の区間は `python3 scripts/verify.py --write-readme` が書く。
   - `Reach/README.md` の `<!-- reach:… -->` の区間は `(cd Reach && REACH_WRITE_README=1 swift test)` が書く。
-- **画素を見る 8 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble) の `Stage.swift` で絵を読んだら、`fingerprint` を通す。**
+- **画素を見る 9 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble・Churn) の `Stage.swift` で絵を読んだら、`fingerprint` を通す。**
   `scripts/stress.py` は、その指紋を実行をまたいで突き合わせる。通さずに読んだ絵は、決定論の
   判定から漏れる (ADR-0007)。
 - **書き込むスクリプトがある。**
