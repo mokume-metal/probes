@@ -60,7 +60,7 @@ import mokume
     /// 区間 (media start) の側に入るので、ここでは間隔と長さだけを比べる。
     ///
     /// **48・90 fps は 90 000 を割り切るのに、1/600 秒を割り切らない。** 24・30・60 fps だけでは、
-    /// 動画の刻みが説明の 90 000 でなく 600 でも緑のまま通っていた (mokume#未起票)。
+    /// 動画の刻みが説明の 90 000 でなく 600 でも緑のまま通っていた (mokume#2307)。
     @Test("時刻の間隔はどこも 1/fps で、長さは枚数 / fps", .enabled(if: proResAvailable), arguments: [24, 30, 48, 60, 90])
     func ptsSpacing(fps: Int) async throws {
         let dir = try scratch("pts-\(fps)")
@@ -74,7 +74,7 @@ import mokume
         let step = Int64(90000 / fps)
         #expect(got.numbers == Array(3..<33))
         let gaps = zip(got.ticks.dropFirst(), got.ticks).map { $0 - $1 }
-        withKnownIssue("mokume#未起票: 動画の刻みが 1/600 秒で、割り切れない fps の時刻が丸められる") {
+        withKnownIssue("mokume#2307: 動画の刻みが 1/600 秒で、割り切れない fps の時刻が丸められる") {
             #expect(gaps.allSatisfy { $0 == step }, "間隔: \(Set(gaps).sorted())")
         } when: { 600 % fps != 0 }
         #expect(abs(got.duration - 30 / Double(fps)) < 1e-6, "長さ \(got.duration) 秒")

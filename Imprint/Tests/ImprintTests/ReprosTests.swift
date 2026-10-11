@@ -37,7 +37,7 @@ import Testing
     @Test("再現: 48 fps で撮った .mov は、1 枚の長さがどれも 1/48 秒", .enabled(if: proResAvailable))
     func movieTimescale() throws {
         let broken = try MovieTimescale.reproduce()
-        withKnownIssue("mokume#未起票: 動画の刻みが 1/600 秒で、割り切れない fps の時刻が丸められる") {
+        withKnownIssue("mokume#2307: 動画の刻みが 1/600 秒で、割り切れない fps の時刻が丸められる") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }
@@ -45,7 +45,7 @@ import Testing
     @Test("再現: 置き場の名前に # があっても、連番の番号はファイル名の # に入る")
     func hashInDirectory() throws {
         let broken = try HashInDirectory.reproduce()
-        withKnownIssue("mokume#未起票: パス全体の最初の # の並びを番号の場所に読み、置き場のディレクトリ名に番号を入れる") {
+        withKnownIssue("mokume#2313: パス全体の最初の # の並びを番号の場所に読み、置き場のディレクトリ名に番号を入れる") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }
