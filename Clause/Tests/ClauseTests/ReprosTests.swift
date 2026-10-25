@@ -141,7 +141,7 @@ import Testing
         }
         let said = String(decoding: ended?.standardErrorContent ?? [], as: UTF8.self)
         let broken = Mp4ThinFrame.verdict(.init(status: 0, bytes: Mp4ThinFrame.bytes(at: thin), said: said))
-        withKnownIssue("mokume#未起票: H.264 が辺 1 で 0 バイトを書いても、子は名乗らず 0 で終わる") {
+        withKnownIssue("mokume#3223: H.264 が辺 1 で 0 バイトを書いても、子は名乗らず 0 で終わる") {
             #expect(broken == nil, "\(broken ?? "")")
         }
     }

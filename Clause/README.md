@@ -32,14 +32,15 @@
 ## 走らせる
 
 ```bash
-swift test                              # 21 本のテスト。v0.35.0 では既知の問題 0 件で緑
+swift test                              # 22 本のテスト。v0.35.0 では既知の問題 1 件で緑
 python3 ../scripts/filing.py repro Clause <鍵>               # 再現 1 本を mokume だけのパッケージで
 python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokume の main で
 ```
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、「既知の問題」として数えられる
 (`v0.22.1` では 21 本のテストで 18 件)。同じ機械で 3 回回し、3 回とも 18 件だった。
-`v0.35.0` では 21 本のテストで 0 件で、同じ機械で 3 回回し、3 回とも 0 件だった。
+`v0.35.0` では 21 本のテストで 0 件で、同じ機械で 3 回回し、3 回とも 0 件だった。MP4 の再現を足して 22 本で 1 件
+(同じ機械で 3 回とも 1 件)。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not recorded」で落ちる。
 そのときは包みを外し、下の表を書き換える。
@@ -57,6 +58,20 @@ python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokum
   丸ごと捨てて数え、次のフレームで診断に出す**」(`UDPPort`・`OSCPort` の DocC)。再現を、この新しい約束の
   境目の両側 (9215 B は全長で届く・9216 B 以上は届かずに知らせが出る・OSC の 9012 B と 12012 B のパケット) を
   確かめる形に書き直した。
+
+### `v0.35.0` で新しく破れていたもの
+
+v0.23〜v0.35 で入った口を約 170 通り当てて、約束の破れは 1 件だった (当てた範囲は
+[probes#26 のコメント](https://github.com/mokume-metal/probes/issues/26#issuecomment-6394028041))。mokume の `main` (`5a8afb1`) でも
+単独で出たので、Bug として起票した。
+
+| 領域 | 鍵 | 約束 | 何が起きたか | mokume |
+| --- | --- | --- | --- | --- |
+| 書き出し | `mp4ThinFrame` | 書き出せない組は作らない (`RenderRequest`)・書けなければ `Could not write …` と名乗る (`MovieWriter`) | `mokume render --out x.mp4` で 64×1 の作品を書くと、ファイルは 0 バイトで、子は何も名乗らず 0 で終わる。道具は版の食い違いと誤って案内する。64×2・`.mov`・`.gif`・連番は書ける。AVFoundation の H.264 が辺 1 で `completed` のまま 0 バイトを書き、`MovieFile` は状態しか見ない | [#3223](https://github.com/mokume-metal/mokume/issues/3223) |
+
+**再現は書き出しの子を exit test に閉じ込める。** 子 (`MOKUME_RENDER` を立てた `SketchApplication.run()`) は戻らずに
+プロセスごと終わるので、終わり方と書けたファイルを親で読む。終わり方の期待 (0 で終わる) は `withKnownIssue` の外に置いた —
+直り方が「中身を書く」でも「断って 0 以外で終わる」でも、どちらかで赤くなって知らせる。
 
 ## 結果 — mokume `v0.22.1`
 

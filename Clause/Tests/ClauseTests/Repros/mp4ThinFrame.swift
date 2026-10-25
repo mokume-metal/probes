@@ -1,4 +1,4 @@
-// repro: mokume#未起票
+// repro: mokume#3223
 //
 // `mokume render --out x.mp4` が子に渡すのと同じ `MOKUME_RENDER` を立てて `SketchApplication` を走らせ、
 // 幅 64・高さ 1 の作品を `.mp4` へ 5 枚書かせる。子は終了コード 0 で終わるのに、書けたファイルは 0 バイトで、
