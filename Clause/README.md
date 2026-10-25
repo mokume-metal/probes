@@ -32,16 +32,31 @@
 ## 走らせる
 
 ```bash
-swift test                              # 21 本のテスト。既知の問題 18 件で緑
+swift test                              # 21 本のテスト。v0.35.0 では既知の問題 0 件で緑
 python3 ../scripts/filing.py repro Clause <鍵>               # 再現 1 本を mokume だけのパッケージで
 python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokume の main で
 ```
 
 **`swift test` は緑で終わる。** 破れていたものは `withKnownIssue` で包んであり、「既知の問題」として数えられる
 (`v0.22.1` では 21 本のテストで 18 件)。同じ機械で 3 回回し、3 回とも 18 件だった。
+`v0.35.0` では 21 本のテストで 0 件で、同じ機械で 3 回回し、3 回とも 0 件だった。
 
 **mokume 側で直ると赤くなる。** 版を上げて直ったものがあると、そのテストは「Known issue was not recorded」で落ちる。
 そのときは包みを外し、下の表を書き換える。
+
+## 結果 — mokume `v0.35.0`
+
+**`v0.22.1` で破れていた 18 件は、17 件が直り、1 件は mokume が約束を改めた。** どの版で直ったかは、下の
+`v0.22.1` の表の「直った版」の列にある。直った 17 本は `withKnownIssue` を外したので、戻れば赤くなって知らせる。
+
+- **直った 17 件:** `v0.23.0`〜`v0.25.0` で、それぞれの起票を閉じた PR が入った。再現はそのまま残し、期待どおりに
+  通ることを確かめている。
+- **約束が改まった 1 件 (`udpLargeDatagram`・[mokume#2325](https://github.com/mokume-metal/mokume/issues/2325)):**
+  メンテナが「全長を受ける」ではなく案 B を選んだ。macOS の受け口が 9216 B を超える datagram を黙って切り、切れたものと
+  ちょうど 9216 B のものを見分けられないためである。いまの約束は「**1 つの datagram は 9215 B まで。9216 B 以上は
+  丸ごと捨てて数え、次のフレームで診断に出す**」(`UDPPort`・`OSCPort` の DocC)。再現を、この新しい約束の
+  境目の両側 (9215 B は全長で届く・9216 B 以上は届かずに知らせが出る・OSC の 9012 B と 12012 B のパケット) を
+  確かめる形に書き直した。
 
 ## 結果 — mokume `v0.22.1`
 
@@ -50,26 +65,26 @@ python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokum
 
 ### 破れていたもの
 
-| 領域 | 鍵 | 約束 | 何が起きたか | mokume |
-| --- | --- | --- | --- | --- |
-| 通信 | `udpEmptyDatagram` | 1 つの datagram が 1 つのメッセージになる (`UDPPort`)・落とさない列 (mokume ADR-0028) | 同じ送り元から `"a"`・`""`・`"b"`・`"c"` を続けて送ると `["a"]` だけが届く。空の datagram で繋ぎを閉じ、続けて届いた分を数えずに捨てる。OSC も 6 通中 1 通 | [#2324](https://github.com/mokume-metal/mokume/issues/2324) |
-| 通信 | `udpLargeDatagram` | 同上 | 9217・20000・65507 B の datagram が、どれも 9216 B に切れた文字列として届く (素の socket は全長を受ける)。OSC の 12000 B の blob は捨てられる | [#2325](https://github.com/mokume-metal/mokume/issues/2325) |
-| 通信 | `sendRefusedWarns` | 受け手のいない宛先への `send` は 1 度だけ診断に出す (`OSCPort`・`UDPPort` の `send`) | 10 回送って、どちらも 5 回知らせる | [#2326](https://github.com/mokume-metal/mokume/issues/2326) |
-| 時刻 | `jumpTimeNonFinite` | フレームごとに呼ぶ口は値を検め、安全な既定へ倒す (mokume ADR-0020 決定 5)・兄弟の `Movie.jump` は数でない値を断る | `jumpTime(.nan)`・`(.infinity)`・`(-.infinity)` の後、`time` がずっと非有限。止めて再開しても戻らず、知らせも無い | [#2327](https://github.com/mokume-metal/mokume/issues/2327) |
-| 時刻 | `pauseTimeObserved` | 観測の指定秒はずれに触れない。撮った後は作者の時計へ戻る (`Clock.swift`) | 時刻を指定した観測の枚で `pauseTime()` を呼ぶと、観測の秒 5.0 で止まる (期待 0.05) | [#2328](https://github.com/mokume-metal/mokume/issues/2328) |
-| JSON | `jsonNegativeOverflow` | `1e400` のように `Double` に収まらない数は読めない (`loadJSONObject`) | `1e400` は投げるが、`-1e400`・`-1.8e308` は投げずに -inf で読める | [#2329](https://github.com/mokume-metal/mokume/issues/2329) |
-| JSON・XML・表 | `floatText` | 数でない文字は NaN にし、キーごとに 1 度知らせる。前後の空白は落とす (`getFloat`) | `"nan"` は知らせずに NaN、`"inf"`・`"0x10"` は inf・16 として読む (3 種とも)。表のセル `"3\n"` は NaN (Processing は 3) | [#2330](https://github.com/mokume-metal/mokume/issues/2330) |
-| XML | `xmlCarriageReturn` | 壊れた行を添えて投げる。行は LF・CRLF・CR のどれで数えてもよい (`XMLFile`) | 4 行目で壊れた XML が、LF と CRLF なら line 4、CR だけなら line 1 | [#2331](https://github.com/mokume-metal/mokume/issues/2331) |
-| XML | `xmlEncodingDecl` | 文字は UTF-8 (`loadXML`) | UTF-8 として正しく読めたファイルを、宣言の `encoding="Shift_JIS"`・`"ISO-8859-1"` で解き直して投げる | [#2332](https://github.com/mokume-metal/mokume/issues/2332) |
-| SVG | `svgWidthOnly` | `width` / `height` と `viewBox` が書いてあれば、その大きさへ写す (`loadShape`) | 根に `width` だけ (または `height` だけ) を書くと、欠けた側が viewBox の大きさになり、等倍のままずれる (5000 画素のはずが 200) | [#2333](https://github.com/mokume-metal/mokume/issues/2333) |
-| SVG | `svgUniversalSelector` | 優先の順は CSS のとおり (`SVGFile`) | `rect{fill:red} *{fill:blue}` で矩形が青になる。`*` を要素名と同じ詳細度で、書いた順に上書きする | [#2334](https://github.com/mokume-metal/mokume/issues/2334) |
-| 立体 | `stlSmallAscii` | 文字の STL も読む。読めないとするのは 84 B に満たないファイルなど (`ModelFile+STL`) | 面が 1 つの文字の STL が、127 B なら投げ、末尾に空白を 1 つ足した 128 B なら読める (Model I/O が 128 B 未満を断る) | [#2335](https://github.com/mokume-metal/mokume/issues/2335) |
-| 立体 | `stlIndentedAscii` | `solid` で始まらない文字の STL (前に空白) は読めないとして返す (同上) | 前に空白 2 つの文字の STL がバイナリとして読まれ、三角形 5 枚・大きさ 1.86e34 のでたらめな形が返る | [#2336](https://github.com/mokume-metal/mokume/issues/2336) |
-| 立体 | `objMixedNormals` | 面の向きが書かれていなければ形から求める (`ModelFile`) | `vn` のある面と無い面が混ざると、無い面の向きが (0,0,1) になる (明るさ 0.707、期待 1.0) | [#2337](https://github.com/mokume-metal/mokume/issues/2337) |
-| 立体 | `stlZeroNormalMixed` | `0 0 0` の面は巻き方から求め、両面として扱う (`ModelFile+STL`) | 同じファイルに向きを書いた面があると片面になり、見る側と逆に巻いた面が真っ黒になる | [#2338](https://github.com/mokume-metal/mokume/issues/2338) |
-| 立体 | `objBadCorners` | 読み飛ばした行は `skippedLines` に数える | 5 角の面の 1 角だけが読めない (範囲外・0・数でない) と、その角を黙って落として四角形で読み、読み飛ばしは 0 | [#2339](https://github.com/mokume-metal/mokume/issues/2339) |
-| 表 | `saveTableBom` | 書いたファイルを `loadTable` で読み直すと、同じ表に戻る (`saveTable`) | 頭のセルが U+FEFF で始まると、読み直しで BOM として落ちる。1 列の表では行が 1 つ消える | [#2340](https://github.com/mokume-metal/mokume/issues/2340) |
-| 文字 | `textFileDirectory` | `.unreadable` は「見つかったが UTF-8 の文字として読めない」(`DataFailure`) | ディレクトリや読む権利の無いファイルも `.unreadable` になり、「UTF-8 で保存されているか確かめよ」と的外れに勧める | [#2341](https://github.com/mokume-metal/mokume/issues/2341) |
+| 領域 | 鍵 | 約束 | 何が起きたか | mokume | 直った版 |
+| --- | --- | --- | --- | --- | --- |
+| 通信 | `udpEmptyDatagram` | 1 つの datagram が 1 つのメッセージになる (`UDPPort`)・落とさない列 (mokume ADR-0028) | 同じ送り元から `"a"`・`""`・`"b"`・`"c"` を続けて送ると `["a"]` だけが届く。空の datagram で繋ぎを閉じ、続けて届いた分を数えずに捨てる。OSC も 6 通中 1 通 | [#2324](https://github.com/mokume-metal/mokume/issues/2324) | v0.24.0 |
+| 通信 | `udpLargeDatagram` | 同上 | 9217・20000・65507 B の datagram が、どれも 9216 B に切れた文字列として届く (素の socket は全長を受ける)。OSC の 12000 B の blob は捨てられる | [#2325](https://github.com/mokume-metal/mokume/issues/2325) | v0.23.0 (約束を改めた) |
+| 通信 | `sendRefusedWarns` | 受け手のいない宛先への `send` は 1 度だけ診断に出す (`OSCPort`・`UDPPort` の `send`) | 10 回送って、どちらも 5 回知らせる | [#2326](https://github.com/mokume-metal/mokume/issues/2326) | v0.25.0 |
+| 時刻 | `jumpTimeNonFinite` | フレームごとに呼ぶ口は値を検め、安全な既定へ倒す (mokume ADR-0020 決定 5)・兄弟の `Movie.jump` は数でない値を断る | `jumpTime(.nan)`・`(.infinity)`・`(-.infinity)` の後、`time` がずっと非有限。止めて再開しても戻らず、知らせも無い | [#2327](https://github.com/mokume-metal/mokume/issues/2327) | v0.23.0 |
+| 時刻 | `pauseTimeObserved` | 観測の指定秒はずれに触れない。撮った後は作者の時計へ戻る (`Clock.swift`) | 時刻を指定した観測の枚で `pauseTime()` を呼ぶと、観測の秒 5.0 で止まる (期待 0.05) | [#2328](https://github.com/mokume-metal/mokume/issues/2328) | v0.23.0 |
+| JSON | `jsonNegativeOverflow` | `1e400` のように `Double` に収まらない数は読めない (`loadJSONObject`) | `1e400` は投げるが、`-1e400`・`-1.8e308` は投げずに -inf で読める | [#2329](https://github.com/mokume-metal/mokume/issues/2329) | v0.24.0 |
+| JSON・XML・表 | `floatText` | 数でない文字は NaN にし、キーごとに 1 度知らせる。前後の空白は落とす (`getFloat`) | `"nan"` は知らせずに NaN、`"inf"`・`"0x10"` は inf・16 として読む (3 種とも)。表のセル `"3\n"` は NaN (Processing は 3) | [#2330](https://github.com/mokume-metal/mokume/issues/2330) | v0.24.0 |
+| XML | `xmlCarriageReturn` | 壊れた行を添えて投げる。行は LF・CRLF・CR のどれで数えてもよい (`XMLFile`) | 4 行目で壊れた XML が、LF と CRLF なら line 4、CR だけなら line 1 | [#2331](https://github.com/mokume-metal/mokume/issues/2331) | v0.24.0 |
+| XML | `xmlEncodingDecl` | 文字は UTF-8 (`loadXML`) | UTF-8 として正しく読めたファイルを、宣言の `encoding="Shift_JIS"`・`"ISO-8859-1"` で解き直して投げる | [#2332](https://github.com/mokume-metal/mokume/issues/2332) | v0.24.0 |
+| SVG | `svgWidthOnly` | `width` / `height` と `viewBox` が書いてあれば、その大きさへ写す (`loadShape`) | 根に `width` だけ (または `height` だけ) を書くと、欠けた側が viewBox の大きさになり、等倍のままずれる (5000 画素のはずが 200) | [#2333](https://github.com/mokume-metal/mokume/issues/2333) | v0.25.0 |
+| SVG | `svgUniversalSelector` | 優先の順は CSS のとおり (`SVGFile`) | `rect{fill:red} *{fill:blue}` で矩形が青になる。`*` を要素名と同じ詳細度で、書いた順に上書きする | [#2334](https://github.com/mokume-metal/mokume/issues/2334) | v0.23.0 |
+| 立体 | `stlSmallAscii` | 文字の STL も読む。読めないとするのは 84 B に満たないファイルなど (`ModelFile+STL`) | 面が 1 つの文字の STL が、127 B なら投げ、末尾に空白を 1 つ足した 128 B なら読める (Model I/O が 128 B 未満を断る) | [#2335](https://github.com/mokume-metal/mokume/issues/2335) | v0.25.0 |
+| 立体 | `stlIndentedAscii` | `solid` で始まらない文字の STL (前に空白) は読めないとして返す (同上) | 前に空白 2 つの文字の STL がバイナリとして読まれ、三角形 5 枚・大きさ 1.86e34 のでたらめな形が返る | [#2336](https://github.com/mokume-metal/mokume/issues/2336) | v0.25.0 |
+| 立体 | `objMixedNormals` | 面の向きが書かれていなければ形から求める (`ModelFile`) | `vn` のある面と無い面が混ざると、無い面の向きが (0,0,1) になる (明るさ 0.707、期待 1.0) | [#2337](https://github.com/mokume-metal/mokume/issues/2337) | v0.25.0 |
+| 立体 | `stlZeroNormalMixed` | `0 0 0` の面は巻き方から求め、両面として扱う (`ModelFile+STL`) | 同じファイルに向きを書いた面があると片面になり、見る側と逆に巻いた面が真っ黒になる | [#2338](https://github.com/mokume-metal/mokume/issues/2338) | v0.25.0 |
+| 立体 | `objBadCorners` | 読み飛ばした行は `skippedLines` に数える | 5 角の面の 1 角だけが読めない (範囲外・0・数でない) と、その角を黙って落として四角形で読み、読み飛ばしは 0 | [#2339](https://github.com/mokume-metal/mokume/issues/2339) | v0.25.0 |
+| 表 | `saveTableBom` | 書いたファイルを `loadTable` で読み直すと、同じ表に戻る (`saveTable`) | 頭のセルが U+FEFF で始まると、読み直しで BOM として落ちる。1 列の表では行が 1 つ消える | [#2340](https://github.com/mokume-metal/mokume/issues/2340) | v0.24.0 |
+| 文字 | `textFileDirectory` | `.unreadable` は「見つかったが UTF-8 の文字として読めない」(`DataFailure`) | ディレクトリや読む権利の無いファイルも `.unreadable` になり、「UTF-8 で保存されているか確かめよ」と的外れに勧める | [#2341](https://github.com/mokume-metal/mokume/issues/2341) | v0.23.0 |
 
 ### 起票しなかったもの
 
@@ -118,5 +133,7 @@ python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokum
 **`Package.resolved` が固定している版がそのまま答えで、コミットしてある** (`v0.22.1` = `c364136`)。
 `from: "0.22.1"` は他の物差しと同じく記録であって、留め金ではない。18 件は mokume の `main` (`e7af450`) でも再現が単独で
 出ることを確かめた (`python3 scripts/filing.py repro Clause <鍵> --mokume main`)。
+
+`v0.35.0` (`22c7400`) へ上げたときは、版だけを上げた PR (#80) で 17 本が赤くなるのを見てから包みを外した。
 
 版を上げたら `swift test` を回す。**赤くなったテストは、直った約束である。**
