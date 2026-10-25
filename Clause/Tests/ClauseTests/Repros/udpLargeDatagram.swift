@@ -3,9 +3,14 @@
 import Foundation
 import mokume
 
-/// 9216 バイトを超える datagram を受けると、mokume は先頭 9216 バイトだけを 1 つのメッセージとして
-/// 渡す。UDP (createUDP) では、黙って短い別の文字列になる。OSC では読めないものとして捨てられる。
-/// 同じ datagram を素の socket で受けると、全長が届く (陰性対照)。
+/// v0.22.1 では、9216 バイトを超える datagram を受けると、mokume は先頭 9216 バイトだけを 1 つの
+/// メッセージとして渡していた (UDP では黙って短い別の文字列になり、OSC では捨てられた)。
+///
+/// mokume#2325 は案 B で閉じ、約束が改まった (v0.35.0 の `UDPPort`・`OSCPort` の DocC):
+/// **1 つの datagram は 9215 バイトまで。9216 バイト以上は丸ごと捨てて数え、次のフレームで診断に出す**
+/// (切れたものと見分けられないので、ちょうど 9216 バイトのものも捨てる)。OSC のパケットも同じ境目である。
+/// ここではその新しい約束を、境目の両側で確かめる。同じ datagram を素の socket で受けると全長が届く
+/// (送れていることの陰性対照)。
 @MainActor
 enum UdpLargeDatagram {
     final class Host: Sketch {
@@ -51,23 +56,51 @@ enum UdpLargeDatagram {
         setsockopt(sender, SOL_SOCKET, SO_SNDBUF, &buffer, 4)
 
         var report: [String] = []
-        for size in [9216, 9217, 20000, 65507] {
-            lengths = []
-            send(sender, [UInt8](repeating: 0x61, count: size), to: udpPort)
-            send(sender, [UInt8](repeating: 0x61, count: size), to: rawPort)
-            try frames(5)
-            var scratch = [UInt8](repeating: 0, count: 70000)
-            let rawLength = recv(receiver, &scratch, scratch.count, 0)
-            if lengths != [size] { report.append("\(size) B -> mokume messages \(lengths) (raw socket got \(rawLength))") }
+        // 境目の手前は全長で 1 つ届き、境目から先は何も届かない
+        let said = capturingStandardError {
+            for size in [9215, 9216, 9217, 20000, 65507] {
+                lengths = []
+                send(sender, [UInt8](repeating: 0x61, count: size), to: udpPort)
+                send(sender, [UInt8](repeating: 0x61, count: size), to: rawPort)
+                try? frames(5)
+                var scratch = [UInt8](repeating: 0, count: 70000)
+                let rawLength = recv(receiver, &scratch, scratch.count, 0)
+                let expected = size < 9216 ? [size] : []
+                if rawLength != size { report.append("control broke: raw socket got \(rawLength) of \(size) B") }
+                if lengths != expected { report.append("\(size) B -> mokume messages \(lengths) (expected \(expected))") }
+            }
+            for blobSize in [9000, 12000] {
+                blobs = []
+                var packet: [UInt8] = Array("/b".utf8) + [0, 0] + Array(",b".utf8) + [0, 0]
+                packet += (0..<4).map { UInt8(truncatingIfNeeded: blobSize >> (24 - 8 * $0)) }
+                packet += [UInt8](repeating: 7, count: blobSize)
+                send(sender, packet, to: oscPort)
+                try? frames(5)
+                let expected = packet.count < 9216 ? [blobSize] : []
+                if blobs != expected { report.append("OSC blob of \(blobSize) B (\(packet.count) B datagram) -> blobs \(blobs) (expected \(expected))") }
+            }
         }
-        let blobSize = 12000
-        var packet: [UInt8] = Array("/b".utf8) + [0, 0] + Array(",b".utf8) + [0, 0]
-        packet += (0..<4).map { UInt8(truncatingIfNeeded: blobSize >> (24 - 8 * $0)) }
-        packet += [UInt8](repeating: 7, count: blobSize)
-        send(sender, packet, to: oscPort)
-        try frames(5)
-        if blobs != [blobSize] { report.append("OSC blob of \(blobSize) B (\(packet.count) B datagram) -> blobs \(blobs)") }
+        // 捨てたものは数えて知らせる (黙って捨てない)
+        if !said.contains("udp ") || !said.contains("osc ") || !said.contains("discarded") {
+            report.append("the dropped datagrams were not announced (stderr: \(said.debugDescription))")
+        }
         return report.isEmpty ? nil : report.joined(separator: "; ")
+    }
+
+    /// 標準エラーへ出た文字を拾いながら `body` を走らせる。
+    private static func capturingStandardError(_ body: () -> Void) -> String {
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("stderr-\(UUID()).txt")
+        FileManager.default.createFile(atPath: file.path, contents: nil)
+        fflush(stderr)
+        let saved = dup(fileno(stderr))
+        let fd = open(file.path, O_WRONLY)
+        dup2(fd, fileno(stderr))
+        body()
+        fflush(stderr)
+        dup2(saved, fileno(stderr))
+        close(saved)
+        close(fd)
+        return (try? String(contentsOf: file, encoding: .utf8)) ?? ""
     }
 
     private static func address(_ port: Int) -> sockaddr_in {
