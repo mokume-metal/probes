@@ -11,7 +11,7 @@ let package = Package(
     dependencies: [
         // 他の作品と同じく、**どの版で測ったかは Package.resolved が持つ**。版を上げて
         // 直ったものがあれば、`withKnownIssue` が「起きなかった」で赤くなって知らせる
-        .package(url: "https://github.com/mokume-metal/mokume.git", from: "0.22.1")
+        .package(url: "https://github.com/mokume-metal/mokume.git", from: "0.35.0")
     ],
     targets: [
         .executableTarget(
