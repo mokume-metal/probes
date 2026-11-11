@@ -33,7 +33,7 @@ extension Entries {
                   c.image(img, 16, 16, 64, 64)
               }),
         Entry(section: .image, reference: "get() / set()", verdict: .same, mokume: "get(x, y) / set(x, y, c)",
-              note: "領域を切り出す get(x, y, w, h) は無い",
+              note: "領域を切り出す get(x, y, w, h) は無い", issue: "mokume#3714",
               tile: .picture { c, _ in
                   for x in 20..<76 { for y in 44..<52 { c.set(x, y, color(90, 200, 230)) } }
                   _ = c.get(10, 10)
@@ -56,16 +56,17 @@ extension Entries {
                   c.image(r.sample, 16, 16, 64, 64)
                   c.effects([.invert()])
               }),
-        Entry(section: .image, reference: "filter(THRESHOLD / POSTERIZE / ERODE / DILATE)", verdict: .write, mokume: "threshold (Support)",
-              note: "効果に閾値・階調の削減・膨張収縮が無い。画素を 1 つずつ書く",
+        Entry(section: .image, reference: "filter(THRESHOLD)", verdict: .renamed, mokume: "effects([.threshold(level:)])",
+              note: "閾値は明るさ (3 成分の最大) で測り、手本と同じ量。v0.45.0 までに入った",
               tile: .picture { c, r in
-                  let img = try! r.createImage(32, 32)
-                  for y in 0..<32 { for x in 0..<32 { img.set(x, y, color(Float(x + y) * 4)) } }
-                  threshold(img)
-                  c.image(img, 16, 16, 64, 64)
+                  c.image(r.sample, 16, 16, 64, 64)
+                  c.effects([.threshold(level: 0.5)])
               }),
+        Entry(section: .image, reference: "filter(POSTERIZE / ERODE / DILATE)", verdict: .none, mokume: "—",
+              note: "効果に階調の削減・膨張収縮が無い",
+              tile: .absent),
         Entry(section: .image, reference: "img.mask()", verdict: .write, mokume: "mask (Support)",
-              note: "get / set で画素を移し替えれば書ける",
+              note: "get / set で画素を移し替えれば書ける", issue: "mokume#3713",
               tile: .picture { c, r in
                   let img = try! r.createImage(32, 32), shape = try! r.createImage(32, 32)
                   img.fill(color(235, 120, 60))
@@ -77,7 +78,7 @@ extension Entries {
                   c.image(img, 16, 16, 64, 64)
               }),
         Entry(section: .image, reference: "img.resize()", verdict: .none, mokume: "—",
-              note: "絵そのものの大きさを変える口が無い。image() で置く大きさを変えるだけなら書ける",
+              note: "絵そのものの大きさを変える口が無い。image() で置く大きさを変えるだけなら書ける", issue: "mokume#3711",
               tile: .absent),
         Entry(section: .image, reference: "createGraphics()", verdict: .same, mokume: "try createGraphics(w, h) → beginDraw / endDraw",
               tile: .picture { c, r in
@@ -92,7 +93,7 @@ extension Entries {
                   return "save"
               }),
         Entry(section: .image, reference: "saveFrame(\"f-####.png\")", verdict: .renamed, mokume: "beginRecord(\"f-####.png\") / endRecord()",
-              note: "連番と .mov を綴りで分ける",
+              note: "連番と .mov・.mp4・.gif を綴りで分ける",
               tile: .value { r in
                   unreached { r.beginRecord("f-####.png"); r.endRecord() }
                   return "beginRecord"
@@ -145,11 +146,14 @@ extension Entries {
                   c.textFont("Menlo")
                   c.text("Menlo", 8, 56)
               }),
-        Entry(section: .type, reference: "loadFont(\"x.ttf\")", verdict: .none, mokume: "—",
-              note: "書体ファイルを読む口が無い。字形が環境で決まる (Atlas で 6 本を止める)",
-              tile: .absent),
+        Entry(section: .type, reference: "loadFont(\"x.ttf\")", verdict: .same, mokume: "try loadFont(path) → textFont(font)",
+              note: "ttf・otf・ttc・otc。環境へ登録しない。v0.45.0 までに入った",
+              tile: .value { r in
+                  unreached { if let f = try? r.loadFont("x.ttf") { r.textFont(f) } }
+                  return "loadFont"
+              }),
         Entry(section: .type, reference: "font.textToPoints()", verdict: .renamed, mokume: "textOutline(s, x, y) → [TextContour]",
-              note: "点の間隔 (sampleFactor) は取らない", issue: "mokume#1556",
+              note: "等間隔の点は textOutline(s, x, y, spacing:) で、間隔は画素で渡す (手本の sampleFactor は書体の単位に対する比)",
               tile: .picture { c, _ in
                   c.textSize(48)
                   c.strokeWeight(3)

@@ -19,32 +19,6 @@ func clockField(_ component: Calendar.Component) -> Int {
 // MARK: - 形
 
 extension Canvas {
-    /// 手本の `rect(x, y, w, h, r)` — 角の丸い矩形。4 隅を `quadraticVertex` で丸める。
-    /// **手本の角は円弧**で、これは 2 次曲線なので、丸みの形がわずかに違う。
-    func roundedRect(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ r: Float) {
-        let r = min(r, w / 2, h / 2)
-        beginShape()
-        vertex(x + r, y)
-        vertex(x + w - r, y)
-        quadraticVertex(x + w, y, x + w, y + r)
-        vertex(x + w, y + h - r)
-        quadraticVertex(x + w, y + h, x + w - r, y + h)
-        vertex(x + r, y + h)
-        quadraticVertex(x, y + h, x, y + h - r)
-        vertex(x, y + r)
-        quadraticVertex(x, y, x + r, y)
-        endShape(.close)
-    }
-
-    /// 手本の `bezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)` — 1 行で描く 3 次曲線。
-    func bezier(_ x1: Float, _ y1: Float, _ cx1: Float, _ cy1: Float,
-                _ cx2: Float, _ cy2: Float, _ x2: Float, _ y2: Float) {
-        beginShape()
-        vertex(x1, y1)
-        bezierVertex(cx1, cy1, cx2, cy2, x2, y2)
-        endShape()
-    }
-
     /// 手本の `curve(x1, y1, x2, y2, x3, y3, x4, y4)` — 1 行で描く Catmull-Rom の区間。
     func curve(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float,
                _ x3: Float, _ y3: Float, _ x4: Float, _ y4: Float) {
@@ -57,12 +31,6 @@ extension Canvas {
     }
 }
 
-/// 手本の `bezierPoint(a, b, c, d, t)`。
-func bezierPoint(_ a: Float, _ b: Float, _ c: Float, _ d: Float, _ t: Float) -> Float {
-    let u = 1 - t
-    return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d
-}
-
 /// 手本の `curvePoint(a, b, c, d, t)` (張りは既定の 0)。
 func curvePoint(_ a: Float, _ b: Float, _ c: Float, _ d: Float, _ t: Float) -> Float {
     let t2 = t * t, t3 = t2 * t
@@ -70,18 +38,6 @@ func curvePoint(_ a: Float, _ b: Float, _ c: Float, _ d: Float, _ t: Float) -> F
 }
 
 // MARK: - 画像
-
-/// 手本の `filter(THRESHOLD, level)`。効果 (`Effect`) に閾値が無いので、画素を 1 つずつ書く。
-/// 手本と同じく**表示値の明るさ**で分ける (`red()` などは 0–255 の表示値を返す)。
-func threshold(_ image: Image, _ level: Float = 0.5) {
-    for y in 0..<image.height {
-        for x in 0..<image.width {
-            let c = image.get(x, y)
-            let gray = 0.2126 * red(c) + 0.7152 * green(c) + 0.0722 * blue(c)
-            image.set(x, y, color(gray >= level * 255 ? 255 : 0, alpha(c)))
-        }
-    }
-}
 
 /// 手本の `img.mask(other)` (Processing の形 — 覆いの青の表示値を不透明度にする)。
 /// **`get` / `set` で画素を移し替えれば書ける** (Atlas と同じ判定)。成分は乗算済みなので、
@@ -92,41 +48,5 @@ func mask(_ image: Image, by other: Image) {
             let c = image.get(x, y), k = blue(other.get(x, y)) / 255
             image.set(x, y, LinearRGBA(premultipliedRed: c.red * k, green: c.green * k, blue: c.blue * k, alpha: c.alpha * k))
         }
-    }
-}
-
-// MARK: - 数
-
-extension Sketch {
-    /// 手本の `randomGaussian(mean, sd)`。`random()` の列から Box–Muller で作る。
-    func randomGaussian(_ mean: Float = 0, _ sd: Float = 1) -> Float {
-        let u1 = max(random(), .leastNormalMagnitude)
-        let u2 = random()
-        return mean + sd * (-2 * log(u1)).squareRoot() * cos(2 * .pi * u2)
-    }
-}
-
-/// 手本の `dist(x1, y1, x2, y2)`。
-func dist(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float) -> Float {
-    ((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)).squareRoot()
-}
-
-/// 手本の `mag(x, y)`。
-func mag(_ x: Float, _ y: Float) -> Float { (x * x + y * y).squareRoot() }
-
-/// 手本の `sq(n)`。
-func sq(_ n: Float) -> Float { n * n }
-
-/// 手本の `PVector` のメソッドのうち、よく使うもの。**型は `SIMD2<Float>` で当たるが、
-/// メソッドが 1 つも無い** (`simd_normalize` などは `import simd` を要し、アンブレラは通さない)。
-extension SIMD2<Float> {
-    static func fromAngle(_ angle: Float) -> Self { Self(cos(angle), sin(angle)) }
-    var mag: Float { (x * x + y * y).squareRoot() }
-    var heading: Float { atan2(y, x) }
-    func normalized() -> Self { mag == 0 ? self : self / mag }
-    func limited(_ max: Float) -> Self { mag > max ? normalized() * max : self }
-    func withMag(_ length: Float) -> Self { normalized() * length }
-    func rotated(_ angle: Float) -> Self {
-        Self(x * cos(angle) - y * sin(angle), x * sin(angle) + y * cos(angle))
     }
 }

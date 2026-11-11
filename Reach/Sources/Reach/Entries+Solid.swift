@@ -21,15 +21,13 @@ extension Entries {
         Entry(section: .solid, reference: "sphere(r, detailX, detailY)", verdict: .renamed, mokume: "sphere(r, detail:)",
               note: "細かさは 1 つの数。Processing の sphereDetail() も同じ",
               tile: .picture { c, _ in stage(c); c.sphere(32, detail: 6) }),
-        Entry(section: .solid, reference: "3 次元の line() / point()", verdict: .bend, mokume: "beginShape(.lines) + vertex(x, y, z)",
-              note: "line / point は 2 次元の引数しか取らない。1 行が 4 行になる (Atlas の MoveEye)",
+        Entry(section: .solid, reference: "3 次元の line() / point()", verdict: .same, mokume: "line(x1, y1, z1, x2, y2, z2) / point(x, y, z)",
+              note: "v0.45.0 までに入った",
               tile: .picture { c, _ in
                   stage(c)
                   c.stroke(240)
-                  c.beginShape(.lines)
-                  c.vertex(-30, 0, -30); c.vertex(30, 0, 30)
-                  c.vertex(-30, -30, 0); c.vertex(30, 30, 0)
-                  c.endShape()
+                  c.line(-30, 0, -30, 30, 0, 30)
+                  c.line(-30, -30, 0, 30, 30, 0)
               }),
         Entry(section: .solid, reference: "camera() / perspective() / ortho()", verdict: .same, mokume: "同名・同じ引数",
               tile: .picture { c, _ in
@@ -81,16 +79,19 @@ extension Entries {
                   c.box(44)
               }),
         Entry(section: .solid, reference: "textureMode(NORMAL) / textureWrap(REPEAT)", verdict: .none, mokume: "—",
-              note: "u, v の目盛りと繰り返しを選ぶ口が無い",
+              note: "u, v の目盛りと繰り返しを選ぶ口が無い", issue: "mokume#3717",
               tile: .absent),
         Entry(section: .solid, reference: "loadModel() / model()", verdict: .same, mokume: "try loadModel(path) / model(m)",
-              note: "OBJ だけ。loadShape (SVG) は無い",
+              note: "OBJ と STL。SVG は loadShape",
               tile: .value { r in
                   unreached { if let m = try? r.loadModel("a.obj") { r.model(m) } }
                   return "OBJ"
               }),
-        Entry(section: .solid, reference: "loadShape(\"a.svg\")", verdict: .none, mokume: "—",
-              note: "SVG を読む口が無い (Atlas で 6 本を止める)",
-              tile: .absent),
+        Entry(section: .solid, reference: "loadShape(\"a.svg\")", verdict: .same, mokume: "try loadShape(path) → shape(s, x, y)",
+              note: "SVG を形として読む。OBJ・STL は loadModel。v0.45.0 までに入った",
+              tile: .value { r in
+                  unreached { if let s = try? r.loadShape("a.svg") { r.shape(s, 0, 0) } }
+                  return "SVG"
+              }),
     ]
 }
