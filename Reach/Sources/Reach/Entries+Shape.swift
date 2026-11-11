@@ -11,9 +11,9 @@ extension Entries {
               tile: .picture { c, _ in c.line(10, 10, s - 10, s - 10) }),
         Entry(section: .shape, reference: "rect()", verdict: .same, mokume: "rect(x, y, w, h)",
               tile: .picture { c, _ in c.rect(16, 24, 64, 48) }),
-        Entry(section: .shape, reference: "rect(x, y, w, h, r)", verdict: .write, mokume: "roundedRect (Support)",
-              note: "角を丸める 5〜8 番目の引数が無い。quadraticVertex で書けるが、角は円弧でなく 2 次曲線になる",
-              tile: .picture { c, _ in c.roundedRect(16, 24, 64, 48, 14) }),
+        Entry(section: .shape, reference: "rect(x, y, w, h, r)", verdict: .same, mokume: "rect(x, y, w, h, r)",
+              note: "4 隅を別々の半径で丸める 8 引数の形は無い。半径は短い辺の半分で止まる。v0.45.0 までに入った",
+              tile: .picture { c, _ in c.rect(16, 24, 64, 48, 14) }),
         Entry(section: .shape, reference: "square()", verdict: .same, mokume: "square(x, y, s)",
               tile: .picture { c, _ in c.square(24, 24, 48) }),
         Entry(section: .shape, reference: "ellipse() / circle()", verdict: .same, mokume: "ellipse / circle",
@@ -23,32 +23,33 @@ extension Entries {
               }),
         Entry(section: .shape, reference: "arc()", verdict: .same, mokume: "arc(x, y, w, h, start, stop)",
               tile: .picture { c, _ in c.arc(m, m, 70, 70, 0, 4) }),
-        Entry(section: .shape, reference: "arc(…, PIE / CHORD / OPEN)", verdict: .none, mokume: "—",
-              note: "閉じ方の 7 番目の引数が無い。扇 (PIE) の形しか描けない",
-              tile: .absent),
+        Entry(section: .shape, reference: "arc(…, PIE / CHORD / OPEN)", verdict: .renamed, mokume: "arc(x, y, w, h, start, stop, .pie / .chord / .open)",
+              note: "渡さないときは塗りが扇・輪郭が開いた弧で、手本の既定と同じ。.open の塗りは弦で結んだ形になる。v0.45.0 までに入った",
+              tile: .picture { c, _ in c.arc(m, m, 70, 70, 0, 4, .chord) }),
         Entry(section: .shape, reference: "triangle()", verdict: .same, mokume: "triangle(…)",
               tile: .picture { c, _ in c.triangle(m, 12, s - 12, s - 16, 12, s - 16) }),
         Entry(section: .shape, reference: "quad()", verdict: .same, mokume: "quad(…)",
               tile: .picture { c, _ in c.quad(20, 16, s - 12, 28, s - 24, s - 16, 12, s - 30) }),
-        Entry(section: .shape, reference: "bezier()", verdict: .write, mokume: "bezier (Support)",
-              note: "1 行で曲線を描く口が無い。beginShape + bezierVertex の 4 行になる",
+        Entry(section: .shape, reference: "bezier()", verdict: .same, mokume: "bezier(x1, y1, …, x4, y4)",
+              note: "v0.45.0 までに入った",
               tile: .picture { c, _ in
                   c.noFill()
                   c.bezier(10, 80, 20, 0, 76, 96, 86, 16)
               }),
         Entry(section: .shape, reference: "curve()", verdict: .write, mokume: "curve (Support)",
-              note: "1 行で描く口が無い。curveVertex 4 つで書く",
+              note: "1 行で描く口が無い。curveVertex 4 つで書く", issue: "mokume#3710",
               tile: .picture { c, _ in
                   c.noFill()
                   c.curve(0, 96, 16, 70, 80, 26, 96, 0)
               }),
-        Entry(section: .shape, reference: "bezierPoint() / curvePoint()", verdict: .write, mokume: "bezierPoint (Support)",
-              note: "曲線の上の点・接線を返す口が無い",
+        Entry(section: .shape, reference: "bezierPoint() / curvePoint()", verdict: .write, mokume: "bezierPoint / bezierTangent・curvePoint (Support)",
+              note: "bezierPoint は v0.45.0 までに入った。curvePoint は無い", issue: "mokume#3710",
               tile: .picture { c, _ in
                   c.strokeWeight(6)
                   for i in 0...8 {
                       let t = Float(i) / 8
                       c.point(bezierPoint(10, 20, 76, 86, t), bezierPoint(80, 0, 96, 16, t))
+                      c.point(curvePoint(0, 16, 80, 96, t), curvePoint(96, 70, 26, 0, t))
                   }
               }),
         Entry(section: .shape, reference: "beginShape() / vertex()", verdict: .same, mokume: "beginShape / vertex / endShape(.close)",

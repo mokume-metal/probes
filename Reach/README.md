@@ -1,4 +1,4 @@
-# Reach — Processing / p5.js のよく使う口に mokume v0.16.2 が届くか
+# Reach — Processing / p5.js のよく使う口に mokume v0.45.0 が届くか
 
 **作品ではなく物差しである。** Atlas が Processing の *Examples* を全数で当てて「どの欠けが何本の例を止めるか」を数えるのに対し、Reach は *リファレンス* の側から**作品を作るときにまず使う口**を百余り並べ、1 口 1 タイルで実際に mokume で書いてみる。
 
@@ -26,19 +26,19 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 
 **`swift test` が見ているのは「届くと判定した口が、描いて何かを置くか」まで。** 手本と同じ画素が出るかは見ない (mokume は手本の名前と引数の順序までを採り、画素は約束しない — mokume ADR-0020 決定 1 の改訂)。約束の破れを突くのは Probe・Drift の仕事である。
 
-## 結果 — mokume `v0.16.2`
+## 結果 — mokume `v0.45.0`
 
 <!-- reach:summary -->
 | 判定 | 件数 | |
 | --- | ---: | --- |
-| `same` | 57 | 同名・同じ引数の形がある |
-| `renamed` | 26 | 口はあるが別名・別の形 |
-| `host` | 7 | Swift・Foundation の語彙で当たる |
+| `same` | 71 | 同名・同じ引数の形がある |
+| `renamed` | 31 | 口はあるが別名・別の形 |
+| `host` | 3 | Swift・Foundation の語彙で当たる |
 | `drop` | 2 | mokume では要らない |
-| `write` | 13 | 面の外に書けば済む (`Support.swift`) |
-| `bend` | 8 | 書けるが歪む |
-| `none` | 14 | 口が無い |
-| **合計** | **127** | |
+| `write` | 5 | 面の外に書けば済む (`Support.swift`) |
+| `bend` | 7 | 書けるが歪む |
+| `none` | 9 | 口が無い |
+| **合計** | **128** | |
 <!-- /reach:summary -->
 
 件数は一覧から起こしている (上の表は手で書かない)。
@@ -46,6 +46,14 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 **`v0.11.1` で測り始めたときは `same` 55・`write` 15 だった。** `v0.14.0` で `fill(rgb, alpha)` と `lerpColor()` が同じ形で入って `write` から `same` へ移り、`norm` も入った (`sq` が残るので行は `write` のまま)。`Support.swift` からは、その 3 つの書き足しを消した。
 
 **`v0.16.0` で `beginShape(QUADS)` が `.quads` で入った** (mokume#1551)。`QUADS / QUAD_STRIP` で 1 行だった `bend` を 2 行に割り、`QUADS` は `renamed`、`QUAD_STRIP` は `bend` のままにした (四角の帯は無い。三角形の帯が同じ面を覆う)。`Support.swift` には消す書き足しが無かった (QUADS は一覧のタイルで三角形 2 枚に割って書いていた)。`v0.14.0` → `v0.16.2` の公開 API は、消えた口 0・通らなくなった口 0・増えた口 7 で、増えたのは `textBounds` (`Canvas`・`Sketch`)・`TextBounds`・`VertexKind.quads` だけである。`textBounds` は手本の `textWidth` / `textAscent` / `textDescent` の行 (`same`) とは別の口で、行は増やしていない。
+
+**`v0.16.2` → `v0.45.0` で 24 行が動いた** (128 行のうち。`filter(THRESHOLD / POSTERIZE / ERODE / DILATE)` は、`THRESHOLD` だけ `Effect.threshold(level:)` で入ったので 2 行に割った)。
+
+- **穴が埋まった 17 行**: 角の丸い `rect`・`arc` の閉じ方・1 行の `bezier()`・`scale(s)`・`randomGaussian`・`dist` / `mag`・`sq`・`PVector` (`Vector2` / `Vector3`)・そのメソッド・3 次元の `line` / `point`・`loadShape` (SVG)・`loadFont`・`fullScreen`・`cursor` / `noCursor`・`filter(THRESHOLD)` は、`write` / `bend` / `none` から `same` / `renamed` へ移った。`erase` は `blendMode(.replace)` で書ける形が説明されたので `none` → `bend`。
+- **mokume の口ができて、Swift・Foundation の語彙から移った 5 行**: `random(array)`・`abs` ほか・`PI` ほか・`loadStrings` / `loadJSON`・`mouseDragged()` の引数なしの形。
+- **消えた口は `isKeyDown` だけ**で、`keyboard.isPressed(_:)` へ移った (mokume#2599)。`api-diff.py` の「消えた」の大半は、口が `protocol SketchPart` へ移ったか、`@MainActor` が `nonisolated` に変わっただけで、名前と形は残っている。
+- `Support.swift` から `roundedRect`・`bezier`・`bezierPoint`・`randomGaussian`・`dist`・`mag`・`sq`・`SIMD2` の拡張・`threshold` を消した。残る書き足しは `clockField`・`curve`・`curvePoint`・`mask` である。
+- 残る穴のうち、mokume が開いた Issue で入れる予定にしたものは行に付けた (`curve` / `curvePoint` は mokume#3710・`img.resize` は mokume#3711・`img.mask` は mokume#3713・`get(x, y, w, h)` は mokume#3714・`textureMode` は mokume#3717)。
 
 ### 分かったこと
 
@@ -69,13 +77,15 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | [#1553](https://github.com/mokume-metal/mokume/issues/1553) | Feature | `fill(rgb, alpha)` / `stroke(rgb, alpha)` | 2 作品 (Cast・Tempo は 1 字違わず同じ `Palette.fade`)。手本は不透明度を置き換えず掛ける (起票時の本文は置き換えると誤っていて、トリアージで直した) |
 | [#1554](https://github.com/mokume-metal/mokume/issues/1554) | Feature | 準備の実時間を測って観測へ出す口 (`millis()` の代わり) | 4 作品 (Apex・Cast・Quarry・Tempo) が `Date()` の差で準備の時間を測っている。描く値に実時間を混ぜないため、`millis()` はいまは足さない方向でトリアージした |
 | [#1555](https://github.com/mokume-metal/mokume/issues/1555) | Bug | `mouseButton` の値 | 同じ名前で macOS の釦の番号を運ぶ — `keyCode` を直した mokume ADR-0034 と同じ形 |
-| [#1572](https://github.com/mokume-metal/mokume/issues/1572) | Design | `deltaTime` の単位 | #1555 から切り出した。直し方 (ミリ秒にする / 名前を変える / 型で単位を名乗る) の判断待ち |
+| [#1572](https://github.com/mokume-metal/mokume/issues/1572) | Design | `deltaTime` の単位 | #1555 から切り出した。秒のまま、説明文で手本との違いを名乗る形で閉じた |
 | [#1556](https://github.com/mokume-metal/mokume/issues/1556) | Task | `isKeyDown`・`isMousePressed`・`textOutline`・`makeShader`・`beginRecord` ほかの名前 | 手本とずれていて理由が見当たらない |
 | [#1283](https://github.com/mokume-metal/mokume/issues/1283#issuecomment-5815642122) (コメント) | — | `norm` / `smoothstep` | 既存の 2 作品に加え、Grain・Quarry・Apex も手で書いていた |
 
 **`v0.14.0` で閉じたもの:** #1552 (`lerpColor`)・#1553 (`fill` / `stroke` の `(color, alpha)`)・#1555 (`mouseButton` が `MouseButton?` に)・#1283 の `norm` / `smoothstep` は、同じ名前で入った。#1554 は `millis()` を足さず、区間を測って観測へ出す `measure(_:_:)` で閉じた (描く値に実時間を混ぜないため、`millis()` の行は `bend` のまま)。#1551・#1572・#1556 は開いたままである。
 
 **`v0.16.0` で閉じたもの:** #1551 (`beginShape(QUADS)`) は `VertexKind.quads` で入った。#1572・#1556 は開いたままである。
+
+**`v0.45.0` までに閉じたもの:** #1572 は `deltaTime` を秒のまま、説明文で違いを名乗る形で閉じた (`bend` のまま)。#1556 は、mokume ADR-0020 が名前を改めないと決めて閉じた。#1323 (`frameRate` を走っている最中に変える) は、効かないことを 1 度だけ警告する形で閉じた (`bend` のまま)。#1542 は、`blendMode(.replace)` で α 0 を描くと下地が透明に抜けると説明に書いて閉じた (`erase` を `none` → `bend`)。
 
 ### 起票しなかったもの
 
@@ -101,13 +111,13 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `frameCount` | `same` | frameCount |  |
 | `deltaTime` | `bend` | deltaTime * 1000 | 同じ名前で単位が違う (手本はミリ秒、mokume は秒)。p5 のコードを写すと黙って 1000 倍ずれる — [mokume#1572](https://github.com/mokume-metal/mokume/issues/1572) |
 | `millis()` | `bend` | time * 1000 | `time` はそのフレームの時刻で、フレームの途中では進まない。処理の時間を測る使い方 (`millis() - t0`) は書けず、works の 4 作品が Date() で書いている。mokume は `millis()` を足さず、v0.14.0 で区間を測って観測へ出す `measure(_:_:)` を入れた (値はスケッチへ返らない) — [mokume#1554](https://github.com/mokume-metal/mokume/issues/1554) |
-| `frameRate(fps)` | `bend` | SketchSettings(frameRate:) | 起動のときだけ決まる。走っている最中の代入は黙って効かない — [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) |
+| `frameRate(fps)` | `bend` | SketchSettings(frameRate:) | 起動のときだけ決まる。走っている最中の代入は効かず、1 度だけ警告する — [mokume#1323](https://github.com/mokume-metal/mokume/issues/1323) |
 | `createCanvas(w, h)` | `renamed` | SketchSettings(width:height:) | Processing の size() |
 | `width / height` | `same` | width / height | Float で返る |
 | `pixelDensity(d)` | `renamed` | SketchSettings(pixelDensity:) | 起動のときだけ決まる |
 | `resizeCanvas() / windowResized()` | `none` | — | 面の大きさは起動のときに決まり、窓の大きさが変わったことを受ける口も無い |
-| `fullscreen()` | `none` | — | Processing の fullScreen()。SketchSettings に全画面の指定が無い |
-| `cursor() / noCursor()` | `none` | — | カーソルの形を変える口・隠す口が無い (一人称で捕まえる話は mokume#1144) |
+| `fullscreen()` | `renamed` | SketchSettings.fullScreen(display) | 起動のときに settings で返す。番号でディスプレイを選ぶ。v0.45.0 までに入った |
+| `cursor() / noCursor()` | `same` | cursor() / noCursor() | 形を選ぶ cursor(HAND) と画像を渡す形は無い。v0.45.0 までに入った |
 | `second() / hour() / year()` | `write` | clockField(.second) | 壁時計の値は Foundation の Calendar が持つ |
 | `push() / pop()` | `same` | push() / pop() |  |
 | `exit()` | `host` | Foundation.exit(0) | 後始末を通らずに止まる。窓を閉じる口は mokume に無い |
@@ -119,16 +129,16 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `point()` | `same` | point(x, y) |  |
 | `line()` | `same` | line(x1, y1, x2, y2) |  |
 | `rect()` | `same` | rect(x, y, w, h) |  |
-| `rect(x, y, w, h, r)` | `write` | roundedRect (Support) | 角を丸める 5〜8 番目の引数が無い。quadraticVertex で書けるが、角は円弧でなく 2 次曲線になる |
+| `rect(x, y, w, h, r)` | `same` | rect(x, y, w, h, r) | 4 隅を別々の半径で丸める 8 引数の形は無い。半径は短い辺の半分で止まる。v0.45.0 までに入った |
 | `square()` | `same` | square(x, y, s) |  |
 | `ellipse() / circle()` | `same` | ellipse / circle |  |
 | `arc()` | `same` | arc(x, y, w, h, start, stop) |  |
-| `arc(…, PIE / CHORD / OPEN)` | `none` | — | 閉じ方の 7 番目の引数が無い。扇 (PIE) の形しか描けない |
+| `arc(…, PIE / CHORD / OPEN)` | `renamed` | arc(x, y, w, h, start, stop, .pie / .chord / .open) | 渡さないときは塗りが扇・輪郭が開いた弧で、手本の既定と同じ。.open の塗りは弦で結んだ形になる。v0.45.0 までに入った |
 | `triangle()` | `same` | triangle(…) |  |
 | `quad()` | `same` | quad(…) |  |
-| `bezier()` | `write` | bezier (Support) | 1 行で曲線を描く口が無い。beginShape + bezierVertex の 4 行になる |
-| `curve()` | `write` | curve (Support) | 1 行で描く口が無い。curveVertex 4 つで書く |
-| `bezierPoint() / curvePoint()` | `write` | bezierPoint (Support) | 曲線の上の点・接線を返す口が無い |
+| `bezier()` | `same` | bezier(x1, y1, …, x4, y4) | v0.45.0 までに入った |
+| `curve()` | `write` | curve (Support) | 1 行で描く口が無い。curveVertex 4 つで書く — [mokume#3710](https://github.com/mokume-metal/mokume/issues/3710) |
+| `bezierPoint() / curvePoint()` | `write` | bezierPoint / bezierTangent・curvePoint (Support) | bezierPoint は v0.45.0 までに入った。curvePoint は無い — [mokume#3710](https://github.com/mokume-metal/mokume/issues/3710) |
 | `beginShape() / vertex()` | `same` | beginShape / vertex / endShape(.close) |  |
 | `beginShape(TRIANGLE_STRIP)` | `renamed` | beginShape(.triangleStrip) | POINTS / LINES / TRIANGLES / TRIANGLE_FAN も同じ形 |
 | `beginShape(QUADS)` | `renamed` | beginShape(.quads) | v0.16.0 で入った (mokume#1551)。4 点ずつ独立した四角として読み、塗りは三角形 2 枚に割る。線は 4 辺の輪郭だけで、対角線は引かない — [mokume#1551](https://github.com/mokume-metal/mokume/issues/1551) |
@@ -154,7 +164,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `colorMode(HSB)` | `bend` | color(hue:saturation:brightness:) | 目盛りを張り替える口は持たないと決めている (mokume ADR-0033 決定 4)。HSB で書く行ごとにラベルを付ける |
 | `lerpColor()` | `same` | lerpColor | v0.14.0 で入った。線形の光の量で混ぜるので、中間の色は手本より明るい (名前と引数の順だけを揃え、同じ中間色は約束しない) — [mokume#1552](https://github.com/mokume-metal/mokume/issues/1552) |
 | `clear()` | `renamed` | background(LinearRGBA.transparent) |  |
-| `erase() / noErase()` | `none` | — | 描いたところを透明へ抜く口が無い。blendMode(.replace) の α 0 は mokume#1542 で不具合として扱われている |
+| `erase() / noErase()` | `bend` | blendMode(.replace) + fill(LinearRGBA.transparent) | mokume#1542 で、.replace で α 0 を描くと下地が透明に抜けると説明に書かれた。手本の erase(strength) の「部分的に薄める」は置き換えになり、描き方も自分で戻す — [mokume#1542](https://github.com/mokume-metal/mokume/issues/1542) |
 | `blendMode(ADD)` | `renamed` | blendMode(.add) | BLEND / ADD / MULTIPLY / SCREEN / DIFFERENCE ほか 10 種 |
 
 #### 変換
@@ -163,7 +173,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | --- | --- | --- | --- |
 | `translate() / rotate()` | `same` | translate / rotate |  |
 | `scale(x, y)` | `same` | scale(x, y) |  |
-| `scale(s)` | `write` | scale(s, s) | 引数 1 つの一様な拡大が無い |
+| `scale(s)` | `same` | scale(s) | v0.45.0 までに入った |
 | `shearX() / shearY()` | `same` | shearX / shearY |  |
 | `applyMatrix()` | `renamed` | applyMatrix(Transform) | 6 つ / 16 個の数ではなく、Transform の値を組んで渡す |
 | `resetMatrix()` | `same` | resetMatrix() |  |
@@ -178,16 +188,17 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `imageMode(CENTER)` | `renamed` | imageMode(.center) |  |
 | `tint() / noTint()` | `same` | tint / noTint |  |
 | `createImage()` | `same` | try createImage(w, h) | 形式 (RGB / ARGB / ALPHA) の引数は取らない |
-| `get() / set()` | `same` | get(x, y) / set(x, y, c) | 領域を切り出す get(x, y, w, h) は無い |
+| `get() / set()` | `same` | get(x, y) / set(x, y, c) | 領域を切り出す get(x, y, w, h) は無い — [mokume#3714](https://github.com/mokume-metal/mokume/issues/3714) |
 | `pixels[] / loadPixels()` | `bend` | pixels[x, y] | 1 次元の並び (pixels[y * width + x]) が無く、2 次元の添字で読む。Image には pixels 自体が無い |
 | `updatePixels()` | `drop` | — | pixels へ書いた時点で面へ届くので要らない |
 | `filter(GRAY / INVERT / BLUR)` | `renamed` | effects([.monochrome(), .invert(), .blur(radius:)]) | 面ごとの効果として当たる。Image 1 枚に掛ける口ではない |
-| `filter(THRESHOLD / POSTERIZE / ERODE / DILATE)` | `write` | threshold (Support) | 効果に閾値・階調の削減・膨張収縮が無い。画素を 1 つずつ書く |
-| `img.mask()` | `write` | mask (Support) | get / set で画素を移し替えれば書ける |
-| `img.resize()` | `none` | — | 絵そのものの大きさを変える口が無い。image() で置く大きさを変えるだけなら書ける |
+| `filter(THRESHOLD)` | `renamed` | effects([.threshold(level:)]) | 閾値は明るさ (3 成分の最大) で測り、手本と同じ量。v0.45.0 までに入った |
+| `filter(POSTERIZE / ERODE / DILATE)` | `none` | — | 効果に階調の削減・膨張収縮が無い |
+| `img.mask()` | `write` | mask (Support) | get / set で画素を移し替えれば書ける — [mokume#3713](https://github.com/mokume-metal/mokume/issues/3713) |
+| `img.resize()` | `none` | — | 絵そのものの大きさを変える口が無い。image() で置く大きさを変えるだけなら書ける — [mokume#3711](https://github.com/mokume-metal/mokume/issues/3711) |
 | `createGraphics()` | `same` | try createGraphics(w, h) → beginDraw / endDraw |  |
 | `save() / saveCanvas()` | `same` | save(path) | 本体の面だけ。createGraphics の面を書き出す口は無い |
-| `saveFrame("f-####.png")` | `renamed` | beginRecord("f-####.png") / endRecord() | 連番と .mov を綴りで分ける |
+| `saveFrame("f-####.png")` | `renamed` | beginRecord("f-####.png") / endRecord() | 連番と .mov・.mp4・.gif を綴りで分ける |
 
 #### 字
 
@@ -199,29 +210,29 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `textWidth() / textAscent()` | `same` | textWidth / textAscent / textDescent / textLeading |  |
 | `textStyle(BOLD)` | `renamed` | textStyle(.bold) |  |
 | `textFont("Helvetica")` | `same` | textFont(name) | この環境にある書体の名前で引く |
-| `loadFont("x.ttf")` | `none` | — | 書体ファイルを読む口が無い。字形が環境で決まる (Atlas で 6 本を止める) |
-| `font.textToPoints()` | `renamed` | textOutline(s, x, y) → [TextContour] | 点の間隔 (sampleFactor) は取らない — [mokume#1556](https://github.com/mokume-metal/mokume/issues/1556) |
+| `loadFont("x.ttf")` | `same` | try loadFont(path) → textFont(font) | ttf・otf・ttc・otc。環境へ登録しない。v0.45.0 までに入った |
+| `font.textToPoints()` | `renamed` | textOutline(s, x, y) → [TextContour] | 等間隔の点は textOutline(s, x, y, spacing:) で、間隔は画素で渡す (手本の sampleFactor は書体の単位に対する比) |
 
 #### 数
 
 | 手本 | 判定 | mokume | 注 |
 | --- | --- | --- | --- |
 | `random() / randomSeed()` | `same` | random(low, high) / randomSeed |  |
-| `random(array)` | `host` | array.randomElement() | 手本の乱数列 (randomSeed) には乗らない |
-| `randomGaussian()` | `write` | randomGaussian (Support) | 正規分布の乱数が無い。random() から Box–Muller で書く |
+| `random(array)` | `same` | random(choices) | Optional で返る (空なら nil)。randomSeed の列に乗る。v0.45.0 までに入った |
+| `randomGaussian()` | `same` | randomGaussian() / randomGaussian(mean, sd) | random() と同じ列から引き、randomSeed に乗る。v0.45.0 までに入った |
 | `noise() / noiseSeed() / noiseDetail()` | `same` | noise(x, y, z) / noiseSeed / noiseDetail |  |
 | `map() / constrain() / lerp()` | `same` | map / constrain / lerp | constrain / lerp は v0.11.0 で入った |
-| `dist() / mag()` | `write` | dist / mag (Support) | 面に無い。simd_distance は import simd を要し、アンブレラは通さない |
-| `sq() / norm()` | `write` | sq (Support) / norm | norm は v0.14.0 で入った (smoothstep も)。sq は無い |
-| `abs() / floor() / pow() / sqrt()` | `host` | Swift の abs / floor / pow / squareRoot | floor / pow は Foundation を import する |
+| `dist() / mag()` | `same` | dist / mag | 2D と 3D の両方。Vector2・Vector3 を渡す形もある。v0.45.0 までに入った |
+| `sq() / norm()` | `same` | sq / norm | norm は v0.14.0 で入った (smoothstep も)。sq も v0.45.0 までに入った |
+| `abs() / floor() / pow() / sqrt()` | `same` | abs / floor / pow / sqrt | pow・sqrt・exp・log・floor・ceil・round はアンブレラが通すので Foundation は要らない (sin / cos と同じ扱い)。abs は Swift の標準 |
 | `sin() / cos() / atan2()` | `same` | sin / cos / tan / asin / acos / atan / atan2 | アンブレラが名指しで通す 7 本 (mokume ADR-0020 決定 7) |
 | `radians() / degrees()` | `same` | radians / degrees |  |
-| `PI / TWO_PI / HALF_PI` | `host` | Float.pi |  |
+| `PI / TWO_PI / HALF_PI` | `same` | PI / TWO_PI / HALF_PI | QUARTER_PI・TAU もある。v0.45.0 までに入った |
 | `angleMode(DEGREES)` | `drop` | — | 持たないと決めている。単位は呼んだ 1 行から読めるべき (mokume ADR-0020 決定 7 の改訂) |
-| `createVector() / PVector` | `bend` | SIMD2<Float> / SIMD3<Float> | 型は当たるが、add / mult は演算子で書き、normalize / limit / setMag / heading / fromAngle / rotate は 1 つも無い |
-| `PVector.normalize() / limit() / heading()` | `write` | extension SIMD2 (Support) |  |
+| `createVector() / PVector` | `renamed` | Vector2(x, y) / Vector3(x, y, z) | Processing の PVector に当たる型。add / mult は演算子で書く。v0.45.0 までに入った |
+| `PVector.normalize() / limit() / heading()` | `renamed` | normalized() / limited(to:) / angle / rotated(by:) / length | Vector2 のメソッド。setMag は無い (normalized() * n で書く)。v0.45.0 までに入った |
 | `nf() / str() / int()` | `host` | String(format:) / String() / Int() |  |
-| `shuffle() / sort() / append()` | `host` | Array の shuffled / sorted / append |  |
+| `shuffle() / sort() / append()` | `host` | Array の shuffled / sorted / append | shuffle だけは mokume にも入った (randomSeed の列に乗る)。sort / append は Swift のまま |
 
 #### 入力
 
@@ -232,11 +243,11 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `mouseIsPressed` | `renamed` | isMousePressed | Processing の変数 mousePressed は関数と同名になり Swift では並べられない。p5 の mouseIsPressed でもない綴りになっている — [mokume#1556](https://github.com/mokume-metal/mokume/issues/1556) |
 | `mouseButton === LEFT` | `renamed` | mouseButton == .left | v0.14.0 で型が MouseButton? になった。LEFT / RIGHT / CENTER は .left / .right / .center と書き、写した数との比較はコンパイルで止まる — [mokume#1555](https://github.com/mokume-metal/mokume/issues/1555) |
 | `mousePressed() / mouseReleased() / mouseClicked()` | `same` | 同名の関数を書く | mouseMoved() も同名。v0.6.0 で入った (mokume#723) |
-| `mouseDragged()` | `renamed` | mouseDragged(deltaX:deltaY:) | 引数で動いた量を受ける |
+| `mouseDragged()` | `same` | mouseDragged() / mouseDragged(deltaX:deltaY:) | 引数なしの形も入った。動いた量が要るときは引数つきの形で受ける |
 | `mouseWheel(event)` | `renamed` | mouseWheel(deltaX:deltaY:) |  |
 | `doubleClicked()` | `none` | — | 2 度押しを受ける口が無い。mouseClicked() の間隔を自分で測れば書ける |
 | `key / keyCode` | `renamed` | key (String) / keyCode (Key?) | keyCode は手本の数ではなく Key の値 (mokume ADR-0034) |
-| `keyIsDown(LEFT_ARROW)` | `renamed` | isKeyDown(.arrowLeft) | 引数を Key で受けるのは mokume ADR-0034。語順が手本と違う理由は見当たらない — [mokume#1556](https://github.com/mokume-metal/mokume/issues/1556) |
+| `keyIsDown(LEFT_ARROW)` | `renamed` | keyboard.isPressed(.arrowLeft) | v0.45.0 で isKeyDown は消え、押下を問う語は keyboard の isPressed / justPressed / justReleased になった (mokume ADR-0034 決定 7)。引数を Key で受けるのは ADR-0034 — [mokume#2599](https://github.com/mokume-metal/mokume/issues/2599) |
 | `keyPressed() / keyReleased() / keyTyped()` | `same` | 同名の関数を書く |  |
 | `keyIsPressed` | `write` | keyPressed / keyReleased で数える | 何かのキーが押されているかを読む値が無い。Processing は変数の keyPressed |
 
@@ -248,7 +259,7 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `sphere() / ellipsoid()` | `same` | sphere(r) / ellipsoid(x, y, z) |  |
 | `plane() / cone() / cylinder() / torus()` | `same` | 同名 |  |
 | `sphere(r, detailX, detailY)` | `renamed` | sphere(r, detail:) | 細かさは 1 つの数。Processing の sphereDetail() も同じ |
-| `3 次元の line() / point()` | `bend` | beginShape(.lines) + vertex(x, y, z) | line / point は 2 次元の引数しか取らない。1 行が 4 行になる (Atlas の MoveEye) |
+| `3 次元の line() / point()` | `same` | line(x1, y1, z1, x2, y2, z2) / point(x, y, z) | v0.45.0 までに入った |
 | `camera() / perspective() / ortho()` | `same` | 同名・同じ引数 |  |
 | `frustum()` | `none` | — | 視錐台を 6 つの数で渡す口が無い |
 | `orbitControl()` | `same` | orbitControl() |  |
@@ -258,15 +269,15 @@ REACH_WRITE_README=1 swift test    # 一覧を直したら、下の表を書き�
 | `shininess() / emissiveMaterial()` | `renamed` | shininess / emissive / metalness |  |
 | `normalMaterial()` | `none` | — | 面の向きを色にする塗りが無い (断片の側では書ける) |
 | `texture()` | `same` | texture(img) |  |
-| `textureMode(NORMAL) / textureWrap(REPEAT)` | `none` | — | u, v の目盛りと繰り返しを選ぶ口が無い |
-| `loadModel() / model()` | `same` | try loadModel(path) / model(m) | OBJ だけ。loadShape (SVG) は無い |
-| `loadShape("a.svg")` | `none` | — | SVG を読む口が無い (Atlas で 6 本を止める) |
+| `textureMode(NORMAL) / textureWrap(REPEAT)` | `none` | — | u, v の目盛りと繰り返しを選ぶ口が無い — [mokume#3717](https://github.com/mokume-metal/mokume/issues/3717) |
+| `loadModel() / model()` | `same` | try loadModel(path) / model(m) | OBJ と STL。SVG は loadShape |
+| `loadShape("a.svg")` | `same` | try loadShape(path) → shape(s, x, y) | SVG を形として読む。OBJ・STL は loadModel。v0.45.0 までに入った |
 
 #### データと部品
 
 | 手本 | 判定 | mokume | 注 |
 | --- | --- | --- | --- |
-| `loadStrings() / loadJSON()` | `host` | String(contentsOf:) / JSONDecoder | Foundation で読む。スケッチの置き場から読む口 (資材の場所) は mokume に無い |
+| `loadStrings() / loadJSON()` | `renamed` | try loadStrings(path) / try loadJSONObject(path)・loadJSONArray(path) | 資材の場所 (assetURL) から読み、失敗は DataFailure で投げる。p5 の loadJSON は Processing の綴りで 2 つに分かれる。v0.45.0 までに入った |
 | `createSlider()` | `renamed` | @Param | DOM の部品ではなく、外から動かせる値として名乗る (mokume ADR-0013) |
 <!-- /reach:table -->
 

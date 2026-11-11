@@ -65,9 +65,16 @@ extension Entries {
                   c.background(LinearRGBA.transparent)
                   c.circle(m, m, 50)
               }),
-        Entry(section: .color, reference: "erase() / noErase()", verdict: .none, mokume: "—",
-              note: "描いたところを透明へ抜く口が無い。blendMode(.replace) の α 0 は mokume#1542 で不具合として扱われている",
-              tile: .absent),
+        Entry(section: .color, reference: "erase() / noErase()", verdict: .bend, mokume: "blendMode(.replace) + fill(LinearRGBA.transparent)",
+              note: "mokume#1542 で、.replace で α 0 を描くと下地が透明に抜けると説明に書かれた。手本の erase(strength) の「部分的に薄める」は置き換えになり、描き方も自分で戻す", issue: "mokume#1542",
+              tile: .picture { c, _ in
+                  c.noStroke()
+                  c.circle(m, m, 70)
+                  c.blendMode(.replace)
+                  c.fill(LinearRGBA.transparent)
+                  c.circle(m, m, 30)
+                  c.blendMode(.blend)
+              }),
         Entry(section: .color, reference: "blendMode(ADD)", verdict: .renamed, mokume: "blendMode(.add)",
               note: "BLEND / ADD / MULTIPLY / SCREEN / DIFFERENCE ほか 10 種",
               tile: .picture { c, _ in
@@ -93,10 +100,10 @@ extension Entries {
                   c.scale(2, 1)
                   c.circle(24, m, 30)
               }),
-        Entry(section: .transform, reference: "scale(s)", verdict: .write, mokume: "scale(s, s)",
-              note: "引数 1 つの一様な拡大が無い",
+        Entry(section: .transform, reference: "scale(s)", verdict: .same, mokume: "scale(s)",
+              note: "v0.45.0 までに入った",
               tile: .picture { c, _ in
-                  c.scale(2, 2)
+                  c.scale(2)
                   c.circle(24, 24, 30)
               }),
         Entry(section: .transform, reference: "shearX() / shearY()", verdict: .same, mokume: "shearX / shearY",
