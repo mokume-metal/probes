@@ -87,8 +87,8 @@ class MissingPillow(unittest.TestCase):
 
 class VersionStamp(unittest.TestCase):
     def test_reads_the_pinned_mokume(self):
-        # Weave は測り始めた版を Package.resolved に持つ
-        self.assertRegex(shots.version_stamp("Weave"), r"^mokume v\d+\.\d+\.\d+ \([0-9a-f]{7}\)$")
+        # Routine は測った版を Package.resolved に持つ
+        self.assertRegex(shots.version_stamp("Routine"), r"^mokume v\d+\.\d+\.\d+ \([0-9a-f]{7}\)$")
 
     def test_unknown_ruler_is_empty(self):
         self.assertEqual(shots.version_stamp("NoSuchRuler"), "")

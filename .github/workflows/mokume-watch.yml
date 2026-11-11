@@ -12,7 +12,7 @@ name: mokume watch
 #
 # ## なぜ検出だけなのか
 #
-# ビルドも描画もテストもここでは走らせない。Probe と Drift の `swift test` は画素を
+# ビルドも描画もテストもここでは走らせない。Routine・Reach・Clause の `swift test` は画素を
 # 読むので GPU (Metal) が要り、GitHub の Linux の runner では回らない。絵や検査が
 # 動いたのが**直った約束なのか退行なのか**も、読むのは人である。ここが担うのは
 # 「版が出たことに気付く」までで、そこから先は手元でスキルが回す。

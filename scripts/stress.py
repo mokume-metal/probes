@@ -10,8 +10,8 @@ GPU 同期と並行性のバグは稀にしか出ない (mokume#341 は 59 回�
 - **指紋** — 描いた絵のハッシュ。**同じフレーム番号からはバイト単位で同じ絵が出る**
   (mokume ADR-0001 原則 2) ので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである
 
-    python3 scripts/stress.py                              # Probe Drift Routine Reach Aftermath Imprint Lattice Weave Tumble Churn を全条件で
-    python3 scripts/stress.py Probe --repeat 20 --workers 4
+    python3 scripts/stress.py                              # Routine Reach を全条件で
+    python3 scripts/stress.py Routine --repeat 20 --workers 4
     python3 scripts/stress.py --condition validation       # 条件を絞る
 
 条件:
@@ -19,8 +19,6 @@ GPU 同期と並行性のバグは稀にしか出ない (mokume#341 は 59 回�
 - `plain`       そのまま `--repeat` 回
 - `validation`  Metal の API と GPU の検証レイヤを有効にして `--repeat` 回
 - `contention`  同じ物差しを `--workers` 本同時に、それぞれ `--repeat` 回
-
-Soak は対象にしない。時間とメモリの閾値が混雑で狂うためである。
 
 各物差しは最初に 1 度だけ `swift build --build-tests` し、以後は `--skip-build` で回す。
 失敗した実行のログと全体の結果 (results.json) は `--out` に残り、要約は Markdown の表で
@@ -44,7 +42,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-RULERS = ["Probe", "Drift", "Routine", "Reach", "Aftermath", "Imprint", "Lattice", "Weave", "Tumble", "Churn"]
+RULERS = ["Routine", "Reach"]
 CONDITIONS: Dict[str, Dict[str, str]] = {
     "plain": {},
     "validation": {"MTL_DEBUG_LAYER": "1", "MTL_SHADER_VALIDATION": "1"},

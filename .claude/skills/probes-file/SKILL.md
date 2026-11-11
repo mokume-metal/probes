@@ -20,7 +20,7 @@ description: "probes の物差しで見つけた破れを mokume へ Bug とし�
 2. **再現を置く。** `<物差し>/Tests/<物差し>Tests/Repros/<鍵>.swift` に、1 行目 `// repro: mokume#未起票` で書く。
    - mokume と Foundation だけで閉じる。
    - `enum` を 1 つ置き、`static func reproduce() throws -> String?` を持たせる。
-   - 手本は `Weave/Tests/WeaveTests/Repros/polylineJoin.swift`。
+   - 手本は `Clause/Tests/ClauseTests/Repros/udpEmptyDatagram.swift`。
    - 物差しの `ReprosTests.swift` に、`withKnownIssue` で包んだテストを足す。
 
 3. **単独で走らせる。** 版を固定したものと main の両方で走らせる。終了コードは 1 = 再現した・0 = 期待どおり・2 = 組めない。

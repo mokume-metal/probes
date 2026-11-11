@@ -10,11 +10,11 @@
 - `--crop` を渡すと、その範囲を拡大した段を下に足す
 - `--frames` に 2 枚以上を渡すと、フレームを進める GIF にする
 
-    PROBES_SHOTS=/tmp/shots swift test                                   # (cd Weave で) 絵を書き出す
-    python3 scripts/shots.py /tmp/shots/Weave addFillStroke --issue 1643 --title "…" --note "…"
-    python3 scripts/shots.py /tmp/shots/Weave polylineJoin --crop 60,60,100,100
-    python3 scripts/shots.py /tmp/shots/Weave addSky --frames 1-2         # GIF
-    python3 scripts/shots.py /tmp/shots/Lattice x --left mirror-a --right mirror-b
+    PROBES_SHOTS=/tmp/shots swift test                                   # (cd Routine で) 絵を書き出す
+    python3 scripts/shots.py /tmp/shots/Routine glyphChurn --issue 2308 --title "…" --note "…"
+    python3 scripts/shots.py /tmp/shots/Routine glyphChurn --crop 60,60,100,100
+    python3 scripts/shots.py /tmp/shots/Routine glyphChurn --frames 1-2         # GIF
+    python3 scripts/shots.py /tmp/shots/Reach x --left a --right b
 
 対の名前は、既定で `<key>-suspect` と `<key>-reference` (比べる物差しの経路の名前)。それ以外の
 対は `--left` / `--right` で名前を渡す。組んだ絵は既定で `<dir>/../composed/<物差し>-<key>.png`

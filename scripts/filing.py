@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """mokume への起票を、走らせたものから組み、骨格を検める (docs/filing.md・ADR-0012)。
 
-    python3 scripts/filing.py env Weave                      # 環境の表
-    python3 scripts/filing.py repro Weave polylineJoin       # 再現を単独のパッケージで走らせる
-    python3 scripts/filing.py repro Weave polylineJoin --mokume main
-    python3 scripts/filing.py draft Weave polylineJoin --shot <URL> > draft.md
+    python3 scripts/filing.py env Routine                    # 環境の表
+    python3 scripts/filing.py repro Routine textBoundsColorGlyph  # 再現を単独のパッケージで走らせる
+    python3 scripts/filing.py repro Routine textBoundsColorGlyph --mokume main
+    python3 scripts/filing.py draft Routine textBoundsColorGlyph --shot <URL> > draft.md
     python3 scripts/filing.py check --body draft.md --title "fix(stroke): …"
     python3 scripts/filing.py check                          # CI: 名指しした起票を全部
 

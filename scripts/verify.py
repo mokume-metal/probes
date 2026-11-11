@@ -2,7 +2,7 @@
 """台帳を持つものを走らせて、ビルドが通り版の刻印と揃っているかを見る。
 
 **台帳 (`checks.json`) を持つのは Atlas だけである** (ルート README の「並べ方」)。
-Probe・Drift・Reach は台帳の代わりに `swift test` を持つので、名指ししても飛ばす。
+Routine・Reach・Clause は台帳の代わりに `swift test` を持つので、名指ししても飛ばす。
 
     python3 scripts/verify.py                  # 台帳を持つもの全部
     python3 scripts/verify.py Atlas            # 名指し
@@ -177,7 +177,7 @@ def main(argv: list[str]) -> int:
     if unknown := flags - {"--check", "--update", "--write-readme"}:
         raise SystemExit(f"知らない指定: {', '.join(sorted(unknown))}\n{__doc__}")
 
-    # **台帳を持たないものは歩かない。** Probe と Drift は `swift test` で見るので、
+    # **台帳を持たないものは歩かない。** Routine・Reach・Clause は `swift test` で見るので、
     # 台帳で版の刻印を測るのは Atlas だけである (ルート README)
     if skipped := [p.name for p in targets if not pieces.has_checks(p)]:
         if named:
