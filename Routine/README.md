@@ -52,7 +52,7 @@ ROUTINE_FRAMES=/tmp/frames ROUTINE_ONLY=pmouseStroke swift test --filter writeFr
 
 **`swift test` は緑で終わる。** 期待と違ったものは `withKnownIssue` で包んであり、
 「既知の問題」として数えられる (`v0.11.1` では 25 本のテストで 1 件。`labelBounds` と
-その再現を足したいまは 29 本で 3 件)。
+その再現を足した `v0.22.1` では 29 本で 3 件。`v0.45.0` では、`labelBounds` とその再現が直って 29 本で 1 件)。
 
 ## 結果 — mokume `v0.11.1`
 
@@ -114,11 +114,11 @@ ROUTINE_FRAMES=/tmp/frames ROUTINE_ONLY=pmouseStroke swift test --filter writeFr
 - 文字 (揃え・複数行・枠での折り返し・日本語・書体・字体)・3D (透視 / 正射影・視点の既定値・光の向き・OBJ・面の大きさ 4 通り)
 - 効果 (`invert` / `blur` / `monochrome` / `bloom` / `adjust`)・乱数とノイズの種
 
-**約束を破っていたのは 1 件だけ**で、`labelBounds` として足し、mokume へ起票した。
+**約束を破っていたのは 1 件だけ**で、`labelBounds` として足し、mokume へ起票した。**`v0.25.0` で直った** (mokume#2569。`v0.45.0` へ上げて確かめ、包みを外した)。
 
 | 鍵 | 何が起きたか | mokume |
 | --- | --- | --- |
-| `labelBounds` | 絵文字の入ったラベル `"木目 🌲"` を `textBounds` の枠で囲むと、枠が漢字 2 字だけを囲み、🌲 の墨が外に出る (枠は x 21〜67、墨は x 21〜103)。`textBounds("🌲")` だけなら `nil`。説明は「同じ引数で `text` を描いたときの墨を囲む」「墨が無いときは `nil`」。絵文字の無い `"木目 AB"` (陰性対照) は囲む | [#2308](https://github.com/mokume-metal/mokume/issues/2308) |
+| `labelBounds` | 絵文字の入ったラベル `"木目 🌲"` を `textBounds` の枠で囲むと、枠が漢字 2 字だけを囲み、🌲 の墨が外に出る (枠は x 21〜67、墨は x 21〜103)。`textBounds("🌲")` だけなら `nil`。説明は「同じ引数で `text` を描いたときの墨を囲む」「墨が無いときは `nil`」。絵文字の無い `"木目 AB"` (陰性対照) は囲む | [#2308](https://github.com/mokume-metal/mokume/issues/2308) — `v0.25.0` で直った |
 
 説明の欠けとして戻したもの: 絵文字の合成列 (肌色の 👍🏽・国旗の 🇯🇵・ZWJ で繋いだ家族・異体字セレクタ付きの ❤️・1️⃣) は、Unicode のスカラ 1 つずつに分かれて描かれる (親指と肌色の四角、`J` と `P` の点線の枠…)。内部の書体の説明は「組版はしない (幅の加法性を選んだ)」と決めているが、利用者が読む `text()` の説明に無い — [#2311](https://github.com/mokume-metal/mokume/issues/2311) (docs)。
 

@@ -125,8 +125,10 @@ import Testing
     // MARK: - 書き出しの子 (exit test)
 
     /// 書き出しの子は `SketchApplication.run()` から戻らず、プロセスごと終わる。exit test に閉じ込め、
-    /// 終わり方と書けたファイルを親で読む。**終わり方の期待は包みの外に置く** — 直り方が「書ける」
-    /// (0 で終わり中身がある) でも「断る」(0 以外で終わる) でも、どちらかで赤くなって知らせる。
+    /// 終わり方と書けたファイルを親で読む。
+    ///
+    /// mokume#3223 は `v0.39.0` で「断る」形に直った (mokume#3407): H.264 は辺 1 を書く前に `Could not write …` と
+    /// 名乗り、0 以外で終わり、0 バイトのファイルを残さない。高さ 1 の子にはその終わり方を期待する。
     @Test("再現: mokume render の .mp4 は、高さ 1 の作品でも中身を書くか、書けないと名乗る")
     func mp4ThinFrame() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("clause-mp4-thin-\(getpid())").path
@@ -136,13 +138,14 @@ import Testing
             try await Mp4ThinFrame.renderAsChild(width: 64, height: 2, to: control)
         }
         #expect(Mp4ThinFrame.bytes(at: control) > 0, "control broke: 64x2 wrote \(Mp4ThinFrame.bytes(at: control)) B")
-        let ended = await #expect(processExitsWith: .success, observing: [\.standardErrorContent]) { [thin = thin as String] in
+        let ended = await #expect(processExitsWith: .failure, observing: [\.standardErrorContent]) { [thin = thin as String] in
             try await Mp4ThinFrame.renderAsChild(width: 64, height: 1, to: thin)
         }
         let said = String(decoding: ended?.standardErrorContent ?? [], as: UTF8.self)
-        let broken = Mp4ThinFrame.verdict(.init(status: 0, bytes: Mp4ThinFrame.bytes(at: thin), said: said))
-        withKnownIssue("mokume#3223: H.264 が辺 1 で 0 バイトを書いても、子は名乗らず 0 で終わる") {
-            #expect(broken == nil, "\(broken ?? "")")
-        }
+        let bytes = Mp4ThinFrame.bytes(at: thin)
+        let broken = Mp4ThinFrame.verdict(.init(status: ended == nil ? 0 : 1, bytes: bytes, said: said))
+        #expect(broken == nil, "mokume#3223 で直った (v0.39.0): \(broken ?? "")")
+        #expect(said.contains("Could not write"), "64x1 の子が書けないと名乗らない: \(said.debugDescription)")
+        #expect(bytes != 0, "64x1 が 0 バイトのファイルを残した")
     }
 }

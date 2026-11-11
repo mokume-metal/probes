@@ -32,7 +32,7 @@
 ## 走らせる
 
 ```bash
-swift test                              # 22 本のテスト。v0.35.0 では既知の問題 1 件で緑
+swift test                              # 22 本のテスト。v0.35.0 では既知の問題 1 件、v0.45.0 では 0 件で緑
 python3 ../scripts/filing.py repro Clause <鍵>               # 再現 1 本を mokume だけのパッケージで
 python3 ../scripts/filing.py repro Clause <鍵> --mokume main  # 同じく mokume の main で
 ```
@@ -67,11 +67,15 @@ v0.23〜v0.35 で入った口を約 170 通り当てて、約束の破れは 1 �
 
 | 領域 | 鍵 | 約束 | 何が起きたか | mokume |
 | --- | --- | --- | --- | --- |
-| 書き出し | `mp4ThinFrame` | 書き出せない組は作らない (`RenderRequest`)・書けなければ `Could not write …` と名乗る (`MovieWriter`) | `mokume render --out x.mp4` で 64×1 の作品を書くと、ファイルは 0 バイトで、子は何も名乗らず 0 で終わる。道具は版の食い違いと誤って案内する。64×2・`.mov`・`.gif`・連番は書ける。AVFoundation の H.264 が辺 1 で `completed` のまま 0 バイトを書き、`MovieFile` は状態しか見ない | [#3223](https://github.com/mokume-metal/mokume/issues/3223) |
+| 書き出し | `mp4ThinFrame` | 書き出せない組は作らない (`RenderRequest`)・書けなければ `Could not write …` と名乗る (`MovieWriter`) | `mokume render --out x.mp4` で 64×1 の作品を書くと、ファイルは 0 バイトで、子は何も名乗らず 0 で終わる。道具は版の食い違いと誤って案内する。64×2・`.mov`・`.gif`・連番は書ける。AVFoundation の H.264 が辺 1 で `completed` のまま 0 バイトを書き、`MovieFile` は状態しか見ない | [#3223](https://github.com/mokume-metal/mokume/issues/3223) — `v0.39.0` で直った |
 
 **再現は書き出しの子を exit test に閉じ込める。** 子 (`MOKUME_RENDER` を立てた `SketchApplication.run()`) は戻らずに
 プロセスごと終わるので、終わり方と書けたファイルを親で読む。終わり方の期待 (0 で終わる) は `withKnownIssue` の外に置いた —
 直り方が「中身を書く」でも「断って 0 以外で終わる」でも、どちらかで赤くなって知らせる。
+
+**`v0.39.0` で「断る」形に直った** (mokume#3407)。H.264 は辺 1 を書く前に `Could not write …` と名乗って 0 以外で終わり、
+0 バイトのファイルを残さない。`v0.45.0` へ上げて赤くなったのを確かめ、高さ 1 の子にはこの終わり方 (失敗で終わる・名乗る・
+0 バイトを残さない) を期待する形に書き直した。
 
 ## 結果 — mokume `v0.22.1`
 
