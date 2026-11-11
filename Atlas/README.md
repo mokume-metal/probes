@@ -8,14 +8,14 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 
 ## 台帳
 
-| 区分 | 例数 | `v0.14.0` のとき | `v0.9.0` のとき | `v0.6.0` のとき | `v0.5.0` のとき | |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `clean` | **108** | 105 | 100 | 90 | 64 | そのまま届く |
-| `write-only` | **6** | 5 | 10 | 8 | 23 | 書けば届く |
-| `bend` | **50** | 54 | 54 | 54 | 63 | 書けるが歪む |
-| `blocked` | **39** | 39 | 39 | 51 | 53 | 口が無くて止まる |
-| `out-of-scope` | 51 | 51 | 51 | 51 | 51 | 測らないと決めた |
-| **合計** | **254** | **254** | **254** | **254** | **254** | |
+| 区分 | 例数 | `v0.16.2` のとき | `v0.14.0` のとき | `v0.9.0` のとき | `v0.6.0` のとき | `v0.5.0` のとき | |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `clean` | **140** | 108 | 105 | 100 | 90 | 64 | そのまま届く |
+| `write-only` | **7** | 6 | 5 | 10 | 8 | 23 | 書けば届く |
+| `bend` | **34** | 50 | 54 | 54 | 54 | 63 | 書けるが歪む |
+| `blocked` | **22** | 39 | 39 | 39 | 51 | 53 | 口が無くて止まる |
+| `out-of-scope` | 51 | 51 | 51 | 51 | 51 | 51 | 測らないと決めた |
+| **合計** | **254** | **254** | **254** | **254** | **254** | **254** | |
 
 **`v0.6.0` で 26 本が `clean` へ移った。** works が戻した Issue が 3 本まとめて閉じたためで、
 これは**台帳が予測した重みの答え合わせ**にあたる — 下の表で `map` (33 例) と `radians`
@@ -39,22 +39,27 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 — `RotatingArcs` と `TextureCylinder` は `QUAD_STRIP`、`RGBCube` は `colorMode`、`CubesWithinCube` は `PVector`。
 **ここでも台帳が「重い」と数えた穴が先に埋まった** — `QUADS` は上位の `bend` の 1 つだった。
 
+**`v0.45.0` で 32 本が `clean` へ移った。** 29 版をまとめて越えた見直しで、23 行の判定か注が動いた
+([下の見直し](#語彙の台帳を-v0450-で見直した))。上位の表の 10 行のうち 6 行 (`PVector`・`dist`・`updatePixels`・`mag`・
+`createFont`・`loadShape`) が埋まり、`blocked` は 39 → 22 になった。**ここでも重いものから埋まった** — `PVector` (25 例) は
+`bend` の最多、`dist` (10 例) は `write` の最多、`updatePixels` (10 例) は `none` の最多だった。
+
 `out-of-scope` は GLSL を書く例 (`Topics/Shaders` ほか)・性能測定と処理系の試験 (`Demos/Performance` / `Demos/Tests`)・ファイル入出力とネットワークが主題の例。**台帳から消さずに理由を持たせて残している** — 消すと「測っていない」と「測ったが届かない」の区別が付かなくなる。
 
 ### 何本の例を止めるか
 
 | 何本の例を止めるか | 語彙 | 判定 | mokume では |
 | ---: | --- | --- | --- |
-| 25 | `PVector` | `bend` | SIMD2\<Float\> / SIMD3\<Float\> |
-| 20 | `frameRate` | `bend` | SketchSettings.frameRate — 起動時だけ。**代入は黙って無視される** |
+| 20 | `frameRate` | `bend` | SketchSettings.frameRate — 起動時だけ。**代入は効かず、1 度だけ警告する** |
 | 12 | `colorMode` | `bend` | color(hue:saturation:brightness:) — **目盛りは張り替えられない** |
-| 10 | `dist` | `write` | — |
-| 10 | `updatePixels` | `none` | — |
-| 7 | `mag` | `write` | — |
 | 6 | `QUAD_STRIP` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)) | — |
-| 6 | `createFont` | `none` | — |
 | 6 | `getChild` | `none` | — |
-| 6 | `loadShape` | `none` | — |
+| 5 | `GROUP` | `none` | — |
+| 5 | `addChild` | `bend` | Shape.group |
+| 4 | `getChildCount` | `none` | — |
+| 4 | `getVertexCount` | `bend` | — |
+| 4 | `millis` | `none` | — |
+| 4 | `setFill` | `none` | — |
 
 全 20 行は [`ledger/summary.md`](ledger/summary.md)。
 
@@ -84,6 +89,17 @@ Garden・Solids・Ring は p5.js の例を 1 本ずつ写し、その 1 本で�
 | 語彙 | `v0.14.0` の判定 | 止めていた例数 | `v0.16.0` |
 | --- | --- | ---: | --- |
 | `QUADS` | `bend` ([#882](https://github.com/mokume-metal/mokume/issues/882)・[#1551](https://github.com/mokume-metal/mokume/issues/1551)) | 8 | `renamed` — `VertexKind.quads`。4 点ずつ独立した四角として読む。**8 例のうち 4 本が `bend` から出た** |
+
+**`v0.45.0` で 6 つ消えた。**
+
+| 語彙 | `v0.16.2` の判定 | 止めていた例数 | `v0.45.0` |
+| --- | --- | ---: | --- |
+| `PVector` | `bend` | 25 | `renamed` — `Vector2` / `Vector3`。値型で、`normalized()` などは新しい値を返す |
+| `dist` | `write` | 10 | `same` — 3D と `Vector2`・`Vector3` の形もある |
+| `updatePixels` | `none` | 10 | `drop` — 書いたものは描く前に自動で戻る。`Image.pixels` も入った |
+| `mag` | `write` | 7 | `same` |
+| `createFont` | `none` | 6 | `renamed` — `loadFont(_:)` と `textSize(_:)` |
+| `loadShape` | `none` | 6 | `same` — SVG を読む。OBJ は `loadModel` |
 
 **台帳がいちばん重いと数えたものから順に埋まった。** 1 本ずつの移植では出なかった重みが、
 実際に直す順番と一致していたことになる。
@@ -546,8 +562,36 @@ probes の物差しを 4 本に畳んだ (ADR-0016) 後の最初の版上げで�
 建った 157 / 157  失敗 0
 ```
 
-**語彙の台帳はまだ見直していない。** 213 行は `checked: "0.14.0"` / `"0.16.2"` のままで、消えた口 (`isKeyDown` など) を
-指す行の見直しは、台帳の再判定の PR で行う。
+### 語彙の台帳を `v0.45.0` で見直した
+
+213 行の `checked` を `"0.45.0"` へ進めた。`python3 scripts/fetch.py` で mokume の公開 API を `v0.45.0` (3996 行) で取り直し、
+`python3 scripts/ledger.py` で組み直した。
+
+**退行は 0。** `mokume` 欄の指し先はどれも `v0.45.0` に残っていた。`api-diff.py` の「消えた」の大半は、口が
+`protocol SketchPart` へ移ったか `@MainActor` が `nonisolated` に変わっただけで、名前ごと消えたのは `isKeyDown` だけである
+(台帳では `keyPressed` の注だけが書いていた。`keyboard.isPressed(_:)` へ直した・mokume#2599)。
+
+**判定が動いたのは 21 行、注だけ直したのは 2 行。**
+
+| 行 | | |
+| --- | --- | --- |
+| `bezier`・`bezierPoint`・`dist`・`sq`・`mag`・`randomGaussian`・`saveTable` | `write` / `bend` → `same` | 同名で入った |
+| `mouseDragged` | `renamed` → `same` | 引数なしの形が入った (mokume#3393) |
+| `loadShape` | `none` → `same` | SVG を読む (mokume#2019)。OBJ は読まない |
+| `PVector` | `bend` → `renamed` | `Vector2` / `Vector3`。値型で、原典の参照型とは持ち回り方が違うが、別の形として届く |
+| `heading`・`limit`・`fromAngle` | `write` → `renamed` | `Vector2.angle`・`limited(to:)`・`Vector2(angle:length:)` |
+| `filter` | `bend` → `renamed` | `filter([Effect])`。組み込みの `.blur` / `.invert` / `.threshold` / `.monochrome` が入った (POSTERIZE / ERODE / DILATE は無い) |
+| `GRAY` | `drop` → `renamed` | `filter` に揃えて `.monochrome` |
+| `createFont` | `none` → `renamed` | `loadFont(_:)` と `textSize(_:)` (mokume#2445) |
+| `loadTable`・`getRowCount`・`rows` | `write` → `renamed` | `loadTable(_:header:)`・`Table.rowCount`・`Table.rows` |
+| `updatePixels` | `none` → `drop` | 書き戻しの合図が要らない。原典の 1 次元の添字 `pixels[i]` は無く、`pixels[x, y]` で書く |
+| `keyPressed`・`getChild`・`loadFont` | 注だけ | `isKeyDown` の行き先・`XML.getChild` は別の口・`loadFont` は `.vlw` を読まない |
+
+区分は `clean` 108 → 140・`write-only` 6 → 7・`bend` 50 → 34・`blocked` 39 → 22 になった (上の「台帳」)。
+
+**台帳が名前でしか見ないことの限界も、ここで 2 つ出た。** `LoadDisplaySVG` は `shape(bot, x, y, w, h)` の 5 引数形を使うが、
+mokume の `shape` にこの形は無い。`LoadDisplayOBJ` は `loadShape` で OBJ を読むが、mokume では `loadModel` で読む。どちらも
+`clean` に数えられている。**移して確かめていないので、`clean` が 32 本増えたことは「届くはず」であって、届いたことではない。**
 
 ## mokume へ戻したもの
 
