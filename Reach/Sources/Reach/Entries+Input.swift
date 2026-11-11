@@ -29,7 +29,7 @@ extension Entries {
               tile: .value { r in "key \(r.key)" }),
         Entry(section: .input, reference: "keyIsDown(LEFT_ARROW)", verdict: .renamed, mokume: "isKeyDown(.arrowLeft)",
               note: "引数を Key で受けるのは mokume ADR-0034。語順が手本と違う理由は見当たらない", issue: "mokume#1556",
-              tile: .value { r in r.isKeyDown(.arrowLeft) ? "←" : "-" }),
+              tile: .value { r in r.keyboard.isPressed(.arrowLeft) ? "←" : "-" }),
         Entry(section: .input, reference: "keyPressed() / keyReleased() / keyTyped()", verdict: .same, mokume: "同名の関数を書く",
               tile: .value { _ in "events" }),
         Entry(section: .input, reference: "keyIsPressed", verdict: .write, mokume: "keyPressed / keyReleased で数える",

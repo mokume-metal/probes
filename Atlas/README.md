@@ -330,7 +330,7 @@ python3 scripts/ledger.py    # ledger/ を組み直す
 | | |
 | --- | --- |
 | probes | この物差しのコミット (`Package.resolved` が同じツリーにある) |
-| mokume | `v0.16.2` / `18283daf496bdf69ebd33bafab2124d807d89bc0` (`Package.resolved` が固定している) |
+| mokume | `v0.45.0` / `f9e8f4abc83412723fb361f36f591041ac5f92af` (`Package.resolved` が固定している) |
 | 原典 | `processing/processing-examples` @ `b10c9e9a05a0d6c20d233ca7f30d315b5047720e` ([`ledger/sources.json`](ledger/sources.json) が刻む) |
 <!-- verify:end -->
 
@@ -525,6 +525,29 @@ git diff --stat ledger/    # 差分が出なければ、同じ版から同じ台
 6 例を止めている。
 
 区分は `clean` 105 → 108・`write-only` 5 → 6・`bend` 54 → 50 になった (上の「台帳」)。
+
+## 版を上げたときに動いたもの — `v0.16.2` → `v0.45.0`
+
+**`v0.16.2` → `v0.45.0` の公開 API は、直さないと通らない口が 230・増えた口が 787 だった** (`api-diff.py`)。
+probes の物差しを 4 本に畳んだ (ADR-0016) 後の最初の版上げで、29 版をまとめて越えた。
+
+**例 157 本は、版だけ上げた時点で 2 本が建たなかった。** どちらも `map` が総称の数 (`ScalarConvertible`) を受けるように
+なったため、引数に書いた暗黙メンバの `.pi` が型を決められなくなった (`v0.9.0` → `v0.14.0` の `rotateX(.pi)` と同じ形)。
+`Float.pi` へ書き換えた。原典が `PI` と書いている所を移したもので、呼ぶ形は変わらない。
+
+| 例 | 止まった所 |
+| --- | --- |
+| `Basics/Arrays/Array` | `map(Float(i), 0, width, 0, .pi)` |
+| `Basics/Input/Clock` | `map(second(), 0, 60, 0, .pi * 2)` ほか 2 か所 |
+
+直した後、157 本を 1 本ずつ `swift build` した。
+
+```
+建った 157 / 157  失敗 0
+```
+
+**語彙の台帳はまだ見直していない。** 213 行は `checked: "0.14.0"` / `"0.16.2"` のままで、消えた口 (`isKeyDown` など) を
+指す行の見直しは、台帳の再判定の PR で行う。
 
 ## mokume へ戻したもの
 

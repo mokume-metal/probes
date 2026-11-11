@@ -15,7 +15,7 @@ let package = Package(
     platforms: [.macOS("26.0")],
     products: [.executable(name: "Distance1D", targets: ["Distance1D"])],
     dependencies: [
-        .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.16.2"),
+        .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.45.0"),
     ],
     targets: [
         .executableTarget(

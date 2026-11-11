@@ -647,7 +647,7 @@ final class KeyHeld: Sketch {
 
     func draw() {
         switch route {
-        case .suspect: if isKeyDown(.arrowRight) { x += Self.step }
+        case .suspect: if keyboard.isPressed(.arrowRight) { x += Self.step }
         case .reference: x = 10 + Self.step * Float(Self.held(through: frameCount))
         }
         background(20)

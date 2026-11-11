@@ -150,6 +150,5 @@ python3 scripts/upstream.py    # 戻した Issue がどうなったか
 新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
 手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
 
-**Atlas・Routine・Reach は mokume `v0.16.2`、Clause は `v0.35.0` を引いている。** Routine・Reach は `v0.11.1`、
-Clause は `v0.22.1` で始め (測る版で始めた)、Atlas・Routine・Reach は `v0.16.2` へ、Clause は `v0.35.0` の破れを起票するために
-1 本だけ `v0.35.0` へ上げた (#80)。
+**4 本とも mokume `v0.45.0` を引いている。** Routine・Reach は `v0.11.1`、Clause は `v0.22.1` で始め (測る版で始めた)、
+Atlas・Routine・Reach は `v0.16.2` から、Clause は `v0.35.0` から `v0.45.0` へ上げた (物差しを 4 本に畳んだ後の最初の版上げ。#70・ADR-0016)。

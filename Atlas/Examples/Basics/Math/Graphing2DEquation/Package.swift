@@ -15,7 +15,7 @@ let package = Package(
     platforms: [.macOS("26.0")],
     products: [.executable(name: "Graphing2DEquation", targets: ["Graphing2DEquation"])],
     dependencies: [
-        .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.16.2"),
+        .package(url: "https://github.com/mokume-metal/mokume.git", exact: "0.45.0"),
     ],
     targets: [
         .executableTarget(
