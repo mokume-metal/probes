@@ -18,7 +18,7 @@ final class ArrayCosine: Sketch {
     func setup() {
         coswave = (0..<Int(width)).map { i in
             // 原典の `map(i, 0, width, 0, PI)`。**mokume に map が無い** ([#883](https://github.com/mokume-metal/mokume/issues/883))
-            let amount = map(Float(i), 0, width, 0, .pi)
+            let amount = map(Float(i), 0, width, 0, Float.pi)
             return abs(cos(amount))
         }
         background(255)

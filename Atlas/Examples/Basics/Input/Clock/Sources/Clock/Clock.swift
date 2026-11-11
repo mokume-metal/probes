@@ -42,9 +42,9 @@ final class Clock: Sketch {
         ellipse(cx, cy, clockDiameter, clockDiameter)
 
         // sin / cos は 3 時から始まるので、HALF_PI を引いて真上から始める
-        let s = map(second(), 0, 60, 0, .pi * 2) - .pi / 2
-        let m = map(minute() + norm(second(), 0, 60), 0, 60, 0, .pi * 2) - .pi / 2
-        let h = map(hour() + norm(minute(), 0, 60), 0, 24, 0, .pi * 4) - .pi / 2
+        let s = map(second(), 0, 60, 0, Float.pi * 2) - .pi / 2
+        let m = map(minute() + norm(second(), 0, 60), 0, 60, 0, Float.pi * 2) - .pi / 2
+        let h = map(hour() + norm(minute(), 0, 60), 0, 24, 0, Float.pi * 4) - .pi / 2
 
         // 針
         stroke(255)
