@@ -34,49 +34,47 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 | | |
 | --- | --- |
 | [Atlas](Atlas/) | Processing の Examples を全数で当てた台帳と、[公式ページ](https://processing.org/examples/)の 162 本のうち移せる 157 本の実測。**作品ではなく物差し**で、1 本ずつでは出ない「どの欠けが何本の例を止めるか」を数える。**mokume `v0.6.0` で 26 本が `clean` へ移り、台帳が重いと数えた欠けから順に埋まった**。`v0.14.0` で数の口、`v0.16.0` で `QUADS` が入り、`clean` は 108 本になった |
-| [Probe](Probe/) | mokume `v0.11.0` の継ぎ目を突いた記録。**作品ではなく物差し**で、候補 1 件を同じ絵になるはずの 2 つの経路で描き、窓では左右に並べて目で、`swift test` では画素で比べる。**13 件を突いて 8 件が約束を破っており、mokume へ 8 件の Bug と 1 件の docs を戻した** (鏡映した立体の裏面・透明な下地の上の混ぜ方・楕円の `arc`・`curveVertex` の穴・範囲外の不透明度・細い線の濃さ・右揃えの末尾の空白・`lerp` の端)。直ると `withKnownIssue` が赤くなって知らせる。**8 件とも `v0.14.0` で直り**、残る既知の問題は保留の mokume#931 だけ |
-| [Drift](Drift/) | mokume `v0.11.0` の**フレームをまたぐ**継ぎ目を突いた記録。Probe と同じく**作品ではなく物差し**で、候補 1 件を同じ動きになるはずの 2 つの経路で描き、窓では左右に並べた動きで、`swift test` では `SketchRuntime` で N 枚回して画素で比べる。**6 件を突いて 6 件とも約束を破っており、mokume へ 6 件の Bug を戻した** (描き場所の時刻・噴き口どうしの繰り越し・残像への効果の焼き込み・`numbers` の寿命・低い fps の `drag`・止まっている間の変換)。1 枚目では食い違わず、フレームを重ねてはじめてずれる。**6 件とも `v0.14.0` で直った** |
 | [Routine](Routine/) | mokume `v0.11.1` を、**作品がふつう書く書き方**で動かして突いた記録。Probe・Drift と違って**中身を読まずに**、Processing・p5 の作品が当たり前に書く組み合わせ (`setup` で決めた描き方・残像・画素の読み書き・層・脈打つ大きさ・お絵描き・押し続けるキー…) を 25 通り選び、フレームを重ねて 2 つの経路で比べる。**25 件を突いて約束の破れは 0 件**。期待と違った 3 件は説明か ADR が決めている振る舞いで、説明に無かった 1 件 (`background` の不透明度) を docs として戻した。**`v0.22.1` で基本の口の組み合わせを約 150 通り広く当て、約束の破れは 1 件だけだった** (`textBounds` が絵文字の墨を囲まない [mokume#2308](https://github.com/mokume-metal/mokume/issues/2308)。絵文字の合成列が部品に分かれることを docs として [mokume#2311](https://github.com/mokume-metal/mokume/issues/2311) へ) |
 | [Reach](Reach/) | Processing / p5.js で**作品を作るときにまず使う口**を百余り、リファレンスの側から並べ、1 口 1 タイルで mokume `v0.11.1` で書いた記録。**作品ではなく物差し**で、Atlas が Examples に出てくる語彙しか見ないのに対して、例に出てこない口 (角の丸い `rect`・`erase`・`cursor`・`millis` など) も測る。穴のうち、**works の作品 2 本以上が手で書いていたもの**と規範から導けるものだけを mokume へ戻した (QUADS・`lerpColor`・`fill(rgb, alpha)`・`millis`・`deltaTime` の単位・名前の棚卸し)。`v0.16.0` で `beginShape(QUADS)` が `.quads` で入った |
-| [Soak](Soak/) | mokume `v0.11.1` を**長く回したときの資源**を突いた記録。**作品ではなく物差し**で、他の物差しが絵を比べるのに対し、1 枚ごとに増えて減らないメモリ・仕事に見合わない時間・プロセスごと落ちる口を見る。候補 1 件を同じ仕事になるはずの 2 つの経路で回し、footprint と GPU の確保量の増え方・時間の比・exit test の終わり方で比べる。**11 件の破れを見つけ、mokume へ 10 件の Bug と perf を戻し、1 件を既知の Issue ([mokume#1431](https://github.com/mokume-metal/mokume/issues/1431)) へ足した** (閉じ忘れた `beginShape`・`beginDraw` の外の描き場所・`loadModel` の控え・main を譲らない `advance()`・多角形の分割・立体の既定の線・巨大な `textSize` と数でない `textOutline`・`createShape` の中の `background`・`makeNumbers` のあふれ・`DisplayImage` の範囲外)。`v0.14.0` で 7 件 (#1587・#1589〜#1592・#1594・#1604) が、`v0.15.0` で `createShape` の中の `background` (#1588) と多角形の分割 (#1595) が直った |
-| [Aftermath](Aftermath/) | mokume `v0.11.2` で**失敗を起こした後のフレーム**が汚れないかを突いた記録。**作品ではなく物差し**で、資源の生成が投げる・フレームの途中で放り出す・数でない値を渡す、といった失敗を途中のフレームで起こし、その後の絵を失敗させなかった参照と画素で比べる。**16 件を突き、2 件が約束を破っていたので mokume へ 2 件の Bug を戻した** (`endDraw` の無い描き場所で変換が積み上がる・数でない力で生きている粒が消える)。資源の生成が投げる 8 通りは、どれも 1 画素も汚さなかった。`v0.14.0` で 2 件とも直った |
-| [Imprint](Imprint/) | mokume `v0.11.2` が**書き出したファイルの中身**を突いた記録。**作品ではなく物差し**で、各フレームに番号を 2 値の升で焼き、`save`・連番・`.mov` を読み戻して、枚数・順序・時刻の間隔・色の刻印・バイトの一致を見る。**10 件を突き、3 件が約束を破っていたので mokume へ 3 件の Bug を戻した** (録画中の `save` の失敗で動画が途切れる・同じ名前への `save` の順序が崩れる・`.mov` の容れ物の時刻でバイトが一致しない)。後の 2 件は `stress.py` で反復してはじめて見えた。`v0.14.0` で動画が途切れる件 (#1626) と `save` の順序が崩れる件 (#1627) が直った。**`v0.16.2` で、複数窓の構成で絵の出口と後始末が奪われる 4 件を足し、mokume へ 4 件の Bug と根の Issue 1 件を戻した** (道具に起こされていないスケッチが watch の窓を乗っ取る・watch の隣の書き出しが 0 枚で止まる・窓なしの描画が標準入力を非ブロックのまま残す・2 つ目の `SketchApplication.run()` で 1 つ目の録画が開けない。根は mokume#2028)。**mokume-cli を突いた回で、`.mov` の刻みが 1/600 秒で割り切れない fps の時刻が丸められる件 (mokume#2307) と、連番の番号が置き場のディレクトリ名の `#` に入る件 (mokume#2313) を足した** |
-| [Lattice](Lattice/) | mokume `v0.12.0` を**条件の格子**の上で動かし、**成り立つはずの関係**で突いた記録。**作品ではなく物差し**で、他の物差しが 160²・細かさ 1・30 fps の 1 点で mokume の別経路と比べるのに対し、面の大きさ・縦横比・`pixelDensity`・fps を振り、鏡映・90° 回転・切り抜き・細かさと縮小・fps をまたいだ 1 秒などの関係で比べる。**14 通りの関係を突き、6 通りが約束を破っていたので mokume へ 6 件を戻した** (細かさ 0.5 で三角形の経路の細い線が消える・拡大段が乗算済みの決まりを破る・利用者の効果の `Pixel.position`・fps 25/50/100 の `emit`・`clip` の小数の丸め・`frameRate` 0 を断らない)。6 件とも細かさか fps を 1 点から動かした所で出た。**fps の 2 件 (`emit`・`frameRate` 0) が `v0.14.0` で直り、残る 4 件も `v0.15.0` (拡大段) と `v0.16.2` (細い線・効果の位置・`clip`) で直った** |
-| [Weave](Weave/) | mokume `v0.12.0` で**機能を組み合わせたときだけ崩れる継ぎ目**を突いた記録。**作品ではなく物差し**で、1 つずつなら正しく動く機能を組み合わせて 1 回で描き、同じ機能を 1 つずつ使って合成した絵と画素で比べる。**19 件を突き、16 件が約束を破っていたので mokume へ 15 件の Bug を戻し、1 件を Lattice の起票 (mokume#1641) へ足した** (加算の混ぜ方で輪郭の内側の塗りが消える・粒が `texture` / `shader` に染まる・1 フレームに 2 回描いた粒が消える・本体の断片の `set` が描き場所に効かない・`get` を挟むと影が割れる・`clip` の中の `background` が面全体を塗る ほか)。落ちる組み合わせ 1 件を mokume#1588 へ足した。**`v0.14.0` で描き場所の 2 件が片付いた** (フレームの外の `set` の効果が 2 回掛かるのは直り、`beginDraw` の外の `set` は mokume#1681 で「断る」約束に決まった)。`v0.15.0`〜`v0.16.2` で 13 件が直り、残るのは拡大した折れ線の丸い端 (mokume#1645) だけ |
-| [Tumble](Tumble/) | mokume `v0.12.1` を**乱数から作った呼び出しの列**で突いた記録。**作品ではなく物差し**で、他の物差しが突く候補を人が選ぶのに対し、種 1 つから口録 111 口の口と引数 (端の値を含む) を引いて列を作り、落ちない・止まらない・投げない・毎回同じ絵・列の後の番兵・番兵が描かれている・絵が数である・漏れない、の 8 つで判定する。破れた列は delta debugging で縮める。**10000 種と、漏れを 500 種回し、mokume へ 2 件の Bug を戻し、2 件を既知の Issue へ足した** (白を越える明るさの `background` が面を +inf にして上の図形が黒く抜ける・`curveDetail` に上限が無くフレームが戻らない / 無限の `textLeading` の後の `textOutline` が落ちる入口を mokume#1587 へ・閉じ忘れた描き場所の 1 枚 6.7 MB の増え方が main で止まることを mokume#1622 へ)。戻した 2 件は `v0.15.0` (`background`) と `v0.16.1` (`curveDetail`) で直った |
-| [Churn](Churn/) | mokume `v0.22.0` で**物体を足し・消し・動かし続けたとき**に、絵が履歴・数・同一性に引きずられないかを突いた記録。**作品ではなく物差し**で、候補 1 件を 1 つのことだけが違う 2 経路で描く — 前置きにがらくたを描くか (履歴)、1 つの runtime で回すか 1 枚ずつ組み直すか (積み重ね)、比べる領域の外に足す数 (0〜16385・経路が数で切り替わる境目を往復)、まとめて置くか 1 つずつ置くか。**17 件を突き、3 件が約束を破っていたので mokume へ 2 件の Bug を戻した** (`shape(_:at:)` が記録した領域ごとに置き場所を回し、重なる置き場所の前後が入れ替わる [mokume#2305](https://github.com/mokume-metal/mokume/issues/2305)・同じフレームで捨てた描き場所の `ObjectIdentifier` を引き継いだ描き場所が、置いた時点の絵を保てない [mokume#2306](https://github.com/mokume-metal/mokume/issues/2306))。履歴・積み重ね・数の 11 件は 1 画素も違わなかった |
 | [Clause](Clause/) | mokume `v0.22.1` の **DocC・ADR が書いた約束の 1 文**を、境界と陰性対照で突いた記録。**作品ではなく物差し**で、他の物差しが同じ絵になるはずの 2 経路を画素で比べるのに対し、約束の文がいう値・ファイル・ポート・知らせの行をそのまま確かめる。v0.17〜v0.22.1 で入り、まだ誰も当てていなかった口 (CSV・JSON・XML・SVG・STL・OBJ の読み込み・`pauseTime` / `jumpTime`・OSC・UDP・TCP・WebSocket・粒の `Emitter` / `Heading`) を 7 領域で突き、**18 件が約束を破っていたので mokume へ 18 件の Bug ([mokume#2324](https://github.com/mokume-metal/mokume/issues/2324)〜[#2341](https://github.com/mokume-metal/mokume/issues/2341)) と根の Issue 1 件 ([#2342](https://github.com/mokume-metal/mokume/issues/2342)) を戻した** (空の datagram で続く datagram が消える・9216 B を超える datagram が切れる・`jumpTime(.nan)` で時刻が戻らない・`-1e400` を -inf で読む・字下げした文字の STL をバイナリとして読む・`vn` が混ざった OBJ の向き ほか)。粒の向きは 0 件。**`v0.35.0` へ上げ、17 件が直ったのを確かめた** (`v0.23.0`〜`v0.25.0`)。残る 1 件 (mokume#2325) は、9216 B 以上を丸ごと捨てて数える約束に改まったので、検査をその約束に合わせた。v0.23〜v0.35 の新しい口を約 170 通り当て、`mokume render` が高さ 1 の作品の `.mp4` を 0 バイトで書き、子が名乗らず 0 で終わる件を [mokume#3223](https://github.com/mokume-metal/mokume/issues/3223) へ戻した |
 
-測り方は 9 通りある。
+### 畳んだ物差し
+
+次の 9 本は、突いた候補を人が選んだ 1 回きりの記録か、版上げの手間に見合うほど新しい口を拾えないので畳んだ
+([ADR-0016](docs/decisions/0016-fold-rulers.md)・#84)。名指ししていた mokume の Issue 76 件はすべて閉じており、直した Bug は
+mokume の `Tests/` が回帰を見張っている (確かめた表は [#84](https://github.com/mokume-metal/probes/issues/84#issuecomment-6792884961))。
+中身は、畳む直前のコミット `9b771a1` の木で読める。要るときは `git checkout 9b771a1 -- <物差し>` で戻す。
+
+| 物差し | 測ったこと | 最後に測った版 | 名指ししていた mokume の Issue |
+| --- | --- | --- | --- |
+| [Probe](https://github.com/mokume-metal/probes/tree/9b771a1/Probe) | 同じ絵になるはずの 2 経路の継ぎ目 | `v0.16.2` | 10 件 (mokume#931・mokume#1445〜1453) |
+| [Drift](https://github.com/mokume-metal/probes/tree/9b771a1/Drift) | フレームをまたぐ継ぎ目 | `v0.16.2` | 7 件 (mokume#1366・mokume#1467〜1472) |
+| [Soak](https://github.com/mokume-metal/probes/tree/9b771a1/Soak) | 長く回したときの資源 (メモリ・時間・落ちるか) | `v0.16.2` | 11 件 (mokume#754・mokume#1342・mokume#1431・mokume#1587・mokume#1588・mokume#1591〜1596) |
+| [Aftermath](https://github.com/mokume-metal/probes/tree/9b771a1/Aftermath) | 失敗を起こした後のフレーム | `v0.16.2` | 7 件 (mokume#342・mokume#1065・mokume#1179・mokume#1469・mokume#1587・mokume#1622・mokume#1623) |
+| [Imprint](https://github.com/mokume-metal/probes/tree/9b771a1/Imprint) | 書き出したファイルの中身 | `v0.16.2` | 15 件 (mokume#911・mokume#927・mokume#1219・mokume#1282・mokume#1456・mokume#1457・mokume#1626〜1628・mokume#2024〜2027・mokume#2307・mokume#2313) |
+| [Lattice](https://github.com/mokume-metal/probes/tree/9b771a1/Lattice) | 条件の格子の上で成り立つはずの関係 | `v0.16.2` | 6 件 (mokume#1637〜1642) |
+| [Weave](https://github.com/mokume-metal/probes/tree/9b771a1/Weave) | 機能を組み合わせたときだけ崩れる継ぎ目 | `v0.16.2` | 18 件 (mokume#1588・mokume#1641・mokume#1643〜1646・mokume#1648〜1658・mokume#1681) |
+| [Tumble](https://github.com/mokume-metal/probes/tree/9b771a1/Tumble) | 乱数から作った呼び出しの列 | `v0.16.2` | 10 件 (mokume#1065・mokume#1587・mokume#1589・mokume#1591・mokume#1594・mokume#1595・mokume#1604・mokume#1622・mokume#1691・mokume#1692) |
+| [Churn](https://github.com/mokume-metal/probes/tree/9b771a1/Churn) | 足し・消し・動かし続けた絵の履歴・数・同一性 | `v0.22.0` | 2 件 (mokume#2305・mokume#2306) |
+
+代償として、これらの観点 (フレームをまたぐ継ぎ目・条件の格子・機能の組み合わせ・資源・書き出し・乱数の列など) は、
+新しい版の上ではもう測られない。
+
+測り方は 4 通りある。
 
 - **Atlas** は語彙の台帳 (`ledger/`) を持ち、`checks.json` に版の刻印を持つ。
   `python3 scripts/verify.py --check` が「道具を上げたのに測り直していない」を捕まえる。
-- **Probe・Drift・Routine・Aftermath・Weave** は、同じ結果になるはずの 2 つの経路で描いて画素で比べる検査
+- **Routine** は、同じ結果になるはずの 2 つの経路で描いて画素で比べる検査
   (`Tests/`) を持つ。破れていた約束は `withKnownIssue` で包んであり、**mokume 側で直ると
   赤くなって知らせる。**
 - **Reach** は届く口の一覧 (`Sources/Reach/Entries*.swift`) を持ち、`swift test` で「届くと判定した
   口が描けるか」と「README の表が一覧と揃っているか」を見る。**穴が埋まったことは赤くならない**
   ので、版上げでは `python3 scripts/api-diff.py` で増えた口を一覧と突き合わせる。
-- **Soak** は、同じ仕事になるはずの 2 つの経路を N 枚回して**資源**で比べる検査 (`Tests/`) を持つ。
-  メモリは参照との増え方の差、時間は仕事を倍にしたときの比で見るので、機械に依らない。落ちる口は
-  exit test (子プロセス) に閉じ込める。破れは Probe と同じく `withKnownIssue` で包んである。
-- **Imprint** は、各フレームに番号を焼いて書き出させ、**ファイルを読み戻して**枚数・順序・時刻・
-  色・バイトを比べる検査 (`Tests/`) を持つ。稀にしか出ない破れは `isIntermittent` で包んであり、
-  直ったかどうかは `stress.py` で反復して見る。
-- **Lattice** は、条件 (面の大きさ・細かさ・fps) を振った絵どうしを、**成り立つはずの関係**
-  (鏡映・回転・切り抜き・縮小…) で比べる検査 (`Tests/`) を持つ。関係は mokume のどの経路にも
-  頼らない。破れは Probe と同じく `withKnownIssue` で包んである。
-- **Tumble** は、種から作った呼び出しの列を子プロセスで数千本回すドライバ (`Tumble/scripts/tumble.py`) と、
-  判定の陰性対照・固定の種の束・縮めた列・起票した再現を回す検査 (`Tests/`) を持つ。破れを探すのはドライバで、
-  `swift test` は見つけたものを `withKnownIssue` で押さえる。
-- **Churn** は、1 つのことだけが違う 2 つの経路 (前置きの履歴・runtime の積み重ね・比べる領域の外の数・置き方) を
-  回して、比べるフレーム・比べる領域の画素で比べる検査 (`Tests/`) を持つ。場面は種から作るので、種を変えて回せる。
-  破れは Probe と同じく `withKnownIssue` で包んである。
 - **Clause** は、DocC・ADR が書いた約束の 1 文ごとに、mokume だけで閉じた再現を置き、それを検査にする (`Tests/`)。
   再現は陰性対照 (破れない隣の条件) を先に確かめてから破れる条件を見るので、突けていないのに破れと数える取り違えが無い。
-  判定は画素の指紋ではなく値・ファイル・ポート・知らせの行で行う。破れは Probe と同じく `withKnownIssue` で包んである。
+  判定は画素の指紋ではなく値・ファイル・ポート・知らせの行で行う。破れは Routine と同じく `withKnownIssue` で包んである。
 
-**画素を見る 9 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble・Churn) と Imprint は、条件を変えて何度も回せる。**
+**画素を見る 2 本 (Routine・Reach) は、条件を変えて何度も回せる。**
 [`scripts/stress.py`](scripts/stress.py) が、次の条件で同じ検査を繰り返す。
 
 - そのまま
@@ -87,7 +85,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
 
 - **終わり方** — 落ちた・止まった・既知の問題の件数がゆれた
 - **描いた絵の指紋** — 同じフレーム番号からはバイト単位で同じ絵が出る約束 (mokume ADR-0001
-  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである (画素を見る 9 本だけ)
+  原則 2) なので、実行をまたいで食い違えば、許容誤差の内のずれでも破れである
 
 稀にしか出ない GPU 同期と並行性の破れを捕まえるための道具である
 ([ADR-0007](docs/decisions/0007-stress-and-determinism.md))。
@@ -105,7 +103,7 @@ mokume で作った作品は [works](https://github.com/mokume-metal/works) に�
   Package.resolved     どの mokume で測ったか。コミットする
   README.md            その物差しの記録
   Sources/<物差し>/     スケッチ
-  Tests/<物差し>Tests/  画素で比べる検査 (Probe・Drift・Routine)・資源で比べる検査 (Soak)
+  Tests/<物差し>Tests/  画素で比べる検査 (Routine・Reach)・約束の 1 文を確かめる検査 (Clause)
 ```
 
 **Atlas だけがこの形に収まらない。** Processing の例 157 本を**それぞれ独立した mokume の
@@ -121,26 +119,17 @@ mokume watch Atlas/Examples/Basics/Input/Mouse2D
 ## 走らせる
 
 ```bash
-mokume run Probe                      # 窓で左右に並べて見る
-(cd Probe && swift test)              # 窓を出さずに描いて、画素で比べる
-(cd Drift && swift test)
-(cd Routine && swift test)
+mokume run Routine                    # 窓で 2 つの経路を並べて見る
+(cd Routine && swift test)            # 窓を出さずに描いて、画素で比べる
 (cd Reach && swift test)
-(cd Soak && swift test)               # メモリ・時間・落ちるか (1 分ほど)
-(cd Aftermath && swift test)          # 失敗の後のフレームが汚れないか
-(cd Imprint && swift test)            # 書き出したファイルの中身
-(cd Lattice && swift test)            # 条件を振った絵どうしの関係
-(cd Weave && swift test)              # 機能を組み合わせたときだけ崩れる継ぎ目
-(cd Tumble && swift test)             # 乱数から作った呼び出しの列 (固定の種の束と、縮めた列)
-(cd Churn && swift test)              # 足し・消し・動かし続けた絵が履歴・数・同一性に引きずられないか
-python3 Tumble/scripts/tumble.py run --seeds '0..<3000'   # 種を回して破れを探す (10 分ほど)
+(cd Clause && swift test)             # 約束の 1 文を値・ファイル・ポートで
 python3 scripts/verify.py --check     # Atlas の台帳の版がずれていないか
-python3 scripts/stress.py             # 画素を見る 9 本と Imprint を反復・検証レイヤ・同時実行で (数十分)
-(cd Weave && PROBES_SHOTS=/tmp/shots swift test)   # 読んだ絵を /tmp/shots/Weave/<名前>-<フレーム>.png に書き出す
-python3 scripts/shots.py /tmp/shots/Weave addSky --frames 1-2   # 経路 2 つと差分を 1 枚 (2 枚以上なら GIF) に組む
+python3 scripts/stress.py             # 画素を見る 2 本を反復・検証レイヤ・同時実行で
+(cd Routine && PROBES_SHOTS=/tmp/shots swift test)   # 読んだ絵を /tmp/shots/Routine/<名前>-<フレーム>.png に書き出す
+python3 scripts/shots.py /tmp/shots/Routine glyphChurn --frames 1-2   # 経路 2 つと差分を 1 枚 (2 枚以上なら GIF) に組む
 ```
 
-画素を見る 9 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
+画素を見る 2 本は、`PROBES_SHOTS` を付けると読んだ絵を指紋と同じ名前で書き出す。mokume へ起票する
 ときに添える比べる絵の元で、組み方と上げ方は [`.claude/skills/probes-evidence/`](.claude/skills/probes-evidence/SKILL.md)
 にある。
 
@@ -161,7 +150,6 @@ python3 scripts/upstream.py    # 戻した Issue がどうなったか
 新しい版が出ると、`mokume watch` の workflow が日次で気付いて追随の Issue を立てる。
 手順は [`.claude/skills/probes-bump/`](.claude/skills/probes-bump/SKILL.md) にある。
 
-**11 本が mokume `v0.16.2` を引いている。** Probe・Drift は `v0.11.0`、Routine・Reach・Soak は `v0.11.1`、
-Aftermath・Imprint は `v0.11.2`、Lattice・Weave は `v0.12.0`、Tumble は `v0.12.1` で始め (測る版で始めた)、
-Atlas とあわせて `v0.16.2` へ揃えて上げた。**Churn だけは `v0.22.0` で始めた** (測る版で始める)。
-**Clause は `v0.22.1` で始め、`v0.35.0` の破れを起票するために 1 本だけ `v0.35.0` へ上げた** (#80)。
+**Atlas・Routine・Reach は mokume `v0.16.2`、Clause は `v0.35.0` を引いている。** Routine・Reach は `v0.11.1`、
+Clause は `v0.22.1` で始め (測る版で始めた)、Atlas・Routine・Reach は `v0.16.2` へ、Clause は `v0.35.0` の破れを起票するために
+1 本だけ `v0.35.0` へ上げた (#80)。

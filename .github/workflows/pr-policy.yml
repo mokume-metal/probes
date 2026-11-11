@@ -1,6 +1,6 @@
 # PR と起票の決まりごとを検査する。**main の ruleset が必須にしているのはこのジョブだけ**である。
 #
-# 物差しの本体の検査 (Probe・Drift の swift test) は画素を読むので Metal が要り、GitHub の
+# 物差しの本体の検査 (Routine・Reach・Clause の swift test) は画素を読むので Metal が要り、GitHub の
 # Linux の runner では回らない。手元で回して、結果を PR 本文に書く (CONTRIBUTING.md)。
 name: PR policy
 

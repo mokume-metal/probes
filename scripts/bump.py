@@ -2,7 +2,7 @@
 """物差しが引く mokume の版を上げる。
 
     python3 scripts/bump.py 0.7.0              # 全部
-    python3 scripts/bump.py 0.7.0 Probe Drift  # 名指し
+    python3 scripts/bump.py 0.7.0 Routine Clause  # 名指し
 
 **`from:` の書き換えは記録であって、留め金ではない。** SwiftPM の `from:` は 0.x を
 特別扱いしないので、古いまま置いても `swift package update` は新しい版を拾う
@@ -15,7 +15,7 @@
 書き直しは別の PR にする。
 
 上げたら、Atlas は `verify.py` で測り直す (**動いた絵の理由を README へ書いてから** `--update`)。
-Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave・Tumble・Churn・Clause は `swift test` を回す — 赤くなったものは直った約束である。Reach は
+Routine・Clause は `swift test` を回す — 赤くなったものは直った約束である。Reach は
 `swift test` に加えて、増えた口が穴の行を埋めていないかを見る。
 """
 
@@ -89,7 +89,7 @@ def main(argv: list[str]) -> int:
     if any(pieces.has_checks(p) for p in targets):
         print("\n**期待ハッシュはまだ古いままである。** 次に `python3 scripts/verify.py` で測り、"
               "動いた絵の理由を README へ書いてから `--update` で記録を進める。")
-    print("\n**Probe・Drift・Routine・Soak・Aftermath・Imprint・Lattice・Weave・Tumble・Churn・Clause は `swift test` を回す。** 赤くなったものは直った約束なので、"
+    print("\n**Routine・Clause は `swift test` を回す。** 赤くなったものは直った約束なので、"
           "`withKnownIssue` を外して README の表を書き換える。")
     print("**Reach も `swift test` を回し、`python3 scripts/api-diff.py` で増えた口が "
           "`none` / `write` / `bend` の行を埋めていないかを見る** (Reach/README「版を上げたら」)。")

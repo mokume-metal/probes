@@ -25,7 +25,7 @@
 
 ## 2. 再現を置く
 
-置き場は `<物差し>/Tests/<物差し>Tests/Repros/<鍵>.swift` (手本: [`Weave/Tests/WeaveTests/Repros/polylineJoin.swift`](../Weave/Tests/WeaveTests/Repros/polylineJoin.swift))。
+置き場は `<物差し>/Tests/<物差し>Tests/Repros/<鍵>.swift` (手本: [`Clause/Tests/ClauseTests/Repros/udpEmptyDatagram.swift`](../Clause/Tests/ClauseTests/Repros/udpEmptyDatagram.swift))。
 
 - 1 行目は `// repro: mokume#未起票` にする。起票して番号が付いたら `// repro: mokume#NNNN` に直す。
 - 読み込むのは `mokume` と `Foundation` だけ。`@testable import` も probes の `Stage`・`Picture`・`fingerprint` も使わない。比べる道具は、ファイルの中に数行で書く。

@@ -7,7 +7,7 @@
 
     from pieces import pieces, pinned, load_checks
 
-**台帳 (`checks.json`) を持つのは Atlas だけである。** Probe と Drift は台帳の代わりに
+**台帳 (`checks.json`) を持つのは Atlas だけである。** Routine と Clause は台帳の代わりに
 `swift test` を持ち、約束の破れを `withKnownIssue` で押さえる (ルート README)。Reach も
 `swift test` を持ち、一覧から README の表を起こす。
 台帳を歩く道具は `has_checks()` で先に絞る。

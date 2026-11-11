@@ -12,27 +12,26 @@ mokume-metal/works#80)。リポジトリには画像をコミットしない。
 ## 1. 物差しに絵を書き出させる
 
 ```bash
-(cd Weave && PROBES_SHOTS=/tmp/shots swift test --filter addSky)
-ls /tmp/shots/Weave        # addSky-suspect-1.png addSky-reference-1.png …
+(cd Routine && PROBES_SHOTS=/tmp/shots swift test --filter glyphChurn)
+ls /tmp/shots/Routine      # glyphChurn-suspect-1.png glyphChurn-reference-1.png …
 ```
 
-- 画素を見る 9 本 (Probe・Drift・Routine・Reach・Aftermath・Lattice・Weave・Tumble・Churn) の `Stage.swift` は、
+- 画素を見る 2 本 (Routine・Reach) の `Stage.swift` は、
   `fingerprint` に通した絵を、同じ名前とフレームで `<PROBES_SHOTS>/<物差し>/<name>-<frame>.png` に書く
   (`shoot`)。**書き出されるのは、検査が読んだフレームだけ**である。動きを見せたいフレームが要るなら、
   検査の `reading` を広げるか、候補の枚数を増やす。
-- 書くのは出す面 (`writePNG` = 表示に符号化した絵)。Lattice の `runDrawn` (`draw()` の中で描く面を
-  読む) は、出す面と中身が違うので書き出さない。
+- 書くのは出す面 (`writePNG` = 表示に符号化した絵)。
 - 変数を付けなければ何も書かず、指紋と既知の問題の件数も変わらない。
 
 ## 2. 3 枚並びと GIF に組む
 
 ```bash
-python3 scripts/shots.py /tmp/shots/Weave addFillStroke --issue 1643 \
-  --title "blendMode(.add) × 塗りと輪郭" --note "左: … / 中: …。何が起きているか" \
-  --left-label "組み合わせて 1 回で描く (suspect)" --right-label "1 つずつ使って合成 (reference)"
-python3 scripts/shots.py /tmp/shots/Weave polylineJoin --crop 60,60,100,100      # 拡大の段を足す
-python3 scripts/shots.py /tmp/shots/Weave addSky --frames 1-2                    # 2 枚以上は GIF
-python3 scripts/shots.py /tmp/shots/Lattice k --left mirror-a --right mirror-b   # 経路以外の対
+python3 scripts/shots.py /tmp/shots/Routine glyphChurn --issue 2308 \
+  --title "毎フレーム変わる字と大きさ" --note "左: … / 中: …。何が起きているか" \
+  --left-label "作品の書き方 (suspect)" --right-label "最初から同じ絵を描く (reference)"
+python3 scripts/shots.py /tmp/shots/Routine glyphChurn --crop 60,60,100,100     # 拡大の段を足す
+python3 scripts/shots.py /tmp/shots/Routine glyphChurn --frames 1-2             # 2 枚以上は GIF
+python3 scripts/shots.py /tmp/shots/Reach k --left a --right b                  # 経路以外の対
 ```
 
 - 出力は `/tmp/shots/composed/<物差し>-<key>.png` (または `.gif`)。版の刻印は `<物差し>/Package.resolved` から入る。
@@ -81,7 +80,7 @@ URL の並びは渡した順になるが、**バイトで突き合わせてか�
 
 ```bash
 curl -sL -H "Authorization: token $(gh auth token)" -o /tmp/got.png https://github.com/user-attachments/assets/<id>
-shasum -a 256 /tmp/got.png /tmp/shots/composed/Weave-addFillStroke.png
+shasum -a 256 /tmp/got.png /tmp/shots/composed/Routine-glyphChurn.png
 ```
 
 ## 5. 本文へ差し込む
